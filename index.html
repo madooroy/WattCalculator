@@ -166,7 +166,7 @@
             } else if (type === 'zones') {
                 document.getElementById('btn-zones').classList.add('active');
                 document.getElementById('zones-view').style.display = 'block';
-                document.getElementById('app-title').innerText = 'Power Zones';
+                document.getElementById('app-title').innerText = 'Power Training Zones';
                 updateZones();
             }
         }
@@ -204,13 +204,13 @@
             }
             
             document.getElementById('z1-range').innerText = "< " + Math.round(ftp * 0.55) + " W";
-            document.getElementById('z2-range').innerText = Math.round(ftp * 0.56) + " - " + Math.round(ftp * 0.75) + " W";
-            document.getElementById('z3-range').innerText = Math.round(ftp * 0.76) + " - " + Math.round(ftp * 0.90) + " W";
+            document.getElementById('z2-range').innerText = Math.round((ftp * 0.55) + 1) + " - " + Math.round(ftp * 0.75) + " W";
+            document.getElementById('z3-range').innerText = Math.round((ftp * 0.75) + 1) + " - " + Math.round(ftp * 0.90) + " W";
             document.getElementById('ss-range').innerText = Math.round(ftp * 0.88) + " - " + Math.round(ftp * 0.94) + " W";
-            document.getElementById('z4-range').innerText = Math.round(ftp * 0.91) + " - " + Math.round(ftp * 1.05) + " W";
-            document.getElementById('z5-range').innerText = Math.round(ftp * 1.06) + " - " + Math.round(ftp * 1.20) + " W";
-            document.getElementById('z6-range').innerText = Math.round(ftp * 1.21) + " - " + Math.round(ftp * 1.50) + " W";
-            document.getElementById('z7-range').innerText = "> " + Math.round(ftp * 1.51) + " W";
+            document.getElementById('z4-range').innerText = Math.round((ftp * 0.90) + 1) + " - " + Math.round(ftp * 1.05) + " W";
+            document.getElementById('z5-range').innerText = Math.round((ftp * 1.05) + 1) + " - " + Math.round(ftp * 1.20) + " W";
+            document.getElementById('z6-range').innerText = Math.round((ftp * 1.20) + 1) + " - " + Math.round(ftp * 1.50) + " W";
+            document.getElementById('z7-range').innerText = "> " + Math.round((ftp * 1.50) + 1) + " W";
         }
         window.onload = function() {
             var savedFtp = localStorage.getItem('cycling_ftp');
