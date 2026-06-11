@@ -1,0 +1,101 @@
+html<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cycling Calculator</title>
+    <!-- Makes it launch like an app on iPhone -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        :root { --bg: #f2f2f7; --card: #ffffff; --text: #000000; --accent: #007aff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: var(--text); }
+        .container { max-width: 400px; margin: 0 auto; }
+        h1 { font-size: 24px; text-align: center; margin-bottom: 20px; }
+        .tabs { display: flex; margin-bottom: 20px; background: #e5e5ea; padding: 2px; border-radius: 8px; }
+        .tab { flex: 1; text-align: center; padding: 8px 0; font-weight: 600; font-size: 14px; border-radius: 6px; cursor: pointer; border: none; background: transparent; }
+        .tab.active { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .card { background: var(--card); border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e5ea; padding: 12px 0; }
+        .row:last-child { border-bottom: none; }
+        label { font-size: 16px; }
+        input { border: none; text-align: right; font-size: 16px; width: 50%; outline: none; }
+        .result-box { text-align: center; padding: 20px 0; }
+        .result-val { font-size: 32px; font-weight: bold; color: var(--accent); margin-bottom: 4px; }
+        .result-lbl { font-size: 14px; color: #8e8e93; text-transform: uppercase; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="app-title">Calculate kJ</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('kj')">Find kJ</button>
+            <button class="tab" onclick="switchTab('watts')">Find Watts</button>
+        </div>
+
+        <!-- TAB 1: FIND KJ -->
+        <div id="kj-view">
+            <div class="card">
+                <div class="row">
+                    <label>Average Watts</label>
+                    <input type="number" id="watts-in" placeholder="0" oninput="calcKJ()">
+                </div>
+                <div class="row">
+                    <label>Time (Minutes)</label>
+                    <input type="number" id="kj-min-in" placeholder="0" oninput="calcKJ()">
+                </div>
+            </div>
+            <div class="card result-box">
+                <div class="result-val" id="kj-out">0.0</div>
+                <div class="result-lbl">Total Kilojoules</div>
+            </div>
+        </div>
+
+        <!-- TAB 2: FIND WATTS -->
+        <div id="watts-view" class="hidden">
+            <div class="card">
+                <div class="row">
+                    <label>Total Kilojoules</label>
+                    <input type="number" id="kj-in" placeholder="0" oninput="calcWatts()">
+                </div>
+                <div class="row">
+                    <label>Time (Minutes)</label>
+                    <input type="number" id="watts-min-in" placeholder="0" oninput="calcWatts()">
+                </div>
+            </div>
+            <div class="card result-box">
+                <div class="result-val" id="watts-out" style="color: #34c759;">0</div>
+                <div class="result-lbl">Average Watts</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(type) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs[0].classList.toggle('active', type === 'kj');
+            tabs[1].classList.toggle('active', type === 'watts');
+            document.getElementById('kj-view').classList.toggle('hidden', type !== 'kj');
+            document.getElementById('watts-view').classList.toggle('hidden', type !== 'watts');
+            document.getElementById('app-title').innerText = type === 'kj' ? 'Calculate kJ' : 'Calculate Watts';
+        }
+
+        function calcKJ() {
+            const watts = parseFloat(document.getElementById('watts-in').value) || 0;
+            const min = parseFloat(document.getElementById('kj-min-in').value) || 0;
+            const kj = (watts * (min * 60)) / 1000;
+            document.getElementById('kj-out').innerText = kj.toFixed(1);
+        }
+
+        function calcWatts() {
+            const kj = parseFloat(document.getElementById('kj-in').value) || 0;
+            const min = parseFloat(document.getElementById('watts-min-in').value) || 0;
+            if (min <= 0) { document.getElementById('watts-out').innerText = "0"; return; }
+            const watts = (kj * 1000) / (min * 60);
+            document.getElementById('watts-out').innerText = Math.round(watts);
+        }
+    </script>
+</body>
+</html>
