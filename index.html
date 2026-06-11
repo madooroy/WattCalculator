@@ -4,44 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cycling Calculator</title>
+    <!-- Makes it launch like an app on iPhone -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        :root { 
-            --bg: #f2f2f7; --card: #ffffff; --text: #000000; --accent: #007aff;
-            --z1: #8e8e93; --z2: #34c759; --z3: #007aff; --z4: #ff9500; --z5: #ff3b30; --z6: #af52de; --z7: #5856d6; --ss: #5ac8fa;
-        }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 40px; }
-        .container { max-width: 450px; margin: 0 auto; }
-        h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
-        .tabs { display: flex; margin-bottom: 15px; background: #e5e5ea; padding: 2px; border-radius: 8px; }
-        .tab { flex: 1; text-align: center; padding: 8px 0; font-weight: 600; font-size: 13px; border-radius: 6px; cursor: pointer; border: none; background: transparent; }
+        :root { --bg: #f2f2f7; --card: #ffffff; --text: #000000; --accent: #007aff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: var(--text); }
+        .container { max-width: 400px; margin: 0 auto; }
+        h1 { font-size: 24px; text-align: center; margin-bottom: 20px; }
+        .tabs { display: flex; margin-bottom: 20px; background: #e5e5ea; padding: 2px; border-radius: 8px; }
+        .tab { flex: 1; text-align: center; padding: 8px 0; font-weight: 600; font-size: 14px; border-radius: 6px; cursor: pointer; border: none; background: transparent; }
         .tab.active { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .card { background: var(--card); border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e5ea; padding: 10px 0; }
+        .card { background: var(--card); border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e5ea; padding: 12px 0; }
         .row:last-child { border-bottom: none; }
-        label { font-size: 15px; font-weight: 500; }
-        input { border: none; text-align: right; font-size: 16px; width: 45%; outline: none; background: transparent; font-weight: bold; }
-        .result-box { text-align: center; padding: 15px 0; }
-        .result-val { font-size: 30px; font-weight: bold; color: var(--accent); margin-bottom: 4px; }
-        .result-lbl { font-size: 13px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+        label { font-size: 16px; }
+        input { border: none; text-align: right; font-size: 16px; width: 50%; outline: none; }
+        .result-box { text-align: center; padding: 20px 0; }
+        .result-val { font-size: 32px; font-weight: bold; color: var(--accent); margin-bottom: 4px; }
+        .result-lbl { font-size: 14px; color: #8e8e93; text-transform: uppercase; }
         .hidden { display: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 14px; }
-        th { text-align: left; padding: 8px; border-bottom: 2px solid #e5e5ea; color: #8e8e93; font-weight: 600; font-size: 12px; text-transform: uppercase; }
-        td { padding: 10px 8px; border-bottom: 1px solid #f2f2f7; }
-        tr:last-child td { border-bottom: none; }
-        .zone-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; font-weight: bold; font-size: 11px; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-        .range-col { text-align: right; font-family: monospace; font-size: 14px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 id="app-title">Calculate kJ</h1>
+        
         <div class="tabs">
             <button class="tab active" onclick="switchTab('kj')">Find kJ</button>
             <button class="tab" onclick="switchTab('watts')">Find Watts</button>
-            <button class="tab" onclick="switchTab('zones')">Power Zones</button>
         </div>
+
         <!-- TAB 1: FIND KJ -->
         <div id="kj-view">
             <div class="card">
@@ -59,6 +52,7 @@
                 <div class="result-lbl">Total Kilojoules</div>
             </div>
         </div>
+
         <!-- TAB 2: FIND WATTS -->
         <div id="watts-view" class="hidden">
             <div class="card">
@@ -76,80 +70,25 @@
                 <div class="result-lbl">Average Watts</div>
             </div>
         </div>
-        <!-- TAB 3: POWER ZONES -->
-        <div id="zones-view" class="hidden">
-            <div class="card">
-                <div class="row">
-                    <label>Enter Your FTP (Watts)</label>
-                    <input type="number" id="ftp-in" placeholder="250" value="250" oninput="updateZones()">
-                </div>
-            </div>
-            <div class="card" style="padding: 8px;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Zone / Label</th>
-                            <th style="text-align: right;">Target Range</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z1);">Zone 1</span> Active Recovery</td>
-                            <td class="range-col" id="z1-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z2);">Zone 2</span> Endurance</td>
-                            <td class="range-col" id="z2-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z3);">Zone 3</span> Tempo</td>
-                            <td class="range-col" id="z3-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--ss);">Sweet Spot</span> Sweet Spot</td>
-                            <td class="range-col" id="ss-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z4);">Zone 4</span> Threshold</td>
-                            <td class="range-col" id="z4-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z5);">Zone 5</span> VO2 Max</td>
-                            <td class="range-col" id="z5-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z6);">Zone 6</span> Anaerobic</td>
-                            <td class="range-col" id="z6-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z7);">Zone 7</span> Neuromuscular</td>
-                            <td class="range-col" id="z7-range">> 0 W</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
+
     <script>
         function switchTab(type) {
-            const btnTabs = document.querySelectorAll('.tab');
-            btnTabs.forEach((btn, idx) => {
-                btn.classList.toggle('active', (idx === 0 && type === 'kj') || (idx === 1 && type === 'watts') || (idx === 2 && type === 'zones'));
-            });
+            const tabs = document.querySelectorAll('.tab');
+            tabs[0].classList.toggle('active', type === 'kj');
+            tabs[1].classList.toggle('active', type === 'watts');
             document.getElementById('kj-view').classList.toggle('hidden', type !== 'kj');
             document.getElementById('watts-view').classList.toggle('hidden', type !== 'watts');
-            document.getElementById('zones-view').classList.toggle('hidden', type !== 'zones');
-            let title = 'Calculate kJ';
-            if (type === 'watts') title = 'Calculate Watts';
-            if (type === 'zones') { title = 'Power Training Zones'; updateZones(); }
-            document.getElementById('app-title').innerText = title;
+            document.getElementById('app-title').innerText = type === 'kj' ? 'Calculate kJ' : 'Calculate Watts';
         }
+
         function calcKJ() {
             const watts = parseFloat(document.getElementById('watts-in').value) || 0;
             const min = parseFloat(document.getElementById('kj-min-in').value) || 0;
             const kj = (watts * (min * 60)) / 1000;
             document.getElementById('kj-out').innerText = kj.toFixed(1);
         }
+
         function calcWatts() {
             const kj = parseFloat(document.getElementById('kj-in').value) || 0;
             const min = parseFloat(document.getElementById('watts-min-in').value) || 0;
@@ -157,18 +96,6 @@
             const watts = (kj * 1000) / (min * 60);
             document.getElementById('watts-out').innerText = Math.round(watts);
         }
-        function updateZones() {
-            const ftp = parseFloat(document.getElementById('ftp-in').value) || 0;
-            document.getElementById('z1-range').innerText = `< ${Math.round(ftp * 0.55)} W`;
-            document.getElementById('z2-range').innerText = `${Math.round(ftp * 0.56)} - ${Math.round(ftp * 0.75)} W`;
-            document.getElementById('z3-range').innerText = `${Math.round(ftp * 0.76)} - ${Math.round(ftp * 0.90)} W`;
-            document.getElementById('ss-range').innerText = `${Math.round(ftp * 0.88)} - ${Math.round(ftp * 0.94)} W`;
-            document.getElementById('z4-range').innerText = `${Math.round(ftp * 0.91)} - ${Math.round(ftp * 1.05)} W`;
-            document.getElementById('z5-range').innerText = `${Math.round(ftp * 1.06)} - ${Math.round(ftp * 1.20)} W`;
-            document.getElementById('z6-range').innerText = ${Math.round(ftp * 1.21)} - ${Math.round(ftp * 1.50)} W`;
-            document.getElementById('z7-range').innerText = > ${Math.round(ftp * 1.51)} W;}updateZones();
-          }
     </script>
 </body>
-</html>   
-            
+</html>
