@@ -42,7 +42,7 @@
             <button id="btn-watts" class="tab" onclick="switchTab('watts')">Find Watts</button>
             <button id="btn-zones" class="tab" onclick="switchTab('zones')">Power Zones</button>
         </div>
-        <!-- TAB 1 -->
+        <!-- TAB 1: FIND KJ -->
         <div id="kj-view">
             <div class="card">
                 <div class="row">
@@ -59,7 +59,7 @@
                 <div class="result-lbl">Total Kilojoules</div>
             </div>
         </div>
-        <!-- TAB 2 -->
+        <!-- TAB 2: FIND WATTS -->
         <div id="watts-view" class="hidden">
             <div class="card">
                 <div class="row">
@@ -76,14 +76,31 @@
                 <div class="result-lbl">Average Watts</div>
             </div>
         </div>
-        <!-- TAB 3 -->
+        <!-- TAB 3: POWER ZONES -->
         <div id="zones-view" class="hidden">
             <div class="card">
                 <div class="row">
                     <label>Enter Your FTP (Watts)</label>
                     <input type="number" id="ftp-in" placeholder="250" value="250" oninput="updateZones()">
                 </div>
+                <div class="row">
+                    <label>Weight Unit</label>
+                    <select id="weight-unit" onchange="updateZones()" style="font-size:15px; font-weight:bold; border:none; background:transparent; outline:none; text-align:right;">
+                        <option value="lbs">lbs</option>
+                        <option value="kg">kg</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <label>Enter Your Weight</label>
+                    <input type="number" id="weight-in" placeholder="165" value="165" oninput="updateZones()">
+                </div>
             </div>
+            
+            <div class="card result-box" style="margin-bottom: 14px;">
+                <div class="result-val" id="wkg-out" style="color: #af52de;">0.00</div>
+                <div class="result-lbl">Power to Weight Ratio (W/kg)</div>
+            </div>
+
             <div class="card" style="padding: 8px;">
                 <table>
                     <thead>
@@ -149,7 +166,7 @@
             } else if (type === 'zones') {
                 document.getElementById('btn-zones').classList.add('active');
                 document.getElementById('zones-view').style.display = 'block';
-                document.getElementById('app-title').innerText = 'Power Zones';
+                document.getElementById('app-title').innerText = 'Power Training Zones';
                 updateZones();
             }
         }
@@ -168,6 +185,24 @@
         }
         function updateZones() {
             var ftp = parseFloat(document.getElementById('ftp-in').value) || 0;
+            var weight = parseFloat(document.getElementById('weight-in').value) || 0;
+            var unit = document.getElementById('weight-unit').value;
+            
+            localStorage.setItem('cycling_ftp', ftp);
+            localStorage.setItem('cycling_weight', weight);
+            localStorage.setItem('cycling_unit', unit);
+            
+            var weightInKg = weight;
+            if (unit === 'lbs' && weight > 0) {
+                weightInKg = weight / 2.20462;
+            }
+            if (weightInKg > 0 && ftp > 0) {
+                var wkg = ftp / weightInKg;
+                document.getElementById('wkg-out').innerText = wkg.toFixed(2);
+            } else {
+                document.getElementById('wkg-out').innerText = "0.00";
+            }
+            
             document.getElementById('z1-range').innerText = "< " + Math.round(ftp * 0.55) + " W";
             document.getElementById('z2-range').innerText = Math.round(ftp * 0.56) + " - " + Math.round(ftp * 0.75) + " W";
             document.getElementById('z3-range').innerText = Math.round(ftp * 0.76) + " - " + Math.round(ftp * 0.90) + " W";
@@ -177,7 +212,15 @@
             document.getElementById('z6-range').innerText = Math.round(ftp * 1.21) + " - " + Math.round(ftp * 1.50) + " W";
             document.getElementById('z7-range').innerText = "> " + Math.round(ftp * 1.51) + " W";
         }
-        updateZones();
+        window.onload = function() {
+            var savedFtp = localStorage.getItem('cycling_ftp');
+            var savedWeight = localStorage.getItem('cycling_weight');
+            var savedUnit = localStorage.getItem('cycling_unit');
+            if (savedFtp !== null) { document.getElementById('ftp-in').value = savedFtp; }
+            if (savedWeight !== null) { document.getElementById('weight-in').value = savedWeight; }
+            if (savedUnit !== null) { document.getElementById('weight-unit').value = savedUnit; }
+            updateZones();
+        };
     </script>
 </body>
 </html>
