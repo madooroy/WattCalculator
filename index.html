@@ -15,13 +15,14 @@
         .container { max-width: 450px; margin: 0 auto; }
         h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
         .tabs { display: flex; margin-bottom: 15px; background: #e5e5ea; padding: 2px; border-radius: 8px; }
-        .tab { flex: 1; text-align: center; padding: 8px 0; font-weight: 600; font-size: 13px; border-radius: 6px; cursor: pointer; border: none; background: transparent; }
+        .tab { flex: 1; text-align: center; padding: 8px 0; font-weight: 600; font-size: 11px; border-radius: 6px; cursor: pointer; border: none; background: transparent; text-transform: uppercase; }
         .tab.active { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .card { background: var(--card); border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e5ea; padding: 10px 0; }
         .row:last-child { border-bottom: none; }
         label { font-size: 15px; font-weight: 500; }
-        input { border: none; text-align: right; font-size: 16px; width: 45%; outline: none; background: transparent; font-weight: bold; }
+        input, select { border: none; text-align: right; font-size: 16px; width: 45%; outline: none; background: transparent; font-weight: bold; }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; cursor: pointer; color: var(--accent); }
         .result-box { text-align: center; padding: 15px 0; }
         .result-val { font-size: 30px; font-weight: bold; color: var(--accent); margin-bottom: 4px; }
         .result-lbl { font-size: 13px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -41,7 +42,9 @@
             <button id="btn-kj" class="tab active" onclick="switchTab('kj')">Find kJ</button>
             <button id="btn-watts" class="tab" onclick="switchTab('watts')">Find Watts</button>
             <button id="btn-zones" class="tab" onclick="switchTab('zones')">Power Zones</button>
+            <button id="btn-hr" class="tab" onclick="switchTab('hr')">HR Zones</button>
         </div>
+        
         <!-- TAB 1: FIND KJ -->
         <div id="kj-view">
             <div class="card">
@@ -59,8 +62,9 @@
                 <div class="result-lbl">Total Kilojoules</div>
             </div>
         </div>
+        
         <!-- TAB 2: FIND WATTS -->
-        <div id="watts-view" class="hidden">
+        <div id="watts-view" style="display: none;">
             <div class="card">
                 <div class="row">
                     <label>Total Kilojoules</label>
@@ -76,8 +80,9 @@
                 <div class="result-lbl">Average Watts</div>
             </div>
         </div>
+        
         <!-- TAB 3: POWER ZONES -->
-        <div id="zones-view" class="hidden">
+        <div id="zones-view" style="display: none;">
             <div class="card">
                 <div class="row">
                     <label>Enter Your FTP (Watts)</label>
@@ -85,7 +90,7 @@
                 </div>
                 <div class="row">
                     <label>Weight Unit</label>
-                    <select id="weight-unit" onchange="updateZones()" style="font-size:15px; font-weight:bold; border:none; background:transparent; outline:none; text-align:right;">
+                    <select id="weight-unit" onchange="updateZones()">
                         <option value="lbs">lbs</option>
                         <option value="kg">kg</option>
                     </select>
@@ -110,38 +115,49 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr><td><span class="zone-badge" style="background: var(--z1);">Zone 1</span> Active Recovery</td><td class="range-col" id="z1-range">0 - 0 W</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--z2);">Zone 2</span> Endurance</td><td class="range-col" id="z2-range">0 - 0 W</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--z3);">Zone 3</span> Tempo</td><td class="range-col" id="z3-range">0 - 0 W</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--ss);">Sweet Spot</span> Sweet Spot</td><td class="range-col" id="ss-range">0 - 0 W</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--z4);">Zone 4</span> Threshold</td><td class="range-col" id="z4-range">0 - 0 W</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--z5);">Zone 5</span> VO2 Max</td><td class="range-col" id="z5-range">0 - 0 W</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--z6);">Zone 6</span> Anaerobic</td><td class="range-col" id="z6-range">0 - 0 W</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--z7);">Zone 7</span> Neuromuscular</td><td class="range-col" id="z7-range">> 0 W</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 4: HEART RATE ZONES -->
+        <div id="hr-view" style="display: none;">
+            <div class="card">
+                <div class="row">
+                    <label>Calculation Method</label>
+                    <select id="hr-metric-type" onchange="updateHRZones()">
+                        <option value="max">Maximum HR</option>
+                        <option value="lthr">Lactate Threshold (LTHR)</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <label id="hr-input-label">Max Heart Rate (BPM)</label>
+                    <input type="number" id="hr-value-in" placeholder="170" value="170" oninput="updateHRZones()">
+                </div>
+            </div>
+
+            <div class="card" style="padding: 8px;">
+                <table>
+                    <thead>
                         <tr>
-                            <td><span class="zone-badge" style="background: var(--z1);">Zone 1</span> Active Recovery</td>
-                            <td class="range-col" id="z1-range">0 - 0 W</td>
+                            <th>Zone / Label</th>
+                            <th style="text-align: right;">Target Range</th>
                         </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z2);">Zone 2</span> Endurance</td>
-                            <td class="range-col" id="z2-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z3);">Zone 3</span> Tempo</td>
-                            <td class="range-col" id="z3-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--ss);">Sweet Spot</span> Sweet Spot</td>
-                            <td class="range-col" id="ss-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z4);">Zone 4</span> Threshold</td>
-                            <td class="range-col" id="z4-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z5);">Zone 5</span> VO2 Max</td>
-                            <td class="range-col" id="z5-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z6);">Zone 6</span> Anaerobic</td>
-                            <td class="range-col" id="z6-range">0 - 0 W</td>
-                        </tr>
-                        <tr>
-                            <td><span class="zone-badge" style="background: var(--z7);">Zone 7</span> Neuromuscular</td>
-                            <td class="range-col" id="z7-range">> 0 W</td>
-                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="zone-badge" style="background: var(--z1);">Zone 1</span> Active Recovery</td><td class="range-col" id="hr1-range">0 - 0 BPM</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--z2);">Zone 2</span> Aerobic Capacity</td><td class="range-col" id="hr2-range">0 - 0 BPM</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--z3);">Zone 3</span> Tempo</td><td class="range-col" id="hr4-range">0 - 0 BPM</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--z4);">Zone 4</span> Threshold</td><td class="range-col" id="hr5-range">0 - 0 BPM</td></tr>
+                        <tr><td><span class="zone-badge" style="background: var(--z5);">Zone 5</span> VO2 Max</td><td class="range-col" id="hr6-range">> 0 BPM</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -152,9 +168,13 @@
             document.getElementById('btn-kj').classList.remove('active');
             document.getElementById('btn-watts').classList.remove('active');
             document.getElementById('btn-zones').classList.remove('active');
+            document.getElementById('btn-hr').classList.remove('active');
+            
             document.getElementById('kj-view').style.display = 'none';
             document.getElementById('watts-view').style.display = 'none';
             document.getElementById('zones-view').style.display = 'none';
+            document.getElementById('hr-view').style.display = 'none';
+            
             if (type === 'kj') {
                 document.getElementById('btn-kj').classList.add('active');
                 document.getElementById('kj-view').style.display = 'block';
@@ -168,14 +188,21 @@
                 document.getElementById('zones-view').style.display = 'block';
                 document.getElementById('app-title').innerText = 'Power Zones';
                 updateZones();
+            } else if (type === 'hr') {
+                document.getElementById('btn-hr').classList.add('active');
+                document.getElementById('hr-view').style.display = 'block';
+                document.getElementById('app-title').innerText = 'Heart Rate Zones';
+                updateHRZones();
             }
         }
+
         function calcKJ() {
             var watts = parseFloat(document.getElementById('watts-in').value) || 0;
             var min = parseFloat(document.getElementById('kj-min-in').value) || 0;
             var kj = (watts * (min * 60)) / 1000;
             document.getElementById('kj-out').innerText = kj.toFixed(1);
         }
+
         function calcWatts() {
             var kj = parseFloat(document.getElementById('kj-in').value) || 0;
             var min = parseFloat(document.getElementById('watts-min-in').value) || 0;
@@ -183,6 +210,7 @@
             var watts = (kj * 1000) / (min * 60);
             document.getElementById('watts-out').innerText = Math.round(watts);
         }
+
         function updateZones() {
             var ftp = parseFloat(document.getElementById('ftp-in').value) || 0;
             var weight = parseFloat(document.getElementById('weight-in').value) || 0;
@@ -193,9 +221,7 @@
             localStorage.setItem('cycling_unit', unit);
             
             var weightInKg = weight;
-            if (unit === 'lbs' && weight > 0) {
-                weightInKg = weight / 2.20462;
-            }
+            if (unit === 'lbs' && weight > 0) { weightInKg = weight / 2.20462; }
             if (weightInKg > 0 && ftp > 0) {
                 var wkg = ftp / weightInKg;
                 document.getElementById('wkg-out').innerText = wkg.toFixed(2);
@@ -212,15 +238,63 @@
             document.getElementById('z6-range').innerText = Math.round((ftp * 1.20) + 1) + " - " + Math.round(ftp * 1.50) + " W";
             document.getElementById('z7-range').innerText = "> " + Math.round((ftp * 1.50) + 1) + " W";
         }
+
+        function updateHRZones() {
+            var metricType = document.getElementById('hr-metric-type').value;
+            var hrVal = parseFloat(document.getElementById('hr-value-in').value) || 0;
+            
+            localStorage.setItem('cycling_hr_metric_type', metricType);
+            localStorage.setItem('cycling_hr_value', hrVal);
+
+            var labelEl = document.getElementById('hr-input-label');
+            var z1Max, z2Min, z2Max, z3Min, z3Max, z4Min, z4Max, z5Min;
+
+            if (metricType === 'max') {
+                labelEl.innerText = "Max Heart Rate (BPM)";
+                z1Max = Math.round(hrVal * 0.65);
+                z2Min = z1Max + 1;
+                z2Max = Math.round(hrVal * 0.75);
+                z3Min = z2Max + 1;
+                z3Max = Math.round(hrVal * 0.85);
+                z4Min = z3Max + 1;
+                z4Max = Math.round(hrVal * 0.95);
+                z5Min = z4Max + 1;
+            } else {
+                labelEl.innerText = "Lactate Threshold HR (BPM)";
+                z1Max = Math.round(hrVal * 0.68);
+                z2Min = z1Max + 1;
+                z2Max = Math.round(hrVal * 0.83);
+                z3Min = z2Max + 1;
+                z3Max = Math.round(hrVal * 0.94);
+                z4Min = z3Max + 1;
+                z4Max = Math.round(hrVal * 1.05);
+                z5Min = z4Max + 1;
+            }
+
+            document.getElementById('hr1-range').innerText = "0 - " + z1Max + " BPM";
+            document.getElementById('hr2-range').innerText = z2Min + " - " + z2Max + " BPM";
+            document.getElementById('hr4-range').innerText = z3Min + " - " + z3Max + " BPM";
+            document.getElementById('hr5-range').innerText = z4Min + " - " + z4Max + " BPM";
+            document.getElementById('hr6-range').innerText = "> " + z5Min + " BPM";
+        }
+
         window.onload = function() {
             var savedFtp = localStorage.getItem('cycling_ftp');
             var savedWeight = localStorage.getItem('cycling_weight');
             var savedUnit = localStorage.getItem('cycling_unit');
+            var savedHrMetric = localStorage.getItem('cycling_hr_metric_type');
+            var savedHrValue = localStorage.getItem('cycling_hr_value');
+            
             if (savedFtp !== null) { document.getElementById('ftp-in').value = savedFtp; }
             if (savedWeight !== null) { document.getElementById('weight-in').value = savedWeight; }
             if (savedUnit !== null) { document.getElementById('weight-unit').value = savedUnit; }
+            if (savedHrMetric !== null) { document.getElementById('hr-metric-type').value = savedHrMetric; }
+            if (savedHrValue !== null) { document.getElementById('hr-value-in').value = savedHrValue; }
+            
             updateZones();
+            updateHRZones();
         };
     </script>
 </body>
 </html>
+       
