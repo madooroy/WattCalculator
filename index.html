@@ -240,43 +240,38 @@
         }
 
         function updateHRZones() {
-            var metricType = document.getElementById('hr-metric-type').value;
-            var hrVal = parseFloat(document.getElementById('hr-value-in').value) || 0;
-            
-            localStorage.setItem('cycling_hr_metric_type', metricType);
-            localStorage.setItem('cycling_hr_value', hrVal);
+ var metricType = document.getElementById('hr-metric-type').value;
+ var hrVal = parseFloat(document.getElementById('hr-value-in').value) || 0;
+ 
+ localStorage.setItem('cycling_hr_metric_type', metricType);
+ localStorage.setItem('cycling_hr_value', hrVal);
+ var labelEl = document.getElementById('hr-input-label');
+ var z1Max, z2Min, z2Max, z3Min, z3Max, z4Min, z4Max, z5Min;
+ if (metricType === 'max') {
+ labelEl.innerText = "Max Heart Rate (BPM)";
+ z1Max = Math.round(hrVal * 0.65) - 1;
+ z2Min = z1Max + 1;
+ z2Max = Math.round(hrVal * 0.75);
+ } else {
+ labelEl.innerText = "Lactate Threshold HR (BPM)";
+ z1Max = Math.round(hrVal * 0.68) - 1;
+ z2Min = z1Max + 1;
+ z2Max = Math.round(hrVal * 0.83);
+ }
+ z3Min = z2Max + 1;
+ z3Max = Math.round(hrVal * 0.85);
+ if (metricType === 'lthr') { z3Max = Math.round(hrVal * 0.94); }
+ z4Min = z3Max + 1;
+ z4Max = Math.round(hrVal * 0.95);
+ if (metricType === 'lthr') { z4Max = Math.round(hrVal * 1.05); }
+ z5Min = z4Max + 1;
 
-            var labelEl = document.getElementById('hr-input-label');
-            var z1Max, z2Min, z2Max, z3Min, z3Max, z4Min, z4Max, z5Min;
-
-            if (metricType === 'max') {
-                labelEl.innerText = "Max Heart Rate (BPM)";
-                z1Max = Math.round(hrVal * 0.65);
-                z2Min = z1Max + 1;
-                z2Max = Math.round(hrVal * 0.75);
-                z3Min = z2Max + 1;
-                z3Max = Math.round(hrVal * 0.85);
-                z4Min = z3Max + 1;
-                z4Max = Math.round(hrVal * 0.95);
-                z5Min = z4Max + 1;
-            } else {
-                labelEl.innerText = "Lactate Threshold HR (BPM)";
-                z1Max = Math.round(hrVal * 0.68);
-                z2Min = z1Max + 1;
-                z2Max = Math.round(hrVal * 0.83);
-                z3Min = z2Max + 1;
-                z3Max = Math.round(hrVal * 0.94);
-                z4Min = z3Max + 1;
-                z4Max = Math.round(hrVal * 1.05);
-                z5Min = z4Max + 1;
-            }
-
-            document.getElementById('hr1-range').innerText = "0 - " + z1Max + " BPM";
-            document.getElementById('hr2-range').innerText = z2Min + " - " + z2Max + " BPM";
-            document.getElementById('hr4-range').innerText = z3Min + " - " + z3Max + " BPM";
-            document.getElementById('hr5-range').innerText = z4Min + " - " + z4Max + " BPM";
-            document.getElementById('hr6-range').innerText = "> " + z5Min + " BPM";
-        }
+ document.getElementById('hr1-range').innerText = "< " + (z1Max + 1) + " BPM";
+ document.getElementById('hr2-range').innerText = z2Min + " - " + z2Max + " BPM";
+ document.getElementById('hr4-range').innerText = z3Min + " - " + z3Max + " BPM";
+ document.getElementById('hr5-range').innerText = z4Min + " - " + z4Max + " BPM";
+ document.getElementById('hr6-range').innerText = "> " + z5Min + " BPM";
+}
 
         window.onload = function() {
             var savedFtp = localStorage.getItem('cycling_ftp');
