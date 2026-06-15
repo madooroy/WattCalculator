@@ -1,248 +1,316 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cycling Calculator</title>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <style>
-        :root { 
-            --bg: #f2f2f7; --card: #ffffff; --text: #000000; --accent: #007aff;
-            --z1: #8e8e93; --z2: #34c759; --z3: #007aff; --z4: #ff9500; --z5: #ff3b30; --z6: #af52de; --z7: #5856d6; --ss: #5ac8fa;
-        }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 40px; }
-        .container { max-width: 450px; margin: 0 auto; }
-        h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
-        .tabs { display: flex; margin-bottom: 15px; background: #e5e5ea; padding: 2px; border-radius: 8px; }
-        .tab { flex: 1; text-align: center; padding: 8px 0; font-weight: 600; font-size: 11px; border-radius: 6px; cursor: pointer; border: none; background: transparent; text-transform: uppercase; }
-        .tab.active { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .card { background: var(--card); border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e5ea; padding: 10px 0; }
-        .row:last-child { border-bottom: none; }
-        label { font-size: 15px; font-weight: 500; }
-        input, select { border: none; text-align: right; font-size: 16px; width: 45%; outline: none; background: transparent; font-weight: bold; }
-        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; cursor: pointer; color: var(--accent); }
-        .result-box { text-align: center; padding: 15px 0; }
-        .result-val { font-size: 30px; font-weight: bold; color: var(--accent); margin-bottom: 4px; }
-        .result-lbl { font-size: 13px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
-        .hidden { display: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 14px; }
-        th { text-align: left; padding: 8px; border-bottom: 2px solid #e5e5ea; color: #8e8e93; font-weight: 600; font-size: 12px; text-transform: uppercase; }
-        td { padding: 10px 8px; border-bottom: 1px solid #f2f2f7; }
-        tr:last-child td { border-bottom: none; }
-        .zone-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; font-weight: bold; font-size: 11px; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-        .range-col { text-align: right; font-family: monospace; font-size: 14px; font-weight: bold; }
-    </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+ <title>Cycling Calculator</title>
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+ <style>
+ :root { 
+ --bg: #f2f2f7; --card: #ffffff; --text: #000000; --accent: #007aff;
+ --z1: #8e8e93; --z2: #34c759; --z3: #007aff; --z4: #ff9500; --z5: #ff3b30; --z6: #af52de; --z7: #5856d6; --ss: #5ac8fa;
+ /* Peloton Color Schemes */
+ --p-z1: #8283fb; --p-z2: #34baff; --p-z3: #0bdaa6; --p-ss: #98c34f; --p-z4: #a7da0e; --p-z5: #ffc61a; --p-z6: #fe8b32; --p-z7: #ec4655;
+ }
+ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 40px; }
+ .container { max-width: 450px; margin: 0 auto; }
+ h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
+ .tabs { display: flex; margin-bottom: 15px; background: #e5e5ea; padding: 2px; border-radius: 8px; }
+ .tab { flex: 1; text-align: center; padding: 8px 0; font-weight: 600; font-size: 11px; border-radius: 6px; cursor: pointer; border: none; background: transparent; text-transform: uppercase; }
+ .tab.active { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+ 
+ .sub-tabs { display: flex; margin-bottom: 12px; background: #e5e5ea; padding: 2px; border-radius: 6px; }
+ .sub-tab { flex: 1; text-align: center; padding: 6px 0; font-weight: 600; font-size: 10px; border-radius: 4px; cursor: pointer; border: none; background: transparent; text-transform: uppercase; color: #8e8e93; }
+ .sub-tab.active { background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.08); color: var(--text); }
+ 
+ .card { background: var(--card); border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+ .row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e5ea; padding: 10px 0; }
+ .row:last-child { border-bottom: none; }
+ label { font-size: 15px; font-weight: 500; }
+ input, select { border: none; text-align: right; font-size: 16px; width: 45%; outline: none; background: transparent; font-weight: bold; }
+ select { -webkit-appearance: none; -moz-appearance: none; appearance: none; cursor: pointer; color: var(--accent); }
+ .result-box { text-align: center; padding: 15px 0; }
+ .result-val { font-size: 30px; font-weight: bold; color: var(--accent); margin-bottom: 4px; }
+ .result-lbl { font-size: 13px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+ .hidden { display: none; }
+ table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 14px; }
+ th { text-align: left; padding: 8px; border-bottom: 2px solid #e5e5ea; color: #8e8e93; font-weight: 600; font-size: 12px; text-transform: uppercase; }
+ td { padding: 10px 8px; border-bottom: 1px solid #f2f2f7; }
+ tr:last-child td { border-bottom: none; }
+ .zone-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; font-weight: bold; font-size: 11px; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+ .range-col { text-align: right; font-family: monospace; font-size: 14px; font-weight: bold; }
+ </style>
 </head>
 <body>
-    <div class="container">
-        <h1 id="app-title">Calculate kJ</h1>
-        <div class="tabs">
-            <button id="btn-kj" class="tab active" onclick="switchTab('kj')">Find kJ</button>
-            <button id="btn-watts" class="tab" onclick="switchTab('watts')">Find Watts</button>
-            <button id="btn-zones" class="tab" onclick="switchTab('zones')">Power Zones</button>
-            <button id="btn-hr" class="tab" onclick="switchTab('hr')">HR Zones</button>
-        </div>
-        
-        <!-- TAB 1: FIND KJ -->
-        <div id="kj-view">
-            <div class="card">
-                <div class="row">
-                    <label>Average Watts</label>
-                    <input type="number" id="watts-in" placeholder="0" oninput="calcKJ()">
-                </div>
-                <div class="row">
-                    <label>Time (Minutes)</label>
-                    <input type="number" id="kj-min-in" placeholder="0" oninput="calcKJ()">
-                </div>
-            </div>
-            <div class="card result-box">
-                <div class="result-val" id="kj-out">0.0</div>
-                <div class="result-lbl">Total Kilojoules</div>
-            </div>
-        </div>
-        
-        <!-- TAB 2: FIND WATTS -->
-        <div id="watts-view" style="display: none;">
-            <div class="card">
-                <div class="row">
-                    <label>Total Kilojoules</label>
-                    <input type="number" id="kj-in" placeholder="0" oninput="calcWatts()">
-                </div>
-                <div class="row">
-                    <label>Time (Minutes)</label>
-                    <input type="number" id="watts-min-in" placeholder="0" oninput="calcWatts()">
-                </div>
-            </div>
-            <div class="card result-box">
-                <div class="result-val" id="watts-out" style="color: #34c759;">0</div>
-                <div class="result-lbl">Average Watts</div>
-            </div>
-        </div>
-        
-        <!-- TAB 3: POWER ZONES -->
-        <div id="zones-view" style="display: none;">
-            <div class="card">
-                <div class="row">
-                    <label>Enter Your FTP (Watts)</label>
-                    <input type="number" id="ftp-in" placeholder="250" value="250" oninput="updateZones()">
-                </div>
-                <div class="row">
-                    <label>Weight Unit</label>
-                    <select id="weight-unit" onchange="updateZones()">
-                        <option value="lbs">lbs</option>
-                        <option value="kg">kg</option>
-                    </select>
-                </div>
-                <div class="row">
-                    <label>Enter Your Weight</label>
-                    <input type="number" id="weight-in" placeholder="165" value="165" oninput="updateZones()">
-                </div>
-            </div>
-            
-            <div class="card result-box" style="margin-bottom: 14px;">
-                <div class="result-val" id="wkg-out" style="color: #af52de;">0.00</div>
-                <div class="result-lbl">Power to Weight Ratio (W/kg)</div>
-            </div>
+ <div class="container">
+ <h1 id="app-title">Calculate kJ</h1>
+ <div class="tabs">
+ <button id="btn-kj" class="tab active" onclick="switchTab('kj')">Find kJ</button>
+ <button id="btn-watts" class="tab" onclick="switchTab('watts')">Find Watts</button>
+ <button id="btn-zones" class="tab" onclick="switchTab('zones')">Power Zones</button>
+ <button id="btn-hr" class="tab" onclick="switchTab('hr')">HR Zones</button>
+ </div>
+ 
+ <!-- TAB 1: FIND KJ -->
+ <div id="kj-view">
+ <div class="card">
+ <div class="row">
+ <label>Average Watts</label>
+ <input type="number" id="watts-in" placeholder="0" oninput="calcKJ()">
+ </div>
+ <div class="row">
+ <label>Time (Minutes)</label>
+ <input type="number" id="kj-min-in" placeholder="0" oninput="calcKJ()">
+ </div>
+ </div>
+ <div class="card result-box">
+ <div class="result-val" id="kj-out">0.0</div>
+ <div class="result-lbl">Total Kilojoules</div>
+ </div>
+ </div>
+ 
+ <!-- TAB 2: FIND WATTS -->
+ <div id="watts-view" style="display: none;">
+ <div class="card">
+ <div class="row">
+ <label>Total Kilojoules</label>
+ <input type="number" id="kj-in" placeholder="0" oninput="calcWatts()">
+ </div>
+ <div class="row">
+ <label>Time (Minutes)</label>
+ <input type="number" id="watts-min-in" placeholder="0" oninput="calcWatts()">
+ </div>
+ </div>
+ <div class="card result-box">
+ <div class="result-val" id="watts-out" style="color: #34c759;">0</div>
+ <div class="result-lbl">Average Watts</div>
+ </div>
+ </div>
+ 
+ <!-- TAB 3: POWER ZONES -->
+ <div id="zones-view" style="display: none;">
+ <div class="card">
+ <div class="row">
+ <label>Enter Your FTP (Watts)</label>
+ <input type="number" id="ftp-in" placeholder="250" value="250" oninput="updateZones()">
+ </div>
+ <div class="row">
+ <label>Weight Unit</label>
+ <select id="weight-unit" onchange="updateZones()">
+ <option value="lbs">lbs</option>
+ <option value="kg">kg</option>
+ </select>
+ </div>
+ <div class="row">
+ <label>Enter Your Weight</label>
+ <input type="number" id="weight-in" placeholder="165" value="165" oninput="updateZones()">
+ </div>
+ </div>
+ 
+ <div class="card result-box" style="margin-bottom: 14px;">
+ <div class="result-val" id="wkg-out" style="color: #af52de;">0.00</div>
+ <div class="result-lbl">Power to Weight Ratio (W/kg)</div>
+ </div>
 
-            <div class="card" style="padding: 8px;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Zone / Label</th>
-                            <th style="text-align: right;">Target Range</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><span class="zone-badge" style="background: var(--z1);">Zone 1</span> Active Recovery</td><td class="range-col" id="z1-range">0 - 0 W</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--z2);">Zone 2</span> Endurance</td><td class="range-col" id="z2-range">0 - 0 W</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--z3);">Zone 3</span> Tempo</td><td class="range-col" id="z3-range">0 - 0 W</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--ss);">Sweet Spot</span> Sweet Spot</td><td class="range-col" id="ss-range">0 - 0 W</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--z4);">Zone 4</span> Threshold</td><td class="range-col" id="z4-range">0 - 0 W</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--z5);">Zone 5</span> VO2 Max</td><td class="range-col" id="z5-range">0 - 0 W</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--z6);">Zone 6</span> Anaerobic</td><td class="range-col" id="z6-range">0 - 0 W</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--z7);">Zone 7</span> Neuromuscular</td><td class="range-col" id="z7-range">> 0 W</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+ <div class="sub-tabs">
+ <button id="sub-btn-standard" class="sub-tab active" onclick="switchZoneSubTab('standard')">Power Zones</button>
+ <button id="sub-btn-peloton" class="sub-tab" onclick="switchZoneSubTab('peloton')">Peloton Power Zones</button>
+ </div>
+ 
+ <div id="standard-zones-table" class="card" style="padding: 8px;">
+ <table>
+ <thead>
+ <tr>
+ <th>Zone / Label</th>
+ <th style="text-align: right;">Target Range</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td><span class="zone-badge" style="background: var(--z1);">Zone 1</span> Active Recovery</td><td class="range-col" id="z1-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--z2);">Zone 2</span> Endurance</td><td class="range-col" id="z2-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--z3);">Zone 3</span> Tempo</td><td class="range-col" id="z3-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--ss);">Sweet Spot</span> Sweet Spot</td><td class="range-col" id="ss-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--z4);">Zone 4</span> Threshold</td><td class="range-col" id="z4-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--z5);">Zone 5</span> VO2 Max</td><td class="range-col" id="z5-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--z6);">Zone 6</span> Anaerobic</td><td class="range-col" id="z6-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--z7);">Zone 7</span> Neuromuscular</td><td class="range-col" id="z7-range">> 0 W</td></tr>
+ </tbody>
+ </table>
+ </div>
 
-        <!-- TAB 4: HEART RATE ZONES -->
-        <div id="hr-view" style="display: none;">
-            <div class="card">
-                <div class="row">
-                    <label>Calculation Method</label>
-                    <select id="hr-metric-type" onchange="updateHRZones()">
-                        <option value="max">Maximum HR</option>
-                        <option value="lthr">Lactate Threshold (LTHR)</option>
-                    </select>
-                </div>
-                <div class="row">
-                    <label id="hr-input-label">Max Heart Rate (BPM)</label>
-                    <input type="number" id="hr-value-in" placeholder="170" value="170" oninput="updateHRZones()">
-                </div>
-            </div>
+ <div id="peloton-zones-table" class="card" style="padding: 8px; display: none;">
+ <table>
+ <thead>
+ <tr>
+ <th>Zone / Label</th>
+ <th style="text-align: center;">Blue Line Target</th>
+ <th style="text-align: right;">Target Range</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td><span class="zone-badge" style="background: var(--p-z1);">Zone 1</span> Active Recovery</td><td style="text-align: center; font-weight: bold;" id="p-z1-target">0 W</td><td class="range-col" id="p-z1-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--p-z2);">Zone 2</span> Endurance</td><td style="text-align: center; font-weight: bold;" id="p-z2-target">0 W</td><td class="range-col" id="p-z2-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--p-z3);">Zone 3</span> Tempo</td><td style="text-align: center; font-weight: bold;" id="p-z3-target">0 W</td><td class="range-col" id="p-p-z3-range" class="hidden"></td><td class="range-col" id="p-z3-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--p-ss);">Sweet Spot</span> Sweet Spot</td><td style="text-align: center; font-weight: bold;" id="p-ss-target">0 W</td><td class="range-col" id="p-ss-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--p-z4);">Zone 4</span> Threshold</td><td style="text-align: center; font-weight: bold;" id="p-z4-target">0 W</td><td class="range-col" id="p-z4-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--p-z5);">Zone 5</span> VO2 Max</td><td style="text-align: center; font-weight: bold;" id="p-z5-target">0 W</td><td class="range-col" id="p-z5-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--p-z6);">Zone 6</span> Anaerobic</td><td style="text-align: center; font-weight: bold;" id="p-z6-target">0 W</td><td class="range-col" id="p-z6-range">0 - 0 W</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--p-z7);">Zone 7</span> Neuromuscular</td><td style="text-align: center; font-weight: bold;" id="p-p-z7-target" class="hidden"></td><td style="text-align: center; font-weight: bold;" id="p-z7-target">0 W</td><td class="range-col" id="p-z7-range">> 0 W</td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-            <div class="card" style="padding: 8px;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Zone / Label</th>
-                            <th style="text-align: right;">Target Range</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><span class="zone-badge" style="background: var(--z1);">Zone 1</span> Active Recovery</td><td class="range-col" id="hr1-range">0 - 0 BPM</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--z2);">Zone 2</span> Aerobic Capacity</td><td class="range-col" id="hr2-range">0 - 0 BPM</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--z3);">Zone 3</span> Tempo</td><td class="range-col" id="hr4-range">0 - 0 BPM</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--z4);">Zone 4</span> Threshold</td><td class="range-col" id="hr5-range">0 - 0 BPM</td></tr>
-                        <tr><td><span class="zone-badge" style="background: var(--z5);">Zone 5</span> VO2 Max</td><td class="range-col" id="hr6-range">> 0 BPM</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <script>
-        function switchTab(type) {
-            document.getElementById('btn-kj').classList.remove('active');
-            document.getElementById('btn-watts').classList.remove('active');
-            document.getElementById('btn-zones').classList.remove('active');
-            document.getElementById('btn-hr').classList.remove('active');
-            
-            document.getElementById('kj-view').style.display = 'none';
-            document.getElementById('watts-view').style.display = 'none';
-            document.getElementById('zones-view').style.display = 'none';
-            document.getElementById('hr-view').style.display = 'none';
-            
-            if (type === 'kj') {
-                document.getElementById('btn-kj').classList.add('active');
-                document.getElementById('kj-view').style.display = 'block';
-                document.getElementById('app-title').innerText = 'Calculate kJ';
-            } else if (type === 'watts') {
-                document.getElementById('btn-watts').classList.add('active');
-                document.getElementById('watts-view').style.display = 'block';
-                document.getElementById('app-title').innerText = 'Calculate Watts';
-            } else if (type === 'zones') {
-                document.getElementById('btn-zones').classList.add('active');
-                document.getElementById('zones-view').style.display = 'block';
-                document.getElementById('app-title').innerText = 'Power Zones';
-                updateZones();
-            } else if (type === 'hr') {
-                document.getElementById('btn-hr').classList.add('active');
-                document.getElementById('hr-view').style.display = 'block';
-                document.getElementById('app-title').innerText = 'Heart Rate Zones';
-                updateHRZones();
-            }
-        }
+ <!-- TAB 4: HEART RATE ZONES -->
+ <div id="hr-view" style="display: none;">
+ <div class="card">
+ <div class="row">
+ <label>Calculation Method</label>
+ <select id="hr-metric-type" onchange="updateHRZones()">
+ <option value="max">Maximum HR</option>
+ <option value="lthr">Lactate Threshold (LTHR)</option>
+ </select>
+ </div>
+ <div class="row">
+ <label id="hr-input-label">Max Heart Rate (BPM)</label>
+ <input type="number" id="hr-value-in" placeholder="170" value="170" oninput="updateHRZones()">
+ </div>
+ </div>
+ <div class="card" style="padding: 8px;">
+ <table>
+ <thead>
+ <tr>
+ <th>Zone / Label</th>
+ <th style="text-align: right;">Target Range</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td><span class="zone-badge" style="background: var(--z1);">Zone 1</span> Active Recovery</td><td class="range-col" id="hr1-range">0 - 0 BPM</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--z2);">Zone 2</span> Aerobic Capacity</td><td class="range-col" id="hr2-range">0 - 0 BPM</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--z3);">Zone 3</span> Tempo</td><td class="range-col" id="hr4-range">0 - 0 BPM</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--z4);">Zone 4</span> Threshold</td><td class="range-col" id="hr5-range">0 - 0 BPM</td></tr>
+ <tr><td><span class="zone-badge" style="background: var(--z5);">Zone 5</span> VO2 Max</td><td class="range-col" id="hr6-range">> 0 BPM</td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
+ </div>
+ <script>
+ function switchTab(type) {
+ document.getElementById('btn-kj').classList.remove('active');
+ document.getElementById('btn-watts').classList.remove('active');
+ document.getElementById('btn-zones').classList.remove('active');
+ document.getElementById('btn-hr').classList.remove('active');
+ 
+ document.getElementById('kj-view').style.display = 'none';
+ document.getElementById('watts-view').style.display = 'none';
+ document.getElementById('zones-view').style.display = 'none';
+ document.getElementById('hr-view').style.display = 'none';
+ 
+ if (type === 'kj') {
+ document.getElementById('btn-kj').classList.add('active');
+ document.getElementById('kj-view').style.display = 'block';
+ document.getElementById('app-title').innerText = 'Calculate kJ';
+ } else if (type === 'watts') {
+ document.getElementById('btn-watts').classList.add('active');
+ document.getElementById('watts-view').style.display = 'block';
+ document.getElementById('app-title').innerText = 'Calculate Watts';
+ } else if (type === 'zones') {
+ document.getElementById('btn-zones').classList.add('active');
+ document.getElementById('zones-view').style.display = 'block';
+ document.getElementById('app-title').innerText = 'Power Zones';
+ updateZones();
+ } else if (type === 'hr') {
+ document.getElementById('btn-hr').classList.add('active');
+ document.getElementById('hr-view').style.display = 'block';
+ document.getElementById('app-title').innerText = 'Heart Rate Zones';
+ updateHRZones();
+ }
+ }
 
-        function calcKJ() {
-            var watts = parseFloat(document.getElementById('watts-in').value) || 0;
-            var min = parseFloat(document.getElementById('kj-min-in').value) || 0;
-            var kj = (watts * (min * 60)) / 1000;
-            document.getElementById('kj-out').innerText = kj.toFixed(1);
-        }
+ function switchZoneSubTab(subType) {
+ document.getElementById('sub-btn-standard').classList.remove('active');
+ document.getElementById('sub-btn-peloton').classList.remove('active');
+ document.getElementById('standard-zones-table').style.display = 'none';
+ document.getElementById('peloton-zones-table').style.display = 'none';
 
-        function calcWatts() {
-            var kj = parseFloat(document.getElementById('kj-in').value) || 0;
-            var min = parseFloat(document.getElementById('watts-min-in').value) || 0;
-            if (min <= 0) { document.getElementById('watts-out').innerText = "0"; return; }
-            var watts = (kj * 1000) / (min * 60);
-            document.getElementById('watts-out').innerText = Math.round(watts);
-        }
+ if (subType === 'standard') {
+ document.getElementById('sub-btn-standard').classList.add('active');
+ document.getElementById('standard-zones-table').style.display = 'block';
+ } else if (subType === 'peloton') {
+ document.getElementById('sub-btn-peloton').classList.add('active');
+ document.getElementById('peloton-zones-table').style.display = 'block';
+ }
+ }
+ 
+ function calcKJ() {
+ var watts = parseFloat(document.getElementById('watts-in').value) || 0;
+ var min = parseFloat(document.getElementById('kj-min-in').value) || 0;
+ var kj = (watts * (min * 60)) / 1000;
+ document.getElementById('kj-out').innerText = kj.toFixed(1);
+ }
+ 
+ function calcWatts() {
+ var kj = parseFloat(document.getElementById('kj-in').value) || 0;
+ var min = parseFloat(document.getElementById('watts-min-in').value) || 0;
+ if (min <= 0) { document.getElementById('watts-out').innerText = "0"; return; }
+ var watts = (kj * 1000) / (min * 60);
+ document.getElementById('watts-out').innerText = Math.round(watts);
+ }
+ 
+ function updateZones() {
+ var ftp = parseFloat(document.getElementById('ftp-in').value) || 0;
+ var weight = parseFloat(document.getElementById('weight-in').value) || 0;
+ var unit = document.getElementById('weight-unit').value;
+ 
+ localStorage.setItem('cycling_ftp', ftp);
+ localStorage.setItem('cycling_weight', weight);
+ localStorage.setItem('cycling_unit', unit);
+ 
+ var weightInKg = weight;
+ if (unit === 'lbs' && weight > 0) { weightInKg = weight / 2.20462; }
+ if (weightInKg > 0 && ftp > 0) {
+ var wkg = ftp / weightInKg;
+ document.getElementById('wkg-out').innerText = wkg.toFixed(2);
+ } else {
+ document.getElementById('wkg-out').innerText = "0.00";
+ }
+ 
+ /* Standard Power Zones Calculation */
+ document.getElementById('z1-range').innerText = "< " + Math.round(ftp * 0.55) + " W";
+ document.getElementById('z2-range').innerText = Math.round((ftp * 0.55) + 1) + " - " + Math.round(ftp * 0.75) + " W";
+ document.getElementById('z3-range').innerText = Math.round((ftp * 0.75) + 1) + " - " + Math.round(ftp * 0.90) + " W";
+ document.getElementById('ss-range').innerText = Math.round(ftp * 0.88) + " - " + Math.round(ftp * 0.94) + " W";
+ document.getElementById('z4-range').innerText = Math.round((ftp * 0.90) + 1) + " - " + Math.round(ftp * 1.05) + " W";
+ document.getElementById('z5-range').innerText = Math.round((ftp * 1.05) + 1) + " - " + Math.round(ftp * 1.20) + " W";
+ document.getElementById('z6-range').innerText = Math.round((ftp * 1.20) + 1) + " - " + Math.round(ftp * 1.50) + " W";
+ document.getElementById('z7-range').innerText = "> " + Math.round((ftp * 1.50) + 1) + " W";
 
-        function updateZones() {
-            var ftp = parseFloat(document.getElementById('ftp-in').value) || 0;
-            var weight = parseFloat(document.getElementById('weight-in').value) || 0;
-            var unit = document.getElementById('weight-unit').value;
-            
-            localStorage.setItem('cycling_ftp', ftp);
-            localStorage.setItem('cycling_weight', weight);
-            localStorage.setItem('cycling_unit', unit);
-            
-            var weightInKg = weight;
-            if (unit === 'lbs' && weight > 0) { weightInKg = weight / 2.20462; }
-            if (weightInKg > 0 && ftp > 0) {
-                var wkg = ftp / weightInKg;
-                document.getElementById('wkg-out').innerText = wkg.toFixed(2);
-            } else {
-                document.getElementById('wkg-out').innerText = "0.00";
-            }
-            
-            document.getElementById('z1-range').innerText = "< " + Math.round(ftp * 0.55) + " W";
-            document.getElementById('z2-range').innerText = Math.round((ftp * 0.55) + 1) + " - " + Math.round(ftp * 0.75) + " W";
-            document.getElementById('z3-range').innerText = Math.round((ftp * 0.75) + 1) + " - " + Math.round(ftp * 0.90) + " W";
-            document.getElementById('ss-range').innerText = Math.round(ftp * 0.88) + " - " + Math.round(ftp * 0.94) + " W";
-            document.getElementById('z4-range').innerText = Math.round((ftp * 0.90) + 1) + " - " + Math.round(ftp * 1.05) + " W";
-            document.getElementById('z5-range').innerText = Math.round((ftp * 1.05) + 1) + " - " + Math.round(ftp * 1.20) + " W";
-            document.getElementById('z6-range').innerText = Math.round((ftp * 1.20) + 1) + " - " + Math.round(ftp * 1.50) + " W";
-            document.getElementById('z7-range').innerText = "> " + Math.round((ftp * 1.50) + 1) + " W";
-        }
+ /* Peloton Power Zones Blue Line Targets */
+ document.getElementById('p-z1-target').innerText = Math.round(ftp * 0.45) + " W";
+ document.getElementById('p-z2-target').innerText = Math.round(ftp * 0.655) + " W";
+ document.getElementById('p-z3-target').innerText = Math.round(ftp * 0.83) + " W";
+ document.getElementById('p-ss-target').innerText = Math.round(ftp * 0.91) + " W";
+ document.getElementById('p-z4-target').innerText = Math.round(ftp * 0.98) + " W";
+ document.getElementById('p-z5-target').innerText = Math.round(ftp * 1.13) + " W";
+ document.getElementById('p-z6-target').innerText = Math.round(ftp * 1.355) + " W";
+ document.getElementById('p-z7-target').innerText = Math.round(ftp * 1.65) + " W";
 
-        function updateHRZones() {
+ /* Peloton Power Zones Target Ranges */
+ document.getElementById('p-z1-range').innerText = "< " + Math.round(ftp * 0.55) + " W";
+ document.getElementById('p-z2-range').innerText = Math.round((ftp * 0.55) + 1) + " - " + Math.round(ftp * 0.75) + " W";
+ document.getElementById('p-z3-range').innerText = Math.round((ftp * 0.75) + 1) + " - " + Math.round(ftp * 0.90) + " W";
+ document.getElementById('p-ss-range').innerText = Math.round(ftp * 0.88) + " - " + Math.round(ftp * 0.94) + " W";
+ document.getElementById('p-z4-range').innerText = Math.round((ftp * 0.90) + 1) + " - " + Math.round(ftp * 1.05) + " W";
+ document.getElementById('p-z5-range').innerText = Math.round((ftp * 1.05) + 1) + " - " + Math.round(ftp * 1.20) + " W";
+ document.getElementById('p-z6-range').innerText = Math.round((ftp * 1.20) + 1) + " - " + Math.round(ftp * 1.50) + " W";
+ document.getElementById('p-z7-range').innerText = "> " + Math.round((ftp * 1.50) + 1) + " W";
+ }
+ 
+ function updateHRZones() {
  var metricType = document.getElementById('hr-metric-type').value;
  var hrVal = parseFloat(document.getElementById('hr-value-in').value) || 0;
- 
  localStorage.setItem('cycling_hr_metric_type', metricType);
  localStorage.setItem('cycling_hr_value', hrVal);
  var labelEl = document.getElementById('hr-input-label');
@@ -265,31 +333,30 @@
  z4Max = Math.round(hrVal * 0.95);
  if (metricType === 'lthr') { z4Max = Math.round(hrVal * 1.05); }
  z5Min = z4Max + 1;
-
+ 
  document.getElementById('hr1-range').innerText = "< " + (z1Max + 1) + " BPM";
  document.getElementById('hr2-range').innerText = z2Min + " - " + z2Max + " BPM";
  document.getElementById('hr4-range').innerText = z3Min + " - " + z3Max + " BPM";
  document.getElementById('hr5-range').innerText = z4Min + " - " + z4Max + " BPM";
  document.getElementById('hr6-range').innerText = "> " + z5Min + " BPM";
-}
-
-        window.onload = function() {
-            var savedFtp = localStorage.getItem('cycling_ftp');
-            var savedWeight = localStorage.getItem('cycling_weight');
-            var savedUnit = localStorage.getItem('cycling_unit');
-            var savedHrMetric = localStorage.getItem('cycling_hr_metric_type');
-            var savedHrValue = localStorage.getItem('cycling_hr_value');
-            
-            if (savedFtp !== null) { document.getElementById('ftp-in').value = savedFtp; }
-            if (savedWeight !== null) { document.getElementById('weight-in').value = savedWeight; }
-            if (savedUnit !== null) { document.getElementById('weight-unit').value = savedUnit; }
-            if (savedHrMetric !== null) { document.getElementById('hr-metric-type').value = savedHrMetric; }
-            if (savedHrValue !== null) { document.getElementById('hr-value-in').value = savedHrValue; }
-            
-            updateZones();
-            updateHRZones();
-        };
-    </script>
+ }
+ 
+ window.onload = function() {
+ var savedFtp = localStorage.getItem('cycling_ftp');
+ var savedWeight = localStorage.getItem('cycling_weight');
+ var savedUnit = localStorage.getItem('cycling_unit');
+ var savedHrMetric = localStorage.getItem('cycling_hr_metric_type');
+ var savedHrValue = localStorage.getItem('cycling_hr_value');
+ 
+ if (savedFtp !== null) { document.getElementById('ftp-in').value = savedFtp; }
+ if (savedWeight !== null) { document.getElementById('weight-in').value = savedWeight; }
+ if (savedUnit !== null) { document.getElementById('weight-unit').value = savedUnit; }
+ if (savedHrMetric !== null) { document.getElementById('hr-metric-type').value = savedHrMetric; }
+ if (savedHrValue !== null) { document.getElementById('hr-value-in').value = savedHrValue; }
+ 
+ updateZones();
+ updateHRZones();
+ };
+ </script>
 </body>
 </html>
-       
