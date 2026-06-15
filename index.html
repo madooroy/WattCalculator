@@ -36,9 +36,11 @@
  .hidden { display: none; }
  table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 14px; }
  th { text-align: left; padding: 8px; border-bottom: 2px solid #e5e5ea; color: #8e8e93; font-weight: 600; font-size: 12px; text-transform: uppercase; }
- td { padding: 10px 8px; border-bottom: 1px solid #f2f2f7; }
+ td { padding: 10px 8px; border-bottom: 1px solid #f2f2f7; vertical-align: middle; }
  tr:last-child td { border-bottom: none; }
+ .zone-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
  .zone-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; font-weight: bold; font-size: 11px; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+ .zone-desc { font-size: 12px; color: #8e8e93; word-break: break-word; }
  .range-col { text-align: right; font-family: monospace; font-size: 14px; font-weight: bold; }
  </style>
 </head>
@@ -127,14 +129,14 @@
  </tr>
  </thead>
  <tbody>
- <tr><td><span class="zone-badge" style="background: var(--z1);">Zone 1</span> Active Recovery</td><td class="range-col" id="z1-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--z2);">Zone 2</span> Endurance</td><td class="range-col" id="z2-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--z3);">Zone 3</span> Tempo</td><td class="range-col" id="z3-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--ss);">Sweet Spot</span> Sweet Spot</td><td class="range-col" id="ss-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--z4);">Zone 4</span> Threshold</td><td class="range-col" id="z4-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--z5);">Zone 5</span> VO2 Max</td><td class="range-col" id="z5-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--z6);">Zone 6</span> Anaerobic</td><td class="range-col" id="z6-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--z7);">Zone 7</span> Neuromuscular</td><td class="range-col" id="z7-range">> 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="z1-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Endurance</span></div></td><td class="range-col" id="z2-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="z3-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--ss);">Sweet Spot</span><span class="zone-desc">Sweet Spot</span></div></td><td class="range-col" id="ss-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="z4-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="z5-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z6);">Zone 6</span><span class="zone-desc">Anaerobic</span></div></td><td class="range-col" id="z6-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z7);">Zone 7</span><span class="zone-desc">Neuromuscular</span></div></td><td class="range-col" id="z7-range">> 0 W</td></tr>
  </tbody>
  </table>
  </div>
@@ -149,14 +151,14 @@
  </tr>
  </thead>
  <tbody>
- <tr><td><span class="zone-badge" style="background: var(--p-z1);">Zone 1</span> Active Recovery</td><td style="text-align: center; font-weight: bold;" id="p-z1-target">0 W</td><td class="range-col" id="p-z1-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--p-z2);">Zone 2</span> Endurance</td><td style="text-align: center; font-weight: bold;" id="p-z2-target">0 W</td><td class="range-col" id="p-z2-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--p-z3);">Zone 3</span> Tempo</td><td style="text-align: center; font-weight: bold;" id="p-z3-target">0 W</td><td class="range-col" id="p-p-z3-range" class="hidden"></td><td class="range-col" id="p-z3-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--p-ss);">Sweet Spot</span> Sweet Spot</td><td style="text-align: center; font-weight: bold;" id="p-ss-target">0 W</td><td class="range-col" id="p-ss-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--p-z4);">Zone 4</span> Threshold</td><td style="text-align: center; font-weight: bold;" id="p-z4-target">0 W</td><td class="range-col" id="p-z4-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--p-z5);">Zone 5</span> VO2 Max</td><td style="text-align: center; font-weight: bold;" id="p-z5-target">0 W</td><td class="range-col" id="p-z5-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--p-z6);">Zone 6</span> Anaerobic</td><td style="text-align: center; font-weight: bold;" id="p-z6-target">0 W</td><td class="range-col" id="p-z6-range">0 - 0 W</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--p-z7);">Zone 7</span> Neuromuscular</td><td style="text-align: center; font-weight: bold;" id="p-p-z7-target" class="hidden"></td><td style="text-align: center; font-weight: bold;" id="p-z7-target">0 W</td><td class="range-col" id="p-z7-range">> 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--p-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td style="text-align: center; font-weight: bold;" id="p-z1-target">0 W</td><td class="range-col" id="p-z1-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--p-z2);">Zone 2</span><span class="zone-desc">Endurance</span></div></td><td style="text-align: center; font-weight: bold;" id="p-z2-target">0 W</td><td class="range-col" id="p-z2-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--p-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td style="text-align: center; font-weight: bold;" id="p-z3-target">0 W</td><td class="range-col" id="p-z3-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--p-ss);">Sweet Spot</span><span class="zone-desc">Sweet Spot</span></div></td><td style="text-align: center; font-weight: bold;" id="p-ss-target">0 W</td><td class="range-col" id="p-ss-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--p-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td style="text-align: center; font-weight: bold;" id="p-z4-target">0 W</td><td class="range-col" id="p-z4-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--p-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td style="text-align: center; font-weight: bold;" id="p-z5-target">0 W</td><td class="range-col" id="p-z5-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--p-z6);">Zone 6</span><span class="zone-desc">Anaerobic</span></div></td><td style="text-align: center; font-weight: bold;" id="p-z6-target">0 W</td><td class="range-col" id="p-z6-range">0 - 0 W</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--p-z7);">Zone 7</span><span class="zone-desc">Neuromuscular</span></div></td><td style="text-align: center; font-weight: bold;" id="p-z7-target">0 W</td><td class="range-col" id="p-z7-range">> 0 W</td></tr>
  </tbody>
  </table>
  </div>
@@ -186,17 +188,17 @@
  </tr>
  </thead>
  <tbody>
- <tr><td><span class="zone-badge" style="background: var(--z1);">Zone 1</span> Active Recovery</td><td class="range-col" id="hr1-range">0 - 0 BPM</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--z2);">Zone 2</span> Aerobic Capacity</td><td class="range-col" id="hr2-range">0 - 0 BPM</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--z3);">Zone 3</span> Tempo</td><td class="range-col" id="hr4-range">0 - 0 BPM</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--z4);">Zone 4</span> Threshold</td><td class="range-col" id="hr5-range">0 - 0 BPM</td></tr>
- <tr><td><span class="zone-badge" style="background: var(--z5);">Zone 5</span> VO2 Max</td><td class="range-col" id="hr6-range">> 0 BPM</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-range">0 - 0 BPM</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-range">0 - 0 BPM</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr4-range">0 - 0 BPM</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr5-range">0 - 0 BPM</td></tr>
+ <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr6-range">> 0 BPM</td></tr>
  </tbody>
  </table>
  </div>
  </div>
  </div>
- <script>
+  <script>
  function switchTab(type) {
  document.getElementById('btn-kj').classList.remove('active');
  document.getElementById('btn-watts').classList.remove('active');
