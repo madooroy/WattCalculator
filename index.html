@@ -95,11 +95,11 @@ tr:last-child td { border-bottom: none; }
   <div class="card">
     <div class="row">
       <label>Average Watts</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-in" placeholder="0" oninput="calcKJ()">
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-in" placeholder="0" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();">
     </div>
     <div class="row">
       <label>Time (Minutes)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-min-in" placeholder="0" oninput="calcKJ()">
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-min-in" placeholder="0" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();">
     </div>
   </div>
   <div class="card result-box">
@@ -113,11 +113,11 @@ tr:last-child td { border-bottom: none; }
   <div class="card">
     <div class="row">
       <label>Total Kilojoules</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-in" placeholder="0" oninput="calcWatts()">
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-in" placeholder="0" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();">
     </div>
     <div class="row">
       <label>Time (Minutes)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-min-in" placeholder="0" oninput="calcWatts()">
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-min-in" placeholder="0" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();">
     </div>
   </div>
   <div class="card result-box">
@@ -131,7 +131,7 @@ tr:last-child td { border-bottom: none; }
   <div class="card">
     <div class="row">
       <label>Enter Your FTP (Watts)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="ftp-in" placeholder="250" value="250" oninput="updateZones()">
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="ftp-in" placeholder="250" value="250" oninput="updateZones()" onclick="this.select();" onfocus="this.select();">
     </div>
     <div class="row">
       <label>Weight Unit</label>
@@ -145,7 +145,7 @@ tr:last-child td { border-bottom: none; }
     </div>
     <div class="row">
       <label>Enter Your Weight</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="weight-in" placeholder="165" value="165" oninput="updateZones()">
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="weight-in" placeholder="165" value="165" oninput="updateZones()" onclick="this.select();" onfocus="this.select();">
     </div>
   </div>
   <div class="card result-box" style="margin-bottom: 14px;">
@@ -211,7 +211,7 @@ tr:last-child td { border-bottom: none; }
     </div>
     <div class="row">
       <label id="hr-input-label">Max Heart Rate (BPM)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="hr-value-in" placeholder="170" value="170" oninput="updateHRZones()">
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="hr-value-in" placeholder="170" value="170" oninput="updateHRZones()" onclick="this.select();" onfocus="this.select();">
     </div>
   </div>
   <div class="card" style="padding: 8px;">
