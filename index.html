@@ -85,7 +85,7 @@ tr:last-child td { border-bottom: none; }
 <h1 id="app-title">Calculate kJ</h1>
 <div class="tabs">
   <button id="btn-kj" class="tab active" onclick="switchTab('kj')">Find kJ</button>
-  <button id="btn-watts" class="tab" onclick="sound('watts'); switchTab('watts')">Find Watts</button>
+  <button id="btn-watts" class="tab" onclick="switchTab('watts')">Find Watts</button>
   <button id="btn-zones" class="tab" onclick="switchTab('zones')">Power Zones</button>
   <button id="btn-hr" class="tab" onclick="switchTab('hr')">HR Zones</button>
 </div>
@@ -280,10 +280,10 @@ function syncDropdowns() {
   document.getElementById('hr-metric-type-lbl').innerText = hrSelect.options[hrSelect.selectedIndex].text;
 }
 function calcKJ() {
-  var watts = parseFloat(document.getElementById('watts-in').value) || 0;
-  var min = parseFloat(document.getElementById('kj-min-in').value) || 0;
-  var kj = (watts * (min * 60)) / 1000;
-  document.getElementById('kj-out').innerText = kj.toFixed(1);
+var watts = parseFloat(document.getElementById('watts-in').value) || 0;
+var min = parseFloat(document.getElementById('kj-min-in').value) || 0;
+var kj = (watts * (min * 60)) / 1000;
+document.getElementById('kj-out').innerText = Math.round(kj);
 }
 function calcWatts() {
   var kj = parseFloat(document.getElementById('kj-in').value) || 0;
