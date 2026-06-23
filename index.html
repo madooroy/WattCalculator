@@ -103,7 +103,7 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
   <div class="card result-box">
-    <div class="result-val" id="kj-out">0.0</div>
+    <div class="result-val" id="kj-out">0</div>
     <div class="result-lbl">Total Kilojoules</div>
   </div>
 </div>
@@ -283,14 +283,14 @@ function calcKJ() {
 var watts = parseFloat(document.getElementById('watts-in').value) || 0;
 var min = parseFloat(document.getElementById('kj-min-in').value) || 0;
 var kj = (watts * (min * 60)) / 1000;
-document.getElementById('kj-out').innerText = Math.round(kj);
+document.getElementById('kj-out').innerText = Math.floor(kj);
 }
 function calcWatts() {
   var kj = parseFloat(document.getElementById('kj-in').value) || 0;
   var min = parseFloat(document.getElementById('watts-min-in').value) || 0;
   if (min <= 0) { document.getElementById('watts-out').innerText = "0"; return; }
   var watts = (kj * 1000) / (min * 60);
-  document.getElementById('watts-out').innerText = Math.round(watts);
+  document.getElementById('watts-out').innerText = Math.floor(watts);
 }
 function updateZones() {
   var ftp = parseFloat(document.getElementById('ftp-in').value) || 0;
