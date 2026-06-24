@@ -117,19 +117,54 @@ tr:last-child td { border-bottom: none; }
 </div>
 
 <!-- TAB 4: HEART RATE ZONES -->
+<!-- TAB 4: HEART RATE ZONES -->
 <div id="hr-view" style="display: none;">
 <div class="card">
-<div class="row"><label>Calculation Method</label><div class="select-wrapper"><span class="select-display" id="hr-metric-type-lbl">Maximum HR</span><select id="hr-metric-type" onchange="syncDropdowns(); updateHRZones();"><option value="max">Maximum HR</option><option value="lthr">Lactate Threshold</option></select></div></div>
-<div class="row"><label id="hr-input-label">Max Heart Rate (BPM)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="hr-value-in" placeholder="170" value="170" oninput="updateHRZones()" onclick="this.select();" onfocus="this.select();"></div>
+<div class="row">
+<label>Enter Base HR Value (BPM)</label>
+<input type="number" inputmode="numeric" pattern="[0-9]*" id="hr-value-in" placeholder="170" value="170" oninput="updateHRZones()" onclick="this.select();" onfocus="this.select();">
 </div>
-<div class="card" style="padding: 8px;">
-<table><thead><tr><th>Zone / Label</th><th style="text-align: right;">Target Range</th></tr></thead><tbody>
-<tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-range">0-0 BPM</td></tr>
-<tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-range">0-0 BPM</td></tr>
-<tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-range">0-0 BPM</td></tr>
-<tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-range">0-0 BPM</td></tr>
-<tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-range">&gt; 0 BPM</td></tr>
-</tbody></table>
+<div style="font-size: 11px; color: #8e8e93; text-align: center; margin-top: 4px; font-style: italic;">
+The base input value will simultaneously compute Max HR percentages on the left and LTHR on the right.
+</div>
+</div>
+<div class="card" style="padding: 8px; overflow-x: auto;">
+<table>
+<thead>
+<tr>
+<th>Zone / Label</th>
+<th style="text-align: right; padding-right: 15px;">Max HR (BPM)</th>
+<th style="text-align: right;">LTHR (BPM)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td>
+<td class="range-col" id="hr1-max-range" style="padding-right: 15px;">0-0 BPM</td>
+<td class="range-col" id="hr1-lthr-range">0-0 BPM</td>
+</tr>
+<tr>
+<td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td>
+<td class="range-col" id="hr2-max-range" style="padding-right: 15px;">0-0 BPM</td>
+<td class="range-col" id="hr2-lthr-range">0-0 BPM</td>
+</tr>
+<tr>
+<td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td>
+<td class="range-col" id="hr3-max-range" style="padding-right: 15px;">0-0 BPM</td>
+<td class="range-col" id="hr3-lthr-range">0-0 BPM</td>
+</tr>
+<tr>
+<td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td>
+<td class="range-col" id="hr4-max-range" style="padding-right: 15px;">0-0 BPM</td>
+<td class="range-col" id="hr4-lthr-range">0-0 BPM</td>
+</tr>
+<tr>
+<td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td>
+<td class="range-col" id="hr5-max-range" style="padding-right: 15px;">&gt; 0 BPM</td>
+<td class="range-col" id="hr5-lthr-range">&gt; 0 BPM</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -176,8 +211,7 @@ function setSystemState(val) {
 
 function syncDropdowns() {
   document.getElementById('weight-unit-lbl').innerText = document.getElementById('weight-unit').value;
-  document.getElementById('hr-metric-type-lbl').innerText = document.getElementById('hr-metric-type').options[document.getElementById('hr-metric-type').selectedIndex].text;
-}
+}  
 
 function syncProposedFTP(val) {
   document.getElementById('proposed-ftp-kj').value = val;
@@ -265,20 +299,32 @@ function updateZones() {
 }
 
 function updateHRZones() {
-  const type = document.getElementById('hr-metric-type').value;
   const hr = parseFloat(document.getElementById('hr-value-in').value) || 0;
-  localStorage.setItem('cycling_hr_metric_type', type);
   localStorage.setItem('cycling_hr_value', hr);
-  document.getElementById('hr-input-label').innerText = type === 'max' ? "Max Heart Rate (BPM)" : "Lactate Threshold HR (BPM)";
-  const z1M = Math.round(hr * (type === 'max' ? 0.65 : 0.68)) - 1;
-  const z2M = Math.round(hr * (type === 'max' ? 0.75 : 0.83));
-  const z3M = Math.round(hr * (type === 'max' ? 0.85 : 0.94));
-  const z4M = Math.round(hr * (type === 'max' ? 0.95 : 1.05));
-  document.getElementById('hr1-range').innerText = `< ${z1M + 1} BPM`;
-  document.getElementById('hr2-range').innerText = `${z1M + 1} - ${z2M} BPM`;
-  document.getElementById('hr3-range').innerText = `${z2M + 1} - ${z3M} BPM`;
-  document.getElementById('hr4-range').innerText = `${z3M + 1} - ${z4M} BPM`;
-  document.getElementById('hr5-range').innerText = `> ${z4M + 1} BPM`;
+  
+  // 1. Calculate Max HR Column Ranges
+  const m1M = Math.round(hr * 0.65) - 1;
+  const m2M = Math.round(hr * 0.75);
+  const m3M = Math.round(hr * 0.85);
+  const m4M = Math.round(hr * 0.95);
+  
+  document.getElementById('hr1-max-range').innerText = `< ${m1M + 1} BPM`;
+  document.getElementById('hr2-max-range').innerText = `${m1M + 1} - ${m2M} BPM`;
+  document.getElementById('hr3-max-range').innerText = `${m2M + 1} - ${m3M} BPM`;
+  document.getElementById('hr4-max-range').innerText = `${m3M + 1} - ${m4M} BPM`;
+  document.getElementById('hr5-max-range').innerText = `> ${m4M} BPM`;
+
+  // 2. Calculate LTHR Column Ranges
+  const l1M = Math.round(hr * 0.68) - 1;
+  const l2M = Math.round(hr * 0.83);
+  const l3M = Math.round(hr * 0.94);
+  const l4M = Math.round(hr * 1.05);
+
+  document.getElementById('hr1-lthr-range').innerText = `< ${l1M + 1} BPM`;
+  document.getElementById('hr2-lthr-range').innerText = `${l1M + 1} - ${l2M} BPM`;
+  document.getElementById('hr3-lthr-range').innerText = `${l2M + 1} - ${l3M} BPM`;
+  document.getElementById('hr4-lthr-range').innerText = `${l3M + 1} - ${l4M} BPM`;
+  document.getElementById('hr5-lthr-range').innerText = `> ${l4M} BPM`;
 }
 
 window.onload = function() {
@@ -287,7 +333,6 @@ window.onload = function() {
   if (f) document.getElementById('ftp-in').value = f;
   if (w) document.getElementById('weight-in').value = w;
   if (u) document.getElementById('weight-unit').value = u;
-  if (m) document.getElementById('hr-metric-type').value = m;
   if (v) document.getElementById('hr-value-in').value = v;
   syncProposedFTP(p || "250");
   setSystemState(s);
