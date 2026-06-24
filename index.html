@@ -8,74 +8,42 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 :root {
-  --bg: #f2f2f7; 
-  --card: #ffffff; 
-  --text: #000000; 
-  --accent: #007aff; 
-  --border: #e5e5ea; 
-  --table-border: #f2f2f7;
+  --bg: #f2f2f7; --card: #ffffff; --text: #000000; --accent: #007aff; --border: #e5e5ea; --table-border: #f2f2f7;
   --z1: #8e8e93; --z2: #34c759; --z3: #007aff; --z4: #ff9500; --z5: #ff3b30; --z6: #af52de; --z7: #5856d6; --ss: #5ac8fa;
   --p-z1: #B359CE; --p-z2: #4EA4E3; --p-z3: #72BF44; --p-ss: #B5C433; --p-z4: #F8C822; --p-z5: #F37021; --p-z6: #ED2128; --p-z7: #A61A22;
 }
-
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1c1c1e; 
-    --card: #2c2c2e; 
-    --text: #ffffff; 
-    --accent: #0a84ff; 
-    --border: #3a3a3c; 
-    --table-border: #1c1c1e; 
-  }
+  :root { --bg: #1c1c1e; --card: #2c2c2e; --text: #ffffff; --accent: #0a84ff; --border: #3a3a3c; --table-border: #1c1c1e; }
 }
-
-body { 
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: var(--bg); 
-  margin: 0; 
-  padding: 15px; 
-  color: var(--text); 
-  padding-bottom: 40px; 
-}
-
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 40px; }
 .container { max-width: 450px; margin: 0 auto; }
 h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
-
 .tabs { display: flex; margin-bottom: 15px; background: var(--border); padding: 2px; border-radius: 8px; }
 .tab { flex: 1; text-align: center; padding: 8px 0; font-weight: 600; font-size: 11px; border-radius: 6px; cursor: pointer; border: none; background: transparent; text-transform: uppercase; color: var(--text); }
 .tab.active { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,0.15); color: var(--text); }
-
 .sub-tabs { display: flex; margin-bottom: 12px; background: var(--border); padding: 2px; border-radius: 6px; }
 .sub-tab { flex: 1; text-align: center; padding: 6px 0; font-weight: 600; font-size: 10px; border-radius: 4px; cursor: pointer; border: none; background: transparent; text-transform: uppercase; color: #8e8e93; }
 .sub-tab.active { background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,0.12); color: var(--text); }
-
 .card { background: var(--card); border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 .row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 10px 0; gap: 10px; position: relative; }
 .row:last-child { border-bottom: none; }
-
 label { font-size: 15px; font-weight: 500; width: 55%; overflow-wrap: break-word; word-break: normal; line-height: 1.3; }
 input { border: none; text-align: right; font-size: 16px; width: 40%; outline: none; background: transparent; font-weight: bold; color: var(--text); }
-
 .select-wrapper { position: relative; width: 40%; display: flex; justify-content: flex-end; align-items: center; }
 .select-display { font-size: 16px; font-weight: bold; color: var(--accent); padding-right: 18px; text-align: right; pointer-events: none; overflow-wrap: break-word; word-break: normal; max-width: 100%; display: inline-block; line-height: 1.3; }
 .select-wrapper::after { content: " ▲▼"; font-size: 8px; color: var(--accent); position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none; letter-spacing: -1px; display: inline-block; }
 select { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; appearance: none; }
-
 .result-box { text-align: center; padding: 15px 0; }
 .result-val { font-size: 30px; font-weight: bold; color: var(--text); margin-bottom: 4px; }
 .result-lbl { font-size: 13px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
-
 .system-toggle-btn { background: var(--border); color: var(--text); border: none; border-radius: 6px; padding: 6px 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; cursor: pointer; margin-top: 8px; margin-bottom: 4px; transition: background 0.2s, color 0.2s; }
 .system-toggle-btn:active { background: var(--accent); color: #fff; }
-
 .badge-container { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
 .calc-badge { text-align: center; font-size: 13px; padding: 10px; border-radius: 8px; color: #fff; font-weight: bold; text-shadow: 0 1px 1px rgba(0,0,0,0.15); transition: background 0.2s ease; }
-
 table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 14px; }
 th { text-align: left; padding: 8px; border-bottom: 2px solid var(--border); color: #8e8e93; font-weight: 600; font-size: 12px; text-transform: uppercase; }
 td { padding: 10px 8px; border-bottom: 1px solid var(--table-border); vertical-align: middle; color: var(--text); }
 tr:last-child td { border-bottom: none; }
-
 .zone-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .zone-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; font-weight: bold; font-size: 11px; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,0.15); }
 .zone-desc { font-size: 12px; color: #8e8e93; overflow-wrap: break-word; word-break: normal; }
@@ -161,7 +129,7 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
 
-<!-- TAB 3: POWER ZONES -->
+  <!-- TAB 3: POWER ZONES -->
   <div id="zones-view" style="display: none;">
     <div class="card">
       <div class="row">
