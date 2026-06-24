@@ -66,12 +66,12 @@ tr:last-child td { border-bottom: none; }
 <div class="card">
 <div class="row"><label>Average Watts</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-in" placeholder="0" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();"></div>
 <div class="row"><label>Time (Minutes)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-min-in" placeholder="0" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();"></div>
-<div class="row"><label style="color: #8e8e93;">Current FTP</label><input type="text" id="current-ftp-display-kj" value="From Power Zones Tab" disabled></div>
+<div class="row"><label style="color: #8e8e93;">Current FTP</label><input type="text" id="current-ftp-display-kj" value="250W (From Power Zones Tab)" disabled></div>
 <div class="row"><label>Proposed FTP (Watts)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-kj" placeholder="250" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();"></div>
 </div>
 <div class="card result-box">
 <div class="result-val" id="kj-out">0</div><div class="result-lbl">Total Kilojoules</div>
-<button id="toggle-system-kj" class="system-toggle-btn" onclick="toggleActiveSystem()">Palette: Standard</button>
+<button id="toggle-system-kj" class="system-toggle-btn" onclick="toggleActiveSystem()">Palette: Peloton Power Zone Bar</button>
 <div class="badge-container">
 <div class="calc-badge" id="kj-current-badge">Current: --</div>
 <div class="calc-badge" id="kj-proposed-badge">Proposed: --</div>
@@ -84,12 +84,12 @@ tr:last-child td { border-bottom: none; }
 <div class="card">
 <div class="row"><label>Total Kilojoules</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-in" placeholder="0" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();"></div>
 <div class="row"><label>Time (Minutes)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-min-in" placeholder="0" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();"></div>
-<div class="row"><label style="color: #8e8e93;">Current FTP</label><input type="text" id="current-ftp-display-watts" value="From Power Zones Tab" disabled></div>
+<div class="row"><label style="color: #8e8e93;">Current FTP</label><input type="text" id="current-ftp-display-watts" value="250W (From Power Zones Tab)" disabled></div>
 <div class="row"><label>Proposed FTP (Watts)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-watts" placeholder="250" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();"></div>
 </div>
 <div class="card result-box">
 <div class="result-val" id="watts-out">0</div><div class="result-lbl">Average Watts</div>
-<button id="toggle-system-watts" class="system-toggle-btn" onclick="toggleActiveSystem()">Palette: Standard</button>
+<button id="toggle-system-watts" class="system-toggle-btn" onclick="toggleActiveSystem()">Palette: Peloton Power Zone Bar</button>
 <div class="badge-container">
 <div class="calc-badge" id="watts-current-badge">Current: --</div>
 <div class="calc-badge" id="watts-proposed-badge">Proposed: --</div>
@@ -105,13 +105,13 @@ tr:last-child td { border-bottom: none; }
 </div>
 <div class="card result-box"><div class="result-val" id="wkg-out">0.00</div><div class="result-lbl">Power to Weight Ratio (W/kg)</div></div>
 <div class="sub-tabs">
-<button id="sub-btn-standard" class="sub-tab active" onclick="setSystemState('standard')">Power Zones</button>
-<button id="sub-btn-peloton" class="sub-tab" onclick="setSystemState('peloton')">Peloton Power Zones</button>
+<button id="sub-btn-standard" class="sub-tab" onclick="setSystemState('standard')">Power Zones</button>
+<button id="sub-btn-peloton" class="sub-tab active" onclick="setSystemState('peloton')">Peloton Power Zones</button>
 </div>
-<div id="standard-zones-table" class="card" style="padding: 8px;">
+<div id="standard-zones-table" class="card" style="padding: 8px; display: none;">
 <table><thead><tr><th>Zone / Label</th><th style="text-align: right;">Target Range</th></tr></thead><tbody id="standard-table-body"></tbody></table>
 </div>
-<div id="peloton-zones-table" class="card" style="padding: 8px; display: none;">
+<div id="peloton-zones-table" class="card" style="padding: 8px;">
 <table><thead><tr><th>Zone / Label</th><th style="text-align: center;">Blue Line Target</th><th style="text-align: right;">Target Range</th></tr></thead><tbody id="peloton-table-body"></tbody></table>
 </div>
 </div>
@@ -163,18 +163,13 @@ function toggleActiveSystem() {
 
 function setSystemState(val) {
   activeZoneSystem = val;
-  const labelText = `Palette: ${val === 'standard' ? 'Standard' : 'Peloton'}`;
+  const labelText = `Palette: ${val === 'standard' ? 'Standard' : 'Peloton Power Zone Bar'}`;
   document.getElementById('toggle-system-kj').innerText = labelText;
   document.getElementById('toggle-system-watts').innerText = labelText;
-  
-  // Set active classes dynamically based on current configuration value
   document.getElementById('sub-btn-standard').classList.toggle('active', val === 'standard');
   document.getElementById('sub-btn-peloton').classList.toggle('active', val === 'peloton');
-  
-  // Toggle the visible table block wrappers
   document.getElementById('standard-zones-table').style.display = val === 'standard' ? 'block' : 'none';
   document.getElementById('peloton-zones-table').style.display = val === 'peloton' ? 'block' : 'none';
-  
   localStorage.setItem('cycling_active_system', val);
   recalculateAllBadges();
 }
@@ -251,6 +246,9 @@ function updateZones() {
   localStorage.setItem('cycling_ftp', ftp);
   localStorage.setItem('cycling_weight', weight);
   localStorage.setItem('cycling_unit', unit);
+  
+  document.getElementById('current-ftp-display-kj').value = ftp + "W (From Power Zones Tab)";
+  document.getElementById('current-ftp-display-watts').value = ftp + "W (From Power Zones Tab)";
 
   const wKg = weight > 0 && ftp > 0 ? (ftp / (unit === 'lbs' ? weight / 2.20462 : weight)).toFixed(2) : "0.00";
   document.getElementById('wkg-out').innerText = wKg;
