@@ -62,50 +62,70 @@ tr:last-child td { border-bottom: none; }
 
 <!-- TAB 1: FIND KJ -->
 <div id="kj-view">
-<div class="card">
-<div class="row"><label>Average Watts</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-in" placeholder="0" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();"></div>
-<div class="row"><label>Time (Minutes)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-min-in" placeholder="0" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();"></div>
-<div class="row" style="align-items: flex-start; flex-direction: column; padding: 10px 0; gap: 4px;">
-  <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-    <label style="color: #8e8e93; width: 55%;">Current FTP</label>
-    <div id="current-ftp-display-kj" style="text-align: right; font-weight: bold; font-size: 16px; width: 40%; color: #8e8e93;">250W</div>
+  <div class="card">
+    <div class="row">
+      <label>Average Watts</label>
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-in" value="150" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();">
+    </div>
+    <div class="row">
+      <label>Time (Minutes)</label>
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-min-in" value="60" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();">
+    </div>
+    <div class="row" style="align-items: flex-start; flex-direction: column; padding: 10px 0; gap: 4px;">
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <label style="color: #8e8e93; width: 55%;">Current FTP</label>
+        <div id="current-ftp-display-kj" style="text-align: right; font-weight: bold; font-size: 16px; width: 40%; color: #8e8e93;">250W</div>
+      </div>
+      <div style="font-size: 11px; color: #8e8e93; text-align: right; width: 100%; white-space: normal; line-height: 1.2;">From Power Zones Tab</div>
+    </div>
+    <div class="row">
+      <label>Proposed FTP (Watts)</label>
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-kj" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();">
+    </div>
   </div>
-  <div style="font-size: 11px; color: #8e8e93; text-align: right; width: 100%; white-space: normal; line-height: 1.2;">From Power Zones Tab</div>
-</div>
-<div class="row"><label>Proposed FTP (Watts)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-kj" placeholder="250" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();"></div>
-</div>
-<div class="card result-box">
-<div class="result-val" id="kj-out">0</div><div class="result-lbl">Total Kilojoules</div>
-<button id="toggle-system-kj" class="system-toggle-btn" onclick="toggleActiveSystem()">Palette: Peloton Power Zone Bar</button>
-<div class="badge-container">
-<div class="calc-badge" id="kj-current-badge">Current: --</div>
-<div class="calc-badge" id="kj-proposed-badge">Proposed: --</div>
-</div>
-</div>
+  <div class="card result-box">
+    <div class="result-val" id="kj-out">0</div>
+    <div class="result-lbl">Total Kilojoules</div>
+    <button id="toggle-system-kj" class="system-toggle-btn" onclick="toggleActiveSystem()">Palette: Peloton Power Zone Bar</button>
+    <div class="badge-container">
+      <div class="calc-badge" id="kj-current-badge">Current: --</div>
+      <div class="calc-badge" id="kj-proposed-badge">Proposed: --</div>
+    </div>
+  </div>
 </div>
 
 <!-- TAB 2: FIND WATTS -->
 <div id="watts-view" style="display: none;">
-<div class="card">
-<div class="row"><label>Total Kilojoules</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-in" placeholder="0" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();"></div>
-<div class="row"><label>Time (Minutes)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-min-in" placeholder="0" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();"></div>
-<div class="row" style="align-items: flex-start; flex-direction: column; padding: 10px 0; gap: 4px;">
-  <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-    <label style="color: #8e8e93; width: 55%;">Current FTP</label>
-    <div id="current-ftp-display-watts" style="text-align: right; font-weight: bold; font-size: 16px; width: 40%; color: #8e8e93;">250W</div>
+  <div class="card">
+    <div class="row">
+      <label>Total Kilojoules</label>
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-in" value="500" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();">
+    </div>
+    <div class="row">
+      <label>Time (Minutes)</label>
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-min-in" value="60" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();">
+    </div>
+    <div class="row" style="align-items: flex-start; flex-direction: column; padding: 10px 0; gap: 4px;">
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <label style="color: #8e8e93; width: 55%;">Current FTP</label>
+        <div id="current-ftp-display-watts" style="text-align: right; font-weight: bold; font-size: 16px; width: 40%; color: #8e8e93;">250W</div>
+      </div>
+      <div style="font-size: 11px; color: #8e8e93; text-align: right; width: 100%; white-space: normal; line-height: 1.2;">From Power Zones Tab</div>
+    </div>
+    <div class="row">
+      <label>Proposed FTP (Watts)</label>
+      <input type="number" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-watts" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();">
+    </div>
   </div>
-  <div style="font-size: 11px; color: #8e8e93; text-align: right; width: 100%; white-space: normal; line-height: 1.2;">From Power Zones Tab</div>
-</div>
-<div class="row"><label>Proposed FTP (Watts)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-watts" placeholder="250" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();"></div>
-</div>
-<div class="card result-box">
-<div class="result-val" id="watts-out">0</div><div class="result-lbl">Average Watts</div>
-<button id="toggle-system-watts" class="system-toggle-btn" onclick="toggleActiveSystem()">Palette: Peloton Power Zone Bar</button>
-<div class="badge-container">
-<div class="calc-badge" id="watts-current-badge">Current: --</div>
-<div class="calc-badge" id="watts-proposed-badge">Proposed: --</div>
-</div>
-</div>
+  <div class="card result-box">
+    <div class="result-val" id="watts-out">0</div>
+    <div class="result-lbl">Average Watts</div>
+    <button id="toggle-system-watts" class="system-toggle-btn" onclick="toggleActiveSystem()">Palette: Peloton Power Zone Bar</button>
+    <div class="badge-container">
+      <div class="calc-badge" id="watts-current-badge">Current: --</div>
+      <div class="calc-badge" id="watts-proposed-badge">Proposed: --</div>
+    </div>
+  </div>
 </div>
 <!-- TAB 3: POWER ZONES -->
 <div id="zones-view" style="display: none;">
@@ -220,28 +240,40 @@ function updateBadgeUI(badgeId, prefix, watts, ftp) {
 }
 
 function recalculateAllBadges() {
-  const currentFTP = parseFloat(document.getElementById('ftp-in').value) || 0;
-  const proposedFTP = parseFloat(document.getElementById('proposed-ftp-kj').value) || 0;
-  const kjWatts = parseFloat(document.getElementById('watts-in').value) || 0;
-  const wattsOut = parseFloat(document.getElementById('watts-out').innerText) || 0;
-  updateBadgeUI('kj-current-badge', 'Current', kjWatts, currentFTP);
-  updateBadgeUI('kj-proposed-badge', 'Proposed', kjWatts, proposedFTP);
-  updateBadgeUI('watts-current-badge', 'Current', wattsOut, currentFTP);
-  updateBadgeUI('watts-proposed-badge', 'Proposed', wattsOut, proposedFTP);
+    const currentFTP = parseFloat(document.getElementById('ftp-in').value) || 0;
+    const proposedFTP = parseFloat(document.getElementById('proposed-ftp-kj').value) || 0;
+    
+    // Retrieve inputs directly to prevent relying on fragile UI text strings
+    const kjWatts = parseFloat(document.getElementById('watts-in').value) || 0;
+    const kjMin = parseFloat(document.getElementById('kj-min-in').value) || 0;
+    const wattsKj = parseFloat(document.getElementById('kj-in').value) || 0;
+    const wattsMin = parseFloat(document.getElementById('watts-min-in').value) || 0;
+
+    // Recalculate values directly for accuracy
+    const calculatedKj = Math.floor((kjWatts * (kjMin * 60)) / 1000);
+    const calculatedWatts = wattsMin <= 0 ? 0 : Math.ceil((wattsKj * 1000) / (wattsMin * 60));
+
+    // Update badges
+    updateBadgeUI('kj-current-badge', 'Current', kjWatts, currentFTP);
+    updateBadgeUI('kj-proposed-badge', 'Proposed', kjWatts, proposedFTP);
+    updateBadgeUI('watts-current-badge', 'Current', calculatedWatts, currentFTP);
+    updateBadgeUI('watts-proposed-badge', 'Proposed', calculatedWatts, proposedFTP);
 }
 
 function calcKJ() {
-  const watts = parseFloat(document.getElementById('watts-in').value) || 0;
-  const min = parseFloat(document.getElementById('kj-min-in').value) || 0;
-  document.getElementById('kj-out').innerText = Math.floor((watts * (min * 60)) / 1000);
-  recalculateAllBadges();
+    const watts = parseFloat(document.getElementById('watts-in').value) || 0;
+    const min = parseFloat(document.getElementById('kj-min-in').value) || 0;
+    
+    document.getElementById('kj-out').innerText = Math.floor((watts * (min * 60)) / 1000);
+    recalculateAllBadges();
 }
 
 function calcWatts() {
-  const kj = parseFloat(document.getElementById('kj-in').value) || 0;
-  const min = parseFloat(document.getElementById('watts-min-in').value) || 0;
-  document.getElementById('watts-out').innerText = min <= 0 ? "0" : Math.ceil((kj * 1000) / (min * 60));
-  recalculateAllBadges();
+    const kj = parseFloat(document.getElementById('kj-in').value) || 0;
+    const min = parseFloat(document.getElementById('watts-min-in').value) || 0;
+    
+    document.getElementById('watts-out').innerText = min <= 0 ? "0" : Math.ceil((kj * 1000) / (min * 60));
+    recalculateAllBadges();
 }
 
 function generateTables() {
@@ -310,7 +342,7 @@ window.onload = function() {
   if (lt) document.getElementById('hr-lthr-in').value = lt;
   syncProposedFTP(p || "250");
   setSystemState(s);
-  syncDropdowns(); updateZones(); updateHRZones();
+  syncDropdowns(); updateZones(); updateHRZones(); calcKJ(); calcWatts();
 };
 </script>
 </body>
