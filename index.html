@@ -29,6 +29,7 @@ h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
 .row:last-child { border-bottom: none; }
 label { font-size: 15px; font-weight: 500; width: 55%; overflow-wrap: break-word; word-break: normal; line-height: 1.3; }
 input { border: none; text-align: right; font-size: 16px; width: 40%; outline: none; background: transparent; font-weight: bold; color: var(--text); }
+input:disabled { color: #8e8e93 !important; cursor: not-allowed; opacity: 0.8; width: 50%; font-size: 14px; font-weight: normal; }
 .select-wrapper { position: relative; width: 40%; display: flex; justify-content: flex-end; align-items: center; }
 .select-display { font-size: 16px; font-weight: bold; color: var(--accent); padding-right: 18px; text-align: right; pointer-events: none; overflow-wrap: break-word; word-break: normal; max-width: 100%; display: inline-block; line-height: 1.3; }
 .select-wrapper::after { content: "▲▼"; font-size: 8px; color: var(--accent); position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none; letter-spacing: -1px; display: inline-block; }
@@ -65,6 +66,7 @@ tr:last-child td { border-bottom: none; }
 <div class="card">
 <div class="row"><label>Average Watts</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-in" placeholder="0" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();"></div>
 <div class="row"><label>Time (Minutes)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-min-in" placeholder="0" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();"></div>
+<div class="row"><label style="color: #8e8e93;">Current FTP</label><input type="text" id="current-ftp-display-kj" value="From Power Zones Tab" disabled></div>
 <div class="row"><label>Proposed FTP (Watts)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-kj" placeholder="250" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();"></div>
 </div>
 <div class="card result-box">
@@ -82,6 +84,7 @@ tr:last-child td { border-bottom: none; }
 <div class="card">
 <div class="row"><label>Total Kilojoules</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-in" placeholder="0" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();"></div>
 <div class="row"><label>Time (Minutes)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-min-in" placeholder="0" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();"></div>
+<div class="row"><label style="color: #8e8e93;">Current FTP</label><input type="text" id="current-ftp-display-watts" value="From Power Zones Tab" disabled></div>
 <div class="row"><label>Proposed FTP (Watts)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-watts" placeholder="250" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();"></div>
 </div>
 <div class="card result-box">
@@ -142,7 +145,7 @@ const zonesConfig = [
   { id: 'z7', label: 'Zone 7', desc: 'Neuromuscular', min: 1.50, max: null, target: 1.65, colorVar: 'z7' }
 ];
 
-let activeZoneSystem = 'standard';
+let activeZoneSystem = 'peloton';
 
 function switchTab(type) {
   ['btn-kj', 'btn-watts', 'btn-zones', 'btn-hr'].forEach(id => document.getElementById(id).classList.remove('active'));
@@ -163,10 +166,15 @@ function setSystemState(val) {
   const labelText = `Palette: ${val === 'standard' ? 'Standard' : 'Peloton'}`;
   document.getElementById('toggle-system-kj').innerText = labelText;
   document.getElementById('toggle-system-watts').innerText = labelText;
+  
+  // Set active classes dynamically based on current configuration value
   document.getElementById('sub-btn-standard').classList.toggle('active', val === 'standard');
   document.getElementById('sub-btn-peloton').classList.toggle('active', val === 'peloton');
+  
+  // Toggle the visible table block wrappers
   document.getElementById('standard-zones-table').style.display = val === 'standard' ? 'block' : 'none';
   document.getElementById('peloton-zones-table').style.display = val === 'peloton' ? 'block' : 'none';
+  
   localStorage.setItem('cycling_active_system', val);
   recalculateAllBadges();
 }
@@ -243,6 +251,7 @@ function updateZones() {
   localStorage.setItem('cycling_ftp', ftp);
   localStorage.setItem('cycling_weight', weight);
   localStorage.setItem('cycling_unit', unit);
+
   const wKg = weight > 0 && ftp > 0 ? (ftp / (unit === 'lbs' ? weight / 2.20462 : weight)).toFixed(2) : "0.00";
   document.getElementById('wkg-out').innerText = wKg;
 
@@ -276,7 +285,7 @@ function updateHRZones() {
 
 window.onload = function() {
   generateTables();
-  const f = localStorage.getItem('cycling_ftp'), w = localStorage.getItem('cycling_weight'), u = localStorage.getItem('cycling_unit'), m = localStorage.getItem('cycling_hr_metric_type'), v = localStorage.getItem('cycling_hr_value'), p = localStorage.getItem('cycling_proposed_ftp'), s = localStorage.getItem('cycling_active_system') || 'standard';
+  const f = localStorage.getItem('cycling_ftp'), w = localStorage.getItem('cycling_weight'), u = localStorage.getItem('cycling_unit'), m = localStorage.getItem('cycling_hr_metric_type'), v = localStorage.getItem('cycling_hr_value'), p = localStorage.getItem('cycling_proposed_ftp'), s = localStorage.getItem('cycling_active_system') || 'peloton';
   if (f) document.getElementById('ftp-in').value = f;
   if (w) document.getElementById('weight-in').value = w;
   if (u) document.getElementById('weight-unit').value = u;
