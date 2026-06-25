@@ -39,6 +39,7 @@ label { font-size: 15px; font-weight: 500; width: 55%; overflow-wrap: break-word
 .sub-label { font-size: 11px; color: #8e8e93; text-align: right; width: 100%; white-space: normal; line-height: 1.2; }
 .muted-display { text-align: right; font-weight: bold; font-size: 16px; width: 40%; color: #8e8e93; }
 input { border: none; text-align: right; font-size: 16px; width: 40%; outline: none; background: transparent; font-weight: bold; color: var(--text); }
+.zone-input { font-size: 13px; width: 50px; padding: 2px 4px; border: 1px solid var(--border); border-radius: 4px; text-align: center; background: var(--bg); color: var(--text); font-weight: bold; }
 
 /* Select wrapper */
 .select-wrapper { position: relative; width: 40%; display: flex; justify-content: flex-end; align-items: center; }
@@ -63,7 +64,11 @@ tr:last-child td { border-bottom: none; }
 .zone-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .zone-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; font-weight: bold; font-size: 11px; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,0.15); }
 .zone-desc { font-size: 12px; color: #8e8e93; overflow-wrap: break-word; word-break: normal; }
-.range-col { text-align: right; font-family: monospace; font-size: 14px; font-weight: bold; }
+.range-col { text-align: right; font-family: monospace; font-size: 13px; font-weight: bold; white-space: nowrap; }
+
+/* Settings / Utility Footer */
+.util-btn { background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.util-btn.secondary { background: var(--border); color: var(--text); }
 </style>
 </head>
 <body>
@@ -81,11 +86,11 @@ tr:last-child td { border-bottom: none; }
   <div class="card">
     <div class="row">
       <label>Average Watts</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-in" value="150" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();">
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*" id="watts-in" value="150" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();">
     </div>
     <div class="row">
       <label>Time (Minutes)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-min-in" value="60" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();">
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*" id="kj-min-in" value="60" oninput="calcKJ()" onclick="this.select();" onfocus="this.select();">
     </div>
     <div class="row-stacked">
       <div class="row-stacked-header">
@@ -96,7 +101,7 @@ tr:last-child td { border-bottom: none; }
     </div>
     <div class="row">
       <label>Proposed FTP (Watts)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-kj" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();">
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-kj" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();">
     </div>
   </div>
   <div class="card result-box">
@@ -114,11 +119,11 @@ tr:last-child td { border-bottom: none; }
   <div class="card">
     <div class="row">
       <label>Total Kilojoules</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="kj-in" value="500" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();">
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*" id="kj-in" value="500" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();">
     </div>
     <div class="row">
       <label>Time (Minutes)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="watts-min-in" value="60" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();">
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*" id="watts-min-in" value="60" oninput="calcWatts()" onclick="this.select();" onfocus="this.select();">
     </div>
     <div class="row-stacked">
       <div class="row-stacked-header">
@@ -129,7 +134,7 @@ tr:last-child td { border-bottom: none; }
     </div>
     <div class="row">
       <label>Proposed FTP (Watts)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-watts" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();">
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*" id="proposed-ftp-watts" value="250" oninput="syncProposedFTP(this.value)" onclick="this.select();" onfocus="this.select();">
     </div>
   </div>
   <div class="card result-box">
@@ -147,13 +152,13 @@ tr:last-child td { border-bottom: none; }
   <div class="card">
     <div class="row">
       <label>Enter Your FTP (Watts)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="ftp-in" placeholder="250" value="250" oninput="updateZones()" onclick="this.select();" onfocus="this.select();">
+      <input type="number" min="1" inputmode="numeric" pattern="[0-9]*" id="ftp-in" placeholder="250" value="250" oninput="updateZones()" onclick="this.select();" onfocus="this.select();">
     </div>
     <div class="row">
       <label>Weight Unit</label>
       <div class="select-wrapper">
         <span class="select-display" id="weight-unit-lbl">lbs</span>
-        <select id="weight-unit" onchange="syncDropdowns(); updateZones();">
+        <select id="weight-unit" onchange="handleUnitChange()">
           <option value="lbs">lbs</option>
           <option value="kg">kg</option>
         </select>
@@ -161,7 +166,7 @@ tr:last-child td { border-bottom: none; }
     </div>
     <div class="row">
       <label>Enter Your Weight</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="weight-in" placeholder="165" value="165" oninput="updateZones()" onclick="this.select();" onfocus="this.select();">
+      <input type="number" min="1" inputmode="numeric" pattern="[0-9]*" id="weight-in" placeholder="165" value="165" oninput="updateZones()" onclick="this.select();" onfocus="this.select();">
     </div>
   </div>
   <div class="card result-box">
@@ -172,15 +177,20 @@ tr:last-child td { border-bottom: none; }
     <button id="sub-btn-standard" class="sub-tab" onclick="setSystemState('standard')">Power Zones</button>
     <button id="sub-btn-peloton" class="sub-tab active" onclick="setSystemState('peloton')">Peloton Power Zones</button>
   </div>
+  
+  <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+     <button class="util-btn secondary" style="font-size: 11px; padding: 4px 8px;" onclick="resetDefaultPowerPercentages()">Reset Custom Power Anchors</button>
+  </div>
+
   <div id="standard-zones-table" class="card" style="padding: 8px; display: none;">
     <table>
-      <thead><tr><th>Zone / Label</th><th style="text-align: right;">Target Range</th></tr></thead>
+      <thead><tr><th>Zone / Label</th><th style="text-align: right;">Anchor Pct Range</th><th style="text-align: right;">Target Range</th></tr></thead>
       <tbody id="standard-table-body"></tbody>
     </table>
   </div>
   <div id="peloton-zones-table" class="card" style="padding: 8px;">
     <table>
-      <thead><tr><th>Zone / Label</th><th style="text-align: center;">Blue Line Target</th><th style="text-align: right;">Target Range</th></tr></thead>
+      <thead><tr><th>Zone / Label</th><th style="text-align: center;">Target %</th><th style="text-align: center;">Blue Line Target</th><th style="text-align: right;">Anchor Pct Range</th><th style="text-align: right;">Target Range</th></tr></thead>
       <tbody id="peloton-table-body"></tbody>
     </table>
   </div>
@@ -190,32 +200,50 @@ tr:last-child td { border-bottom: none; }
   <div class="card">
     <div class="row">
       <label>Max Heart Rate (BPM)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="hr-max-in" placeholder="190" value="190" oninput="updateHRZones()" onclick="this.select();" onfocus="this.select();">
+      <input type="number" min="1" inputmode="numeric" pattern="[0-9]*" id="hr-max-in" placeholder="190" value="190" oninput="updateHRZones()" onclick="this.select();" onfocus="this.select();">
     </div>
     <div class="row">
       <label>Lactate Threshold HR (BPM)</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" id="hr-lthr-in" placeholder="170" value="170" oninput="updateHRZones()" onclick="this.select();" onfocus="this.select();">
+      <input type="number" min="1" inputmode="numeric" pattern="[0-9]*" id="hr-lthr-in" placeholder="170" value="170" oninput="updateHRZones()" onclick="this.select();" onfocus="this.select();">
     </div>
   </div>
+  
+  <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+     <button class="util-btn secondary" style="font-size: 11px; padding: 4px 8px;" onclick="resetDefaultHRPercentages()">Reset Custom HR Percentages</button>
+  </div>
+
   <div class="card" style="padding: 8px; overflow-x: auto;">
     <table>
-      <thead><tr><th>Zone / Label</th><th style="text-align: right; padding-right: 12px;">Max HR</th><th style="text-align: right;">LTHR</th></tr></thead>
-      <tbody>
-        <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-max-range" style="padding-right: 12px;">0 BPM</td><td class="range-col" id="hr1-lthr-range">0 BPM</td></tr>
-        <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-max-range" style="padding-right: 12px;">0 BPM</td><td class="range-col" id="hr2-lthr-range">0 BPM</td></tr>
-        <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-max-range" style="padding-right: 12px;">0 BPM</td><td class="range-col" id="hr3-lthr-range">0 BPM</td></tr>
-        <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-max-range" style="padding-right: 12px;">0 BPM</td><td class="range-col" id="hr4-lthr-range">0 BPM</td></tr>
-        <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-max-range" style="padding-right: 12px;">0 BPM</td><td class="range-col" id="hr5-lthr-range">0 BPM</td></tr>
-      </tbody>
+      <thead>
+        <tr>
+          <th>Zone / Label</th>
+          <th style="text-align: center;">Max HR %</th>
+          <th style="text-align: right; padding-right: 12px;">Max HR Target</th>
+          <th style="text-align: center;">LTHR %</th>
+          <th style="text-align: right;">LTHR Target</th>
+        </tr>
+      </thead>
+      <tbody id="hr-table-body"></tbody>
     </table>
   </div>
 </div>
+
+<div class="card" style="margin-top: 20px; border-top: 1px dashed var(--border); background: transparent; box-shadow: none; text-align: center;">
+  <div style="font-size: 12px; color:#8e8e93; margin-bottom: 10px;">Configuration Management</div>
+  <div style="display: flex; gap: 10px; justify-content: center;">
+     <button class="util-btn" onclick="exportDataProfile()">Export Backup</button>
+     <button class="util-btn secondary" onclick="document.getElementById('import-file-trigger').click()">Import Backup</button>
+     <input type="file" id="import-file-trigger" style="display:none;" onchange="importDataProfile(this)">
+  </div>
+</div>
+
 </div>
 
 <script>
-// Global Configurations
 const LBS_TO_KG = 2.20462;
-const zonesConfig = [
+
+// Default immutable configurations
+const defaultZonesConfig = [
   { id: 'z1', label: 'Zone 1', desc: 'Active Recovery', min: 0.00, max: 0.55, target: 0.45, colorVar: 'z1' },
   { id: 'z2', label: 'Zone 2', desc: 'Endurance',       min: 0.55, max: 0.75, target: 0.655, colorVar: 'z2' },
   { id: 'z3', label: 'Zone 3', desc: 'Tempo',           min: 0.75, max: 0.90, target: 0.83, colorVar: 'z3' },
@@ -223,19 +251,30 @@ const zonesConfig = [
   { id: 'z4', label: 'Zone 4', desc: 'Threshold',       min: 0.90, max: 1.05, target: 0.98, colorVar: 'z4' },
   { id: 'z5', label: 'Zone 5', desc: 'VO2 Max',         min: 1.05, max: 1.20, target: 1.13, colorVar: 'z5' },
   { id: 'z6', label: 'Zone 6', desc: 'Anaerobic',       min: 1.20, max: 1.50, target: 1.355, colorVar: 'z6' },
-  { id: 'z7', label: 'Zone 7', desc: 'Neuromuscular',   min: 1.50, max: null, target: 1.65, colorVar: 'z7' }
+  { id: 'z7', label: 'Zone 7', desc: 'Neuromuscular',   min: 1.50, max: 2.50, target: 1.65, colorVar: 'z7' }
 ];
 
+const defaultHRConfig = [
+  { id: 'hr1', label: 'Zone 1', desc: 'Active Recovery', maxMin: 0, maxMax: 0.65, ltMin: 0, ltMax: 0.68, colorVar: 'z1' },
+  { id: 'hr2', label: 'Zone 2', desc: 'Aerobic Capacity', maxMin: 0.65, maxMax: 0.75, ltMin: 0.68, ltMax: 0.83, colorVar: 'z2' },
+  { id: 'hr3', label: 'Zone 3', desc: 'Tempo',           maxMin: 0.75, maxMax: 0.85, ltMin: 0.83, ltMax: 0.94, colorVar: 'z3' },
+  { id: 'hr4', label: 'Zone 4', desc: 'Threshold',       maxMin: 0.85, maxMax: 0.95, ltMin: 0.94, ltMax: 1.05, colorVar: 'z4' },
+  { id: 'hr5', label: 'Zone 5', desc: 'VO2 Max',         maxMin: 0.95, maxMax: 1.20, ltMin: 1.05, ltMax: 1.25, colorVar: 'z5' }
+];
+
+// Mutable Application States
+let zonesConfig = JSON.parse(JSON.stringify(defaultZonesConfig));
+let hrConfig = JSON.parse(JSON.stringify(defaultHRConfig));
 let activeZoneSystem = 'peloton';
 
-// --- PURE MATHEMATICAL LOGIC ---
 const mathHelpers = {
   kj(watts, minutes) {
-    return Math.floor((watts * (minutes * 60)) / 1000);
+    return Math.floor((Math.max(0, watts) * (Math.max(0, minutes) * 60)) / 1000);
   },
   watts(kj, minutes) {
-    return minutes <= 0 ? 0 : Math.ceil((kj * 1000) / (minutes * 60));
+    return minutes <= 0 ? 0 : Math.ceil((Math.max(0, kj) * 1000) / (Math.max(0, minutes) * 60));
   },
+  // W/kg calculation explicitly converts weight to kg if the unit selected is 'lbs'
   wKg(ftp, weight, unit) {
     if (weight <= 0 || ftp <= 0) return "0.00";
     const weightInKg = unit === 'lbs' ? weight / LBS_TO_KG : weight;
@@ -243,7 +282,6 @@ const mathHelpers = {
   }
 };
 
-// --- VIEW NAVIGATION ---
 function switchTab(type) {
   ['btn-kj', 'btn-watts', 'btn-zones', 'btn-hr'].forEach(id => document.getElementById(id).classList.remove('active'));
   ['kj-view', 'watts-view', 'zones-view', 'hr-view'].forEach(id => document.getElementById(id).style.display = 'none');
@@ -283,23 +321,40 @@ function syncDropdowns() {
   document.getElementById('weight-unit-lbl').innerText = document.getElementById('weight-unit').value;
 }
 
+function handleUnitChange() {
+  const input = document.getElementById('weight-in');
+  let weight = parseFloat(input.value) || 0;
+  const unit = document.getElementById('weight-unit').value;
+  
+  if (unit === 'kg' && weight > 0) {
+    input.value = Math.round(weight / LBS_TO_KG);
+  } else if (unit === 'lbs' && weight > 0) {
+    input.value = Math.round(weight * LBS_TO_KG);
+  }
+  syncDropdowns();
+  updateZones();
+}
+
 function syncProposedFTP(val) {
-  document.getElementById('proposed-ftp-kj').value = val;
-  document.getElementById('proposed-ftp-watts').value = val;
-  localStorage.setItem('cycling_proposed_ftp', val);
+  const safeVal = Math.max(0, parseFloat(val) || 0);
+  document.getElementById('proposed-ftp-kj').value = safeVal;
+  document.getElementById('proposed-ftp-watts').value = safeVal;
+  localStorage.setItem('cycling_proposed_ftp', safeVal);
   recalculateAllBadges();
 }
 
-// --- ZONE CALCULATIONS & OUTPUT PRESENTATION ---
 function getOutputZone(watts, ftp) {
   if (ftp <= 0 || watts <= 0) return { label: 'None', color: '#8e8e93' };
   const ratio = watts / ftp;
   const palettePrefix = activeZoneSystem === 'peloton' ? 'p-' : '';
   
   for (let z of zonesConfig) {
-    if ((z.max === null && ratio > z.min) || (ratio >= z.min && ratio <= z.max)) {
+    if (ratio >= z.min && ratio <= z.max) {
       return { label: z.label, color: `var(--${palettePrefix}${z.colorVar})` };
     }
+  }
+  if (ratio > zonesConfig[zonesConfig.length - 1].max) {
+     return { label: zonesConfig[zonesConfig.length - 1].label, color: `var(--${palettePrefix}${zonesConfig[zonesConfig.length - 1].colorVar})` };
   }
   return { label: 'None', color: '#8e8e93' };
 }
@@ -315,13 +370,13 @@ function updateBadgeUI(badgeId, prefix, watts, ftp) {
 }
 
 function recalculateAllBadges() {
-  const currentFTP = parseFloat(document.getElementById('ftp-in').value) || 0;
-  const proposedFTP = parseFloat(document.getElementById('proposed-ftp-kj').value) || 0;
+  const currentFTP = Math.max(0, parseFloat(document.getElementById('ftp-in').value) || 0);
+  const proposedFTP = Math.max(0, parseFloat(document.getElementById('proposed-ftp-kj').value) || 0);
 
-  const kjWatts = parseFloat(document.getElementById('watts-in').value) || 0;
-  const kjMin = parseFloat(document.getElementById('kj-min-in').value) || 0;
-  const wattsKj = parseFloat(document.getElementById('kj-in').value) || 0;
-  const wattsMin = parseFloat(document.getElementById('watts-min-in').value) || 0;
+  const kjWatts = Math.max(0, parseFloat(document.getElementById('watts-in').value) || 0);
+  const kjMin = Math.max(0, parseFloat(document.getElementById('kj-min-in').value) || 0);
+  const wattsKj = Math.max(0, parseFloat(document.getElementById('kj-in').value) || 0);
+  const wattsMin = Math.max(0, parseFloat(document.getElementById('watts-min-in').value) || 0);
 
   const calculatedKj = mathHelpers.kj(kjWatts, kjMin);
   const calculatedWatts = mathHelpers.watts(wattsKj, wattsMin);
@@ -333,33 +388,95 @@ function recalculateAllBadges() {
 }
 
 function calcKJ() {
-  const watts = parseFloat(document.getElementById('watts-in').value) || 0;
-  const min = parseFloat(document.getElementById('kj-min-in').value) || 0;
+  const watts = Math.max(0, parseFloat(document.getElementById('watts-in').value) || 0);
+  const min = Math.max(0, parseFloat(document.getElementById('kj-min-in').value) || 0);
   document.getElementById('kj-out').innerText = mathHelpers.kj(watts, min);
   recalculateAllBadges();
 }
 
 function calcWatts() {
-  const kj = parseFloat(document.getElementById('kj-in').value) || 0;
-  const min = parseFloat(document.getElementById('watts-min-in').value) || 0;
+  const kj = Math.max(0, parseFloat(document.getElementById('kj-in').value) || 0);
+  const min = Math.max(0, parseFloat(document.getElementById('watts-min-in').value) || 0);
   document.getElementById('watts-out').innerText = mathHelpers.watts(kj, min);
   recalculateAllBadges();
 }
 
-// --- DOM GENERATION & INITIALIZATION ---
+function updateCustomPowerProp(index, property, value) {
+  const numericVal = Math.max(0, parseFloat(value) || 0);
+  zonesConfig[index][property] = property === 'target' ? numericVal : numericVal / 100;
+  localStorage.setItem('cycling_custom_power_config', JSON.stringify(zonesConfig));
+  updateZones();
+}
+
+function updateCustomHRProp(index, property, value) {
+  hrConfig[index][property] = Math.max(0, parseFloat(value) || 0) / 100;
+  localStorage.setItem('cycling_custom_hr_config', JSON.stringify(hrConfig));
+  updateHRZones();
+}
+
+function resetDefaultPowerPercentages() {
+  zonesConfig = JSON.parse(JSON.stringify(defaultZonesConfig));
+  localStorage.removeItem('cycling_custom_power_config');
+  generateTables();
+  updateZones();
+}
+
+function resetDefaultHRPercentages() {
+  hrConfig = JSON.parse(JSON.stringify(defaultHRConfig));
+  localStorage.removeItem('cycling_custom_hr_config');
+  generateTables();
+  updateHRZones();
+}
+
 function generateTables() {
-  let sHtml = "", pHtml = "";
-  zonesConfig.forEach(z => {
-    sHtml += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="range-col" id="${z.id}-range">0 W</td></tr>`;
-    pHtml += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td style="text-align:center;font-weight:bold" id="p-${z.id}-target">0 W</td><td class="range-col" id="p-${z.id}-range">0 W</td></tr>`;
+  let sHtml = "", pHtml = "", hrHtml = "";
+  
+  zonesConfig.forEach((z, i) => {
+    sHtml += `<tr>
+      <td><div class="zone-cell"><span class="zone-badge" style="background:var(--${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
+      <td style="text-align:right; white-space:nowrap;">
+         <input type="number" step="1" class="zone-input" value="${Math.round(z.min*100)}" oninput="updateCustomPowerProp(${i}, 'min', this.value)">% - 
+         <input type="number" step="1" class="zone-input" value="${Math.round(z.max*100)}" oninput="updateCustomPowerProp(${i}, 'max', this.value)">%
+      </td>
+      <td class="range-col" id="${z.id}-range">0 W</td>
+    </tr>`;
+    
+    pHtml += `<tr>
+      <td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
+      <td style="text-align:center;"><input type="number" step="1" class="zone-input" value="${Math.round(z.target * 100)}" oninput="updateCustomPowerProp(${i}, 'target', this.value)">%</td>
+      <td style="text-align:center;font-weight:bold" id="p-${z.id}-target">0 W</td>
+      <td style="text-align:right; white-space:nowrap;">
+         <input type="number" step="1" class="zone-input" value="${Math.round(z.min*100)}" oninput="updateCustomPowerProp(${i}, 'min', this.value)">% - 
+         <input type="number" step="1" class="zone-input" value="${Math.round(z.max*100)}" oninput="updateCustomPowerProp(${i}, 'max', this.value)">%
+      </td>
+      <td class="range-col" id="p-${z.id}-range">0 W</td>
+    </tr>`;
   });
+
+  hrConfig.forEach((h, i) => {
+     hrHtml += `<tr>
+       <td><div class="zone-cell"><span class="zone-badge" style="background: var(--${h.colorVar});">${h.label}</span><span class="zone-desc">${h.desc}</span></div></td>
+       <td style="text-align:center; white-space:nowrap;">
+         <input type="number" class="zone-input" value="${Math.round(h.maxMin*100)}" oninput="updateCustomHRProp(${i}, 'maxMin', this.value)">% - 
+         <input type="number" class="zone-input" value="${Math.round(h.maxMax*100)}" oninput="updateCustomHRProp(${i}, 'maxMax', this.value)">%
+       </td>
+       <td class="range-col" id="${h.id}-max-range" style="padding-right: 12px;">0 BPM</td>
+       <td style="text-align:center; white-space:nowrap;">
+         <input type="number" class="zone-input" value="${Math.round(h.ltMin*100)}" oninput="updateCustomHRProp(${i}, 'ltMin', this.value)">% - 
+         <input type="number" class="zone-input" value="${Math.round(h.ltMax*100)}" oninput="updateCustomHRProp(${i}, 'ltMax', this.value)">%
+       </td>
+       <td class="range-col" id="${h.id}-lthr-range">0 BPM</td>
+     </tr>`;
+  });
+
   document.getElementById('standard-table-body').innerHTML = sHtml;
   document.getElementById('peloton-table-body').innerHTML = pHtml;
+  document.getElementById('hr-table-body').innerHTML = hrHtml;
 }
 
 function updateZones() {
-  const ftp = parseFloat(document.getElementById('ftp-in').value) || 0;
-  const weight = parseFloat(document.getElementById('weight-in').value) || 0;
+  const ftp = Math.max(0, parseFloat(document.getElementById('ftp-in').value) || 0);
+  const weight = Math.max(0, parseFloat(document.getElementById('weight-in').value) || 0);
   const unit = document.getElementById('weight-unit').value;
 
   localStorage.setItem('cycling_ftp', ftp);
@@ -368,43 +485,93 @@ function updateZones() {
 
   document.getElementById('current-ftp-display-kj').innerText = ftp + "W";
   document.getElementById('current-ftp-display-watts').innerText = ftp + "W";
+  
+  // Power to weight ratio output calculation stays strictly measured as standardized W/kg
   document.getElementById('wkg-out').innerText = mathHelpers.wKg(ftp, weight, unit);
 
   zonesConfig.forEach(z => {
-    const minW = Math.round(ftp * z.min) + (z.id !== 'z1' && z.id !== 'ss' ? 1 : 0);
-    const maxW = z.max ? Math.round(ftp * z.max) : null;
-    const rangeText = z.id === 'z1' ? `< ${Math.round(ftp * 0.55)} W` : z.id === 'z7' ? `> ${Math.round(ftp * 1.50) + 1} W` : `${minW} - ${maxW} W`;
+    const minW = Math.round(ftp * z.min);
+    const maxW = Math.round(ftp * z.max);
+    const rangeText = `${minW} - ${maxW} W`;
 
-    document.getElementById(`${z.id}-range`).innerText = rangeText;
-    document.getElementById(`p-${z.id}-range`).innerText = rangeText;
-    document.getElementById(`p-${z.id}-target`).innerText = `${Math.round(ftp * z.target)} W`;
+    const sRange = document.getElementById(`${z.id}-range`);
+    const pRange = document.getElementById(`p-${z.id}-range`);
+    const pTarget = document.getElementById(`p-${z.id}-target`);
+
+    if(sRange) sRange.innerText = rangeText;
+    if(pRange) pRange.innerText = rangeText;
+    if(pTarget) pTarget.innerText = `${Math.round(ftp * z.target)} W`;
   });
   recalculateAllBadges();
 }
 
 function updateHRZones() {
-  const maxHr = parseFloat(document.getElementById('hr-max-in').value) || 0;
-  const lthr = parseFloat(document.getElementById('hr-lthr-in').value) || 0;
+  const maxHr = Math.max(0, parseFloat(document.getElementById('hr-max-in').value) || 0);
+  const lthr = Math.max(0, parseFloat(document.getElementById('hr-lthr-in').value) || 0);
 
   localStorage.setItem('cycling_hr_max_val', maxHr);
   localStorage.setItem('cycling_hr_lthr_val', lthr);
 
-  const m1 = Math.round(maxHr * 0.65) - 1, m2 = Math.round(maxHr * 0.75), m3 = Math.round(maxHr * 0.85), m4 = Math.round(maxHr * 0.95);
-  document.getElementById('hr1-max-range').innerText = `< ${m1 + 1} BPM`;
-  document.getElementById('hr2-max-range').innerText = `${m1 + 1} - ${m2} BPM`;
-  document.getElementById('hr3-max-range').innerText = `${m2 + 1} - ${m3} BPM`;
-  document.getElementById('hr4-max-range').innerText = `${m3 + 1} - ${m4} BPM`;
-  document.getElementById('hr5-max-range').innerText = `> ${m4} BPM`;
+  hrConfig.forEach(h => {
+     const maxMinBpm = Math.round(maxHr * h.maxMin);
+     const maxMaxBpm = Math.round(maxHr * h.maxMax);
+     const ltMinBpm = Math.round(lthr * h.ltMin);
+     const ltMaxBpm = Math.round(lthr * h.ltMax);
 
-  const l1 = Math.round(lthr * 0.68) - 1, l2 = Math.round(lthr * 0.83), l3 = Math.round(lthr * 0.94), l4 = Math.round(lthr * 1.05);
-  document.getElementById('hr1-lthr-range').innerText = `< ${l1 + 1} BPM`;
-  document.getElementById('hr2-lthr-range').innerText = `${l1 + 1} - ${l2} BPM`;
-  document.getElementById('hr3-lthr-range').innerText = `${l2 + 1} - ${l3} BPM`;
-  document.getElementById('hr4-lthr-range').innerText = `${l3 + 1} - ${l4} BPM`;
-  document.getElementById('hr5-lthr-range').innerText = `> ${l4} BPM`;
+     document.getElementById(`${h.id}-max-range`).innerText = `${maxMinBpm} - ${maxMaxBpm} BPM`;
+     document.getElementById(`${h.id}-lthr-range`).innerText = `${ltMinBpm} - ${ltMaxBpm} BPM`;
+  });
+}
+
+// Backup Functions
+function exportDataProfile() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+     ftp: localStorage.getItem('cycling_ftp'),
+     weight: localStorage.getItem('cycling_weight'),
+     unit: localStorage.getItem('cycling_unit'),
+     maxHr: localStorage.getItem('cycling_hr_max_val'),
+     lthr: localStorage.getItem('cycling_hr_lthr_val'),
+     system: localStorage.getItem('cycling_active_system'),
+     proposed: localStorage.getItem('cycling_proposed_ftp'),
+     customPower: localStorage.getItem('cycling_custom_power_config'),
+     customHR: localStorage.getItem('cycling_custom_hr_config')
+  }));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", dataStr);
+  dlAnchor.setAttribute("download", "cycling_calculator_profile.json");
+  dlAnchor.click();
+}
+
+function importDataProfile(input) {
+  const reader = new FileReader();
+  reader.onload = function(){
+    try {
+      const data = JSON.parse(reader.result);
+      if(data.ftp) localStorage.setItem('cycling_ftp', data.ftp);
+      if(data.weight) localStorage.setItem('cycling_weight', data.weight);
+      if(data.unit) localStorage.setItem('cycling_unit', data.unit);
+      if(data.maxHr) localStorage.setItem('cycling_hr_max_val', data.maxHr);
+      if(data.lthr) localStorage.setItem('cycling_hr_lthr_val', data.lthr);
+      if(data.system) localStorage.setItem('cycling_active_system', data.system);
+      if(data.proposed) localStorage.setItem('cycling_proposed_ftp', data.proposed);
+      if(data.customPower) localStorage.setItem('cycling_custom_power_config', data.customPower);
+      if(data.customHR) localStorage.setItem('cycling_custom_hr_config', data.customHR);
+      
+      alert("Settings Imported successfully!");
+      window.location.reload();
+    } catch(e) {
+      alert("Error parsing file. Ensure it is a valid backup JSON.");
+    }
+  };
+  reader.readAsText(input.files[0]);
 }
 
 window.onload = function() {
+  const customPower = localStorage.getItem('cycling_custom_power_config');
+  const customHR = localStorage.getItem('cycling_custom_hr_config');
+  if (customPower) zonesConfig = JSON.parse(customPower);
+  if (customHR) hrConfig = JSON.parse(customHR);
+
   generateTables();
   
   const f = localStorage.getItem('cycling_ftp');
