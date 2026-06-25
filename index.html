@@ -15,8 +15,8 @@
 @media (prefers-color-scheme: dark) {
   :root { --bg: #1c1c1e; --card: #2c2c2e; --text: #ffffff; --accent: #0a84ff; --border: #3a3a3c; --table-border: #1c1c1e; }
 }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 40px; }
-.container { max-width: 450px; margin: 0 auto; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 40px; overflow-x: hidden; }
+.container { max-width: 450px; margin: 0 auto; width: 100%; box-sizing: border-box; }
 h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
 
 /* Tabs */
@@ -28,18 +28,21 @@ h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
 .sub-tab.active { background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,0.12); color: var(--text); }
 
 /* Layout Utilities */
-.card { background: var(--card); border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.card { background: var(--card); border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); box-sizing: border-box; }
 .row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 10px 0; gap: 10px; position: relative; }
 .row:last-child { border-bottom: none; }
 .row-stacked { display: flex; align-items: flex-start; flex-direction: column; padding: 10px 0; gap: 4px; }
 .row-stacked-header { display: flex; justify-content: space-between; width: 100%; align-items: center; }
+
+/* Table Container Wrapper to prevent full screen sliding */
+.responsive-table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 /* Typography & Inputs */
 label { font-size: 15px; font-weight: 500; width: 55%; overflow-wrap: break-word; word-break: normal; line-height: 1.3; }
 .sub-label { font-size: 11px; color: #8e8e93; text-align: right; width: 100%; white-space: normal; line-height: 1.2; }
 .muted-display { text-align: right; font-weight: bold; font-size: 16px; width: 40%; color: #8e8e93; }
 input { border: none; text-align: right; font-size: 16px; width: 40%; outline: none; background: transparent; font-weight: bold; color: var(--text); }
-.zone-input { font-size: 13px; width: 50px; padding: 2px 4px; border: 1px solid var(--border); border-radius: 4px; text-align: center; background: var(--bg); color: var(--text); font-weight: bold; }
+.zone-input { font-size: 12px; width: 42px; padding: 2px 3px; border: 1px solid var(--border); border-radius: 4px; text-align: center; background: var(--bg); color: var(--text); font-weight: bold; display: inline-block; }
 
 /* Select wrapper */
 .select-wrapper { position: relative; width: 40%; display: flex; justify-content: flex-end; align-items: center; }
@@ -56,15 +59,15 @@ select { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity
 .badge-container { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
 .calc-badge { text-align: center; font-size: 13px; padding: 10px; border-radius: 8px; color: #fff; font-weight: bold; text-shadow: 0 1px 1px rgba(0,0,0,0.15); transition: background 0.2s ease; }
 
-/* Tables */
-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 14px; }
-th { text-align: left; padding: 8px; border-bottom: 2px solid var(--border); color: #8e8e93; font-weight: 600; font-size: 12px; text-transform: uppercase; }
-td { padding: 10px 8px; border-bottom: 1px solid var(--table-border); vertical-align: middle; color: var(--text); }
+/* Compact Tables */
+table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 12px; }
+th { text-align: left; padding: 6px; border-bottom: 2px solid var(--border); color: #8e8e93; font-weight: 600; font-size: 11px; text-transform: uppercase; white-space: nowrap; }
+td { padding: 8px 6px; border-bottom: 1px solid var(--table-border); vertical-align: middle; color: var(--text); white-space: nowrap; }
 tr:last-child td { border-bottom: none; }
-.zone-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.zone-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; font-weight: bold; font-size: 11px; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,0.15); }
-.zone-desc { font-size: 12px; color: #8e8e93; overflow-wrap: break-word; word-break: normal; }
-.range-col { text-align: right; font-family: monospace; font-size: 13px; font-weight: bold; white-space: nowrap; }
+.zone-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.zone-badge { display: inline-block; padding: 3px 6px; border-radius: 4px; color: white; font-weight: bold; font-size: 10px; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,0.15); }
+.zone-desc { font-size: 11px; color: #8e8e93; overflow-wrap: break-word; word-break: normal; white-space: normal; }
+.range-col { text-align: right; font-family: monospace; font-size: 12px; font-weight: bold; white-space: nowrap; }
 
 /* Settings / Utility Footer */
 .util-btn { background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
@@ -183,16 +186,20 @@ tr:last-child td { border-bottom: none; }
   </div>
 
   <div id="standard-zones-table" class="card" style="padding: 8px; display: none;">
-    <table>
-      <thead><tr><th>Zone / Label</th><th style="text-align: right;">Anchor Pct Range</th><th style="text-align: right;">Target Range</th></tr></thead>
-      <tbody id="standard-table-body"></tbody>
-    </table>
+    <div class="responsive-table-container">
+      <table>
+        <thead><tr><th>Zone / Label</th><th style="text-align: right;">Anchor Pct Range</th><th style="text-align: right;">Target Range</th></tr></thead>
+        <tbody id="standard-table-body"></tbody>
+      </table>
+    </div>
   </div>
   <div id="peloton-zones-table" class="card" style="padding: 8px;">
-    <table>
-      <thead><tr><th>Zone / Label</th><th style="text-align: center;">Target %</th><th style="text-align: center;">Blue Line Target</th><th style="text-align: right;">Anchor Pct Range</th><th style="text-align: right;">Target Range</th></tr></thead>
-      <tbody id="peloton-table-body"></tbody>
-    </table>
+    <div class="responsive-table-container">
+      <table>
+        <thead><tr><th>Zone / Label</th><th style="text-align: center;">Target %</th><th style="text-align: center;">Blue Line Target</th><th style="text-align: right;">Anchor Pct Range</th><th style="text-align: right;">Target Range</th></tr></thead>
+        <tbody id="peloton-table-body"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -212,19 +219,21 @@ tr:last-child td { border-bottom: none; }
      <button class="util-btn secondary" style="font-size: 11px; padding: 4px 8px;" onclick="resetDefaultHRPercentages()">Reset Custom HR Percentages</button>
   </div>
 
-  <div class="card" style="padding: 8px; overflow-x: auto;">
-    <table>
-      <thead>
-        <tr>
-          <th>Zone / Label</th>
-          <th style="text-align: center;">Max HR %</th>
-          <th style="text-align: right; padding-right: 12px;">Max HR Target</th>
-          <th style="text-align: center;">LTHR %</th>
-          <th style="text-align: right;">LTHR Target</th>
-        </tr>
-      </thead>
-      <tbody id="hr-table-body"></tbody>
-    </table>
+  <div class="card" style="padding: 8px;">
+    <div class="responsive-table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Zone / Label</th>
+            <th style="text-align: center;">Max HR %</th>
+            <th style="text-align: right; padding-right: 12px;">Max HR Target</th>
+            <th style="text-align: center;">LTHR %</th>
+            <th style="text-align: right;">LTHR Target</th>
+          </tr>
+        </thead>
+        <tbody id="hr-table-body"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -274,7 +283,6 @@ const mathHelpers = {
   watts(kj, minutes) {
     return minutes <= 0 ? 0 : Math.ceil((Math.max(0, kj) * 1000) / (Math.max(0, minutes) * 60));
   },
-  // W/kg calculation explicitly converts weight to kg if the unit selected is 'lbs'
   wKg(ftp, weight, unit) {
     if (weight <= 0 || ftp <= 0) return "0.00";
     const weightInKg = unit === 'lbs' ? weight / LBS_TO_KG : weight;
@@ -403,14 +411,37 @@ function calcWatts() {
 
 function updateCustomPowerProp(index, property, value) {
   const numericVal = Math.max(0, parseFloat(value) || 0);
-  zonesConfig[index][property] = property === 'target' ? numericVal : numericVal / 100;
+  zonesConfig[index][property] = numericVal / 100;
   localStorage.setItem('cycling_custom_power_config', JSON.stringify(zonesConfig));
   updateZones();
 }
 
 function updateCustomHRProp(index, property, value) {
-  hrConfig[index][property] = Math.max(0, parseFloat(value) || 0) / 100;
+  let numericVal = Math.max(0, parseFloat(value) || 0);
+  
+  const maxHr = Math.max(0, parseFloat(document.getElementById('hr-max-in').value) || 0);
+  const lthr = Math.max(0, parseFloat(document.getElementById('hr-lthr-in').value) || 0);
+
+  if (property === 'maxMin' || property === 'maxMax') {
+    // Max HR % configurations cannot exceed 100%
+    if (numericVal > 100) {
+      numericVal = 100;
+    }
+  } else if (property === 'ltMin' || property === 'ltMax') {
+    // Compute max percentage safe boundary so resulting BPM does not exceed the entered Max HR
+    if (lthr > 0 && maxHr > 0) {
+      const absoluteMaxPct = (maxHr / lthr) * 100;
+      if (numericVal > absoluteMaxPct) {
+        numericVal = absoluteMaxPct;
+      }
+    }
+  }
+
+  hrConfig[index][property] = numericVal / 100;
   localStorage.setItem('cycling_custom_hr_config', JSON.stringify(hrConfig));
+  
+  // Re-generate table interface to safely render corrected capped input value properties
+  generateTables();
   updateHRZones();
 }
 
@@ -441,14 +472,12 @@ function generateTables() {
       <td class="range-col" id="${z.id}-range">0 W</td>
     </tr>`;
     
+    // Peloton View rows: Target % and Anchor Pct fields are non-editable text values
     pHtml += `<tr>
       <td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
-      <td style="text-align:center;"><input type="number" step="1" class="zone-input" value="${Math.round(z.target * 100)}" oninput="updateCustomPowerProp(${i}, 'target', this.value)">%</td>
-      <td style="text-align:center;font-weight:bold" id="p-${z.id}-target">0 W</td>
-      <td style="text-align:right; white-space:nowrap;">
-         <input type="number" step="1" class="zone-input" value="${Math.round(z.min*100)}" oninput="updateCustomPowerProp(${i}, 'min', this.value)">% - 
-         <input type="number" step="1" class="zone-input" value="${Math.round(z.max*100)}" oninput="updateCustomPowerProp(${i}, 'max', this.value)">%
-      </td>
+      <td style="text-align:center; font-weight:bold; color:var(--text);">${Math.round(z.target * 100)}%</td>
+      <td style="text-align:center; font-weight:bold" id="p-${z.id}-target">0 W</td>
+      <td style="text-align:right; font-weight:bold; color:var(--text);">${Math.round(z.min*100)}% - ${Math.round(z.max*100)}%</td>
       <td class="range-col" id="p-${z.id}-range">0 W</td>
     </tr>`;
   });
@@ -485,8 +514,6 @@ function updateZones() {
 
   document.getElementById('current-ftp-display-kj').innerText = ftp + "W";
   document.getElementById('current-ftp-display-watts').innerText = ftp + "W";
-  
-  // Power to weight ratio output calculation stays strictly measured as standardized W/kg
   document.getElementById('wkg-out').innerText = mathHelpers.wKg(ftp, weight, unit);
 
   zonesConfig.forEach(z => {
