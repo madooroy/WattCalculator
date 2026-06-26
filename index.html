@@ -459,7 +459,6 @@ const zonesConfig = [
 ];
 
 let activeZoneSystem = 'peloton';
-
 const els = {};
 
 function clampNonNegative(value) {
@@ -502,22 +501,6 @@ function getOutputZone(watts, ftp) {
 }
 
 function getZoneRangeInfo(zone, ftp) {
-  if (ftp <= 0) {
-    return {
-      pctText: zone.max === null
-        ? `≥ ${Math.round(zone.min * 100)}%`
-        : zone.id === 'z1'
-          ? `< ${Math.round(zone.max * 100)}%`
-          : `${Math.round(zone.min * 100)}% to < ${Math.round(zone.max * 100)}%`,
-      wattsText: zone.max === null
-        ? `≥ ${wholeNumber(ftp * zone.min)} W`
-        : zone.id === 'z1'
-          ? `< ${wholeNumber(ftp * zone.max)} W`
-          : `${wholeNumber(ftp * zone.min)} W to < ${wholeNumber(ftp * zone.max)} W`,
-      targetText: `0 W`
-    };
-  }
-
   const minW = wholeNumber(ftp * zone.min);
   const maxW = zone.max === null ? null : wholeNumber(ftp * zone.max);
 
@@ -544,7 +527,9 @@ function getZoneRangeInfo(zone, ftp) {
 
 function sanitizeInput(el, decimals = 0) {
   const value = clampNonNegative(el.value);
-  el.value = decimals > 0 ? value.toFixed(decimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1') : String(wholeNumber(value));
+  el.value = decimals > 0
+    ? value.toFixed(decimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1')
+    : String(wholeNumber(value));
   return clampNonNegative(el.value);
 }
 
@@ -580,6 +565,7 @@ function toggleActiveSystem() {
 
 function setSystemState(val) {
   activeZoneSystem = val;
+  localStorage.setItem('cycling_active_system', val);
 
   const peloton = val === 'peloton';
   const labelText = `Palette: ${peloton ? 'Peloton Power Zone Bar' : 'Standard'}`;
@@ -629,7 +615,7 @@ function recalculateAllBadges() {
   const wattsKj = clampNonNegative(els.kjIn.value);
   const wattsMin = clampNonNegative(els.wattsMinIn.value);
 
-  const calculatedWatts = wholeNumber(wattsFromKjMinutes(wattsKj, wattsMin));
+  const calculatedWatts = Math.ceil(wattsFromKjMinutes(wattsKj, wattsMin));
 
   updateBadgeUI(els.kjCurrentBadge, 'Current', kjWatts, currentFTP);
   updateBadgeUI(els.kjProposedBadge, 'Proposed', kjWatts, proposedFTP);
@@ -640,14 +626,14 @@ function recalculateAllBadges() {
 function calcKJ() {
   const watts = clampNonNegative(els.wattsIn.value);
   const min = clampNonNegative(els.kjMinIn.value);
-  els.kjOut.textContent = String(wholeNumber(kjFromWattsMinutes(watts, min)));
+  els.kjOut.textContent = String(Math.floor(kjFromWattsMinutes(watts, min)));
   recalculateAllBadges();
 }
 
 function calcWatts() {
   const kj = clampNonNegative(els.kjIn.value);
   const min = clampNonNegative(els.wattsMinIn.value);
-  els.wattsOut.textContent = String(wholeNumber(wattsFromKjMinutes(kj, min)));
+  els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));
   recalculateAllBadges();
 }
 
@@ -754,6 +740,7 @@ function persistOnCommit(el, key, decimals = 0) {
   const handler = () => {
     const clean = sanitizeInput(el, decimals);
     saveField(key, clean);
+
     if (el === els.ftpIn || el === els.weightIn) updateZones();
     if (el === els.hrMaxIn || el === els.hrLthrIn) updateHRZones();
     if (el === els.proposedFtpKj || el === els.proposedFtpWatts) {
@@ -825,7 +812,11 @@ function initCache() {
 }
 
 function bindEvents() {
-  [els.wattsIn, els.kjMinIn, els.kjIn, els.wattsMinIn, els.ftpIn, els.weightIn, els.hrMaxIn, els.hrLthrIn, els.proposedFtpKj, els.proposedFtpWatts].forEach(bindSelectOnFocus);
+  [
+    els.wattsIn, els.kjMinIn, els.kjIn, els.wattsMinIn,
+    els.ftpIn, els.weightIn, els.hrMaxIn, els.hrLthrIn,
+    els.proposedFtpKj, els.proposedFtpWatts
+  ].forEach(bindSelectOnFocus);
 
   document.querySelectorAll('[data-tab]').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -897,10 +888,6 @@ window.addEventListener('DOMContentLoaded', () => {
   updateHRZones();
   calcKJ();
   calcWatts();
-
-  window.addEventListener('beforeunload', () => {
-    saveField('cycling_active_system', activeZoneSystem);
-  });
 });
 </script>
 </body>
