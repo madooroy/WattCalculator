@@ -16,10 +16,11 @@
   --border: #e5e5ea;
   --table-border: #f2f2f7;
   --focus: #0a84ff;
-
   --z1: #8e8e93; --z2: #34c759; --z3: #007aff; --z4: #ff9500; --z5: #ff3b30; --z6: #af52de; --z7: #5856d6; --ss: #5ac8fa;
-  --p-z1: #B359CE; --p-z2: #4EA4E3; --p-z3: #72BF44; --p-ss: #B5C433; --p-z4: #F8C822; --p-z5: #F37021; --p-z6: #ED2128; --p-z7: #A61A22;
-  --c-z1: #6e6e73; --c-z2: #2fb950; --c-z3: #1f8fff; --c-ss: #3fb9d8; --c-z4: #ff9f0a; --c-z5: #ff453a; --c-z6: #bf5af2; --c-z7: #5e5ce6;
+  --p-z1: #B359CE; --p-z2: #4EA4E3; --p-z3: #72BF44; --p-ss: #B5C433; --p-z4: #F8C822;
+  --p-z5: #F37021; --p-z6: #ED2128; --p-z7: #A61A22;
+  --c-z1: #6e6e73; --c-z2: #2fb950; --c-z3: #1f8fff; --c-ss: #3fb9d8; --c-z4: #ff9f0a; --c-z5: #ff453a;
+  --c-z6: #bf5af2; --c-z7: #5e5ce6;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -43,7 +44,6 @@ body {
 }
 .container { max-width: 480px; margin: 0 auto; }
 h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
-
 .tabs, .sub-tabs {
   display: flex;
   margin-bottom: 15px;
@@ -52,7 +52,6 @@ h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
   border-radius: 8px;
 }
 .sub-tabs { margin-bottom: 12px; border-radius: 6px; }
-
 .tab, .sub-tab {
   flex: 1;
   text-align: center;
@@ -79,11 +78,11 @@ h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
   color: var(--text);
 }
-.tab:focus-visible, .sub-tab:focus-visible, .system-toggle-btn:focus-visible, .secondary-btn:focus-visible, input:focus-visible, select:focus-visible {
+.tab:focus-visible, .sub-tab:focus-visible, .system-toggle-btn:focus-visible,
+.secondary-btn:focus-visible, input:focus-visible, select:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
-
 .card {
   background: var(--card);
   border-radius: 10px;
@@ -100,7 +99,6 @@ h1 { font-size: 22px; text-align: center; margin-bottom: 15px; }
   gap: 10px;
 }
 .row:last-child { border-bottom: none; }
-
 label {
   font-size: 15px;
   font-weight: 500;
@@ -164,11 +162,9 @@ select {
   -webkit-appearance: none;
   appearance: none;
 }
-
 .result-box { text-align: center; padding: 15px 0; }
 .result-val { font-size: 30px; font-weight: bold; color: var(--text); margin-bottom: 4px; }
 .result-lbl { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-
 .system-toggle-btn, .secondary-btn {
   background: var(--border);
   color: var(--text);
@@ -182,7 +178,6 @@ select {
 }
 .system-toggle-btn { margin-top: 8px; margin-bottom: 4px; }
 .system-toggle-btn:active, .secondary-btn:active { background: var(--accent); color: #fff; }
-
 .badge-container {
   display: flex;
   flex-direction: column;
@@ -201,7 +196,6 @@ select {
   text-shadow: 0 1px 1px rgba(0,0,0,0.15);
   transition: background 0.2s ease;
 }
-
 .table-scroll-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 12px; }
 th {
@@ -222,7 +216,6 @@ td {
   white-space: nowrap;
 }
 tr:last-child td { border-bottom: none; }
-
 .zone-cell {
   display: flex;
   flex-direction: column;
@@ -496,16 +489,12 @@ tr:last-child td { border-bottom: none; }
       <div class="controls-row">
         <button id="reset-custom-hr" class="secondary-btn" type="button">Reset to Default</button>
       </div>
-
       <div class="hr-group-title">Custom Max HR upper thresholds (%)</div>
       <div class="hr-edit-grid" id="custom-hr-max-grid"></div>
-
       <div class="hr-group-title" style="margin-top:16px;">Custom LTHR upper thresholds (%)</div>
       <div class="hr-edit-grid" id="custom-hr-lthr-grid"></div>
-
       <div class="help-text">Max HR thresholds cannot exceed 100%. LTHR thresholds are automatically limited so the resulting BPM does not exceed your entered Max HR.</div>
       <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
-
       <div class="table-scroll-wrapper" style="margin-top:10px;">
         <table>
           <thead>
@@ -641,7 +630,6 @@ function getOutputZone(watts, ftp) {
 function getZoneRangeInfo(zone, ftp) {
   const minW = wholeNumber(ftp * zone.min);
   const maxW = zone.max === null ? null : wholeNumber(ftp * zone.max);
-
   let pctText = '';
   let wattsText = '';
 
@@ -687,8 +675,8 @@ function switchTab(type) {
     zones: 'Power Zones',
     hr: 'Heart Rate Zones'
   };
-  els.appTitle.textContent = titles[type] || 'Cycling Calculator';
 
+  els.appTitle.textContent = titles[type] || 'Cycling Calculator';
   if (type === 'zones') updateZones();
   if (type === 'hr') {
     updateHRZones();
@@ -705,25 +693,21 @@ function toggleActiveSystem() {
 function setSystemState(val) {
   activeZoneSystem = val;
   savePrimitive('cycling_active_system', val);
-
   const labelMap = {
     standard: 'Palette: Standard',
     peloton: 'Palette: Peloton Power Zone Bar',
     custom: 'Palette: Custom'
   };
   const buttonText = labelMap[val];
-
   els.toggleSystemKj.textContent = buttonText;
   els.toggleSystemWatts.textContent = buttonText;
   els.toggleSystemKj.setAttribute('aria-pressed', String(val !== 'standard'));
   els.toggleSystemWatts.setAttribute('aria-pressed', String(val !== 'standard'));
-
   recalculateAllBadges();
 }
 
 function setZoneSubtab(val) {
   setSystemState(val);
-
   const isStandard = val === 'standard';
   const isPeloton = val === 'peloton';
   const isCustom = val === 'custom';
@@ -750,12 +734,12 @@ function setHrSubtab(val) {
 
   els.hrSubBtnDefault.classList.toggle('active', isDefault);
   els.hrSubBtnCustom.classList.toggle('active', isCustom);
+
   els.hrSubBtnDefault.setAttribute('aria-selected', String(isDefault));
   els.hrSubBtnCustom.setAttribute('aria-selected', String(isCustom));
 
   els.hrDefaultPanel.style.display = isDefault ? 'block' : 'none';
   els.hrCustomPanel.style.display = isCustom ? 'block' : 'none';
-
   updateCustomHRZones();
 }
 
@@ -785,7 +769,6 @@ function recalculateAllBadges() {
   const kjWatts = clampNonNegative(els.wattsIn.value);
   const wattsKj = clampNonNegative(els.kjIn.value);
   const wattsMin = clampNonNegative(els.wattsMinIn.value);
-
   const calculatedWatts = Math.ceil(wattsFromKjMinutes(wattsKj, wattsMin));
 
   updateBadgeUI(els.kjCurrentBadge, 'Current', kjWatts, currentFTP);
@@ -814,20 +797,19 @@ function generateDefaultTables() {
 
   defaultZonesConfig.forEach(z => {
     sHtml += `
-      <tr>
-        <td><div class="zone-cell"><span class="zone-badge" style="background:var(--${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
-        <td class="range-col" id="${z.id}-pct-range" style="padding-right:10px;">0%</td>
-        <td class="range-col" id="${z.id}-range">0 W</td>
-      </tr>`;
-
+<tr>
+  <td><div class="zone-cell"><span class="zone-badge" style="background:var(--${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
+  <td class="range-col" id="${z.id}-pct-range" style="padding-right:10px;">0%</td>
+  <td class="range-col" id="${z.id}-range">0 W</td>
+</tr>`;
     pHtml += `
-      <tr>
-        <td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
-        <td style="text-align:center; font-weight:bold;">${Math.round(z.target * 100)}%</td>
-        <td style="text-align:center; font-weight:bold" id="p-${z.id}-target">0 W</td>
-        <td style="text-align:right; font-weight:bold; padding-right:10px;" id="p-${z.id}-pct-range">0%</td>
-        <td class="range-col" id="p-${z.id}-range">0 W</td>
-      </tr>`;
+<tr>
+  <td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
+  <td style="text-align:center; font-weight:bold;">${Math.round(z.target * 100)}%</td>
+  <td style="text-align:center; font-weight:bold" id="p-${z.id}-target">0 W</td>
+  <td style="text-align:right; font-weight:bold; padding-right:10px;" id="p-${z.id}-pct-range">0%</td>
+  <td class="range-col" id="p-${z.id}-range">0 W</td>
+</tr>`;
   });
 
   els.standardTableBody.innerHTML = sHtml;
@@ -842,34 +824,34 @@ function generateCustomZonesTable() {
 
     if (z.id === 'z1') {
       inputHtml = `
-        <div class="inline-fields">
-          <span>&lt;</span>
-          <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${Math.round(z.max * 100)}">
-          <span>%</span>
-        </div>`;
+<div class="inline-fields">
+  <span>&lt;</span>
+  <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${Math.round(z.max * 100)}">
+  <span>%</span>
+</div>`;
     } else if (z.id === 'z7') {
       inputHtml = `
-        <div class="inline-fields">
-          <span>≥</span>
-          <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" id="${prefix}-min" type="number" min="0" max="300" step="1" value="${Math.round(z.min * 100)}">
-          <span>%</span>
-        </div>`;
+<div class="inline-fields">
+  <span>≥</span>
+  <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" id="${prefix}-min" type="number" min="0" max="300" step="1" value="${Math.round(z.min * 100)}">
+  <span>%</span>
+</div>`;
     } else {
       inputHtml = `
-        <div class="inline-fields">
-          <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" id="${prefix}-min" type="number" min="0" max="300" step="1" value="${Math.round(z.min * 100)}">
-          <span>to &lt;</span>
-          <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${Math.round(z.max * 100)}">
-          <span>%</span>
-        </div>`;
+<div class="inline-fields">
+  <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" id="${prefix}-min" type="number" min="0" max="300" step="1" value="${Math.round(z.min * 100)}">
+  <span>to &lt;</span>
+  <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${Math.round(z.max * 100)}">
+  <span>%</span>
+</div>`;
     }
 
     html += `
-      <tr>
-        <td><div class="zone-cell"><span class="zone-badge" style="background:var(--c-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
-        <td style="text-align:center;">${inputHtml}</td>
-        <td class="range-col" id="c-${z.id}-range">0 W</td>
-      </tr>`;
+<tr>
+  <td><div class="zone-cell"><span class="zone-badge" style="background:var(--c-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
+  <td style="text-align:center;">${inputHtml}</td>
+  <td class="range-col" id="c-${z.id}-range">0 W</td>
+</tr>`;
   });
 
   els.customTableBody.innerHTML = html;
@@ -994,20 +976,20 @@ function renderCustomHrControls() {
 
   ['Zone 1 upper', 'Zone 2 upper', 'Zone 3 upper', 'Zone 4 upper'].forEach((label, i) => {
     els.customHrMaxGrid.insertAdjacentHTML('beforeend', `
-      <label for="custom-max-${i}" style="width:auto;">${label}</label>
-      <div class="inline-fields">
-        <input class="input-small custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" min="0" max="100" step="1" value="${customHrPercentConfig.max[i]}">
-        <span>%</span>
-      </div>
-    `);
+<label for="custom-max-${i}" style="width:auto;">${label}</label>
+<div class="inline-fields">
+  <input class="input-small custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" min="0" max="100" step="1" value="${customHrPercentConfig.max[i]}">
+  <span>%</span>
+</div>
+`);
 
     els.customHrLthrGrid.insertAdjacentHTML('beforeend', `
-      <label for="custom-lthr-${i}" style="width:auto;">${label}</label>
-      <div class="inline-fields">
-        <input class="input-small custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" min="0" max="150" step="1" value="${customHrPercentConfig.lthr[i]}">
-        <span>%</span>
-      </div>
-    `);
+<label for="custom-lthr-${i}" style="width:auto;">${label}</label>
+<div class="inline-fields">
+  <input class="input-small custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" min="0" max="150" step="1" value="${customHrPercentConfig.lthr[i]}">
+  <span>%</span>
+</div>
+`);
   });
 }
 
@@ -1118,33 +1100,49 @@ function persistOnCommit(el, key, decimals = 0) {
     savePrimitive(key, clean);
 
     if (el === els.ftpIn || el === els.weightIn) updateZones();
+
     if (el === els.hrMaxIn || el === els.hrLthrIn) {
       updateHRZones();
       validateAndApplyCustomHR();
     }
+
     if (el === els.proposedFtpKj || el === els.proposedFtpWatts) {
       syncProposedFTP(clean);
       savePrimitive('cycling_proposed_ftp', clean);
     }
   };
+
   el.addEventListener('change', handler);
   el.addEventListener('blur', handler);
+}
+
+function persistOnInput(el, key, decimals = 0) {
+  if (!el) return;
+
+  el.addEventListener('input', () => {
+    const raw = String(el.value || '').trim();
+    if (raw === '') {
+      localStorage.removeItem(key);
+      return;
+    }
+
+    const n = clampNonNegative(raw);
+    const val = decimals > 0 ? String(Number(n).toFixed(decimals)) : String(wholeNumber(n));
+    localStorage.setItem(key, val);
+  });
 }
 
 function initCache() {
   Object.assign(els, {
     appTitle: document.getElementById('app-title'),
-
     btnKj: document.getElementById('btn-kj'),
     btnWatts: document.getElementById('btn-watts'),
     btnZones: document.getElementById('btn-zones'),
     btnHr: document.getElementById('btn-hr'),
-
     kjView: document.getElementById('kj-view'),
     wattsView: document.getElementById('watts-view'),
     zonesView: document.getElementById('zones-view'),
     hrView: document.getElementById('hr-view'),
-
     wattsIn: document.getElementById('watts-in'),
     kjMinIn: document.getElementById('kj-min-in'),
     proposedFtpKj: document.getElementById('proposed-ftp-kj'),
@@ -1153,7 +1151,6 @@ function initCache() {
     kjCurrentBadge: document.getElementById('kj-current-badge'),
     kjProposedBadge: document.getElementById('kj-proposed-badge'),
     currentFtpDisplayKj: document.getElementById('current-ftp-display-kj'),
-
     kjIn: document.getElementById('kj-in'),
     wattsMinIn: document.getElementById('watts-min-in'),
     proposedFtpWatts: document.getElementById('proposed-ftp-watts'),
@@ -1162,13 +1159,11 @@ function initCache() {
     wattsCurrentBadge: document.getElementById('watts-current-badge'),
     wattsProposedBadge: document.getElementById('watts-proposed-badge'),
     currentFtpDisplayWatts: document.getElementById('current-ftp-display-watts'),
-
     ftpIn: document.getElementById('ftp-in'),
     weightUnit: document.getElementById('weight-unit'),
     weightUnitLbl: document.getElementById('weight-unit-lbl'),
     weightIn: document.getElementById('weight-in'),
     wkgOut: document.getElementById('wkg-out'),
-
     subBtnStandard: document.getElementById('sub-btn-standard'),
     subBtnPeloton: document.getElementById('sub-btn-peloton'),
     subBtnCustom: document.getElementById('sub-btn-custom'),
@@ -1180,7 +1175,6 @@ function initCache() {
     customTableBody: document.getElementById('custom-table-body'),
     resetCustomZones: document.getElementById('reset-custom-zones'),
     customZoneError: document.getElementById('custom-zone-error'),
-
     hrMaxIn: document.getElementById('hr-max-in'),
     hrLthrIn: document.getElementById('hr-lthr-in'),
     hrSubBtnDefault: document.getElementById('hr-sub-btn-default'),
@@ -1191,7 +1185,6 @@ function initCache() {
     customHrError: document.getElementById('custom-hr-error'),
     customHrMaxGrid: document.getElementById('custom-hr-max-grid'),
     customHrLthrGrid: document.getElementById('custom-hr-lthr-grid'),
-
     hr1MaxRange: document.getElementById('hr1-max-range'),
     hr2MaxRange: document.getElementById('hr2-max-range'),
     hr3MaxRange: document.getElementById('hr3-max-range'),
@@ -1253,6 +1246,7 @@ function bindEvents() {
 
   els.ftpIn.addEventListener('input', updateZones);
   els.weightIn.addEventListener('input', updateZones);
+
   els.weightUnit.addEventListener('change', () => {
     syncDropdowns();
     updateZones();
@@ -1267,6 +1261,7 @@ function bindEvents() {
     updateHRZones();
     validateAndApplyCustomHR();
   });
+
   els.hrLthrIn.addEventListener('input', () => {
     updateHRZones();
     validateAndApplyCustomHR();
@@ -1278,6 +1273,9 @@ function bindEvents() {
   persistOnCommit(els.hrLthrIn, 'cycling_hr_lthr_val');
   persistOnCommit(els.proposedFtpKj, 'cycling_proposed_ftp');
   persistOnCommit(els.proposedFtpWatts, 'cycling_proposed_ftp');
+
+  persistOnInput(els.wattsIn, 'cycling_find_kj_avg_watts');
+  persistOnInput(els.kjIn, 'cycling_find_watts_total_kj');
 }
 
 function loadSavedValues() {
@@ -1289,11 +1287,17 @@ function loadSavedValues() {
   const p = localStorage.getItem('cycling_proposed_ftp');
   const s = localStorage.getItem('cycling_active_system') || 'peloton';
 
+  const kjWatts = localStorage.getItem('cycling_find_kj_avg_watts');
+  const totalKj = localStorage.getItem('cycling_find_watts_total_kj');
+
   if (f !== null) els.ftpIn.value = String(wholeNumber(clampNonNegative(f)));
   if (w !== null) els.weightIn.value = String(clampNonNegative(w));
   if (u === 'lbs' || u === 'kg') els.weightUnit.value = u;
   if (mx !== null) els.hrMaxIn.value = String(wholeNumber(clampNonNegative(mx)));
   if (lt !== null) els.hrLthrIn.value = String(wholeNumber(clampNonNegative(lt)));
+
+  if (kjWatts !== null) els.wattsIn.value = String(wholeNumber(clampNonNegative(kjWatts)));
+  if (totalKj !== null) els.kjIn.value = String(wholeNumber(clampNonNegative(totalKj)));
 
   syncProposedFTP(p || '250');
   syncDropdowns();
