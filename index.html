@@ -1201,16 +1201,73 @@ function initCache() {
 function bindCustomZoneInputs() {
   document.querySelectorAll('.custom-zone-input').forEach(el => {
     bindSelectOnFocus(el);
-    el.addEventListener('change', validateAndApplyCustomZones);
-    el.addEventListener('blur', validateAndApplyCustomZones);
+
+    function syncAdjacent() {
+      const idx = Number(el.dataset.zoneIndex);
+      const bound = el.dataset.bound;
+      const value = wholeNumber(clampNonNegative(el.value));
+
+      // Update the neighboring zone so there are no gaps
+      if (bound === 'max' && idx < customZonesConfig.length - 1) {
+        const nextMin = document.getElementById(
+          `custom-zone-${customZonesConfig[idx + 1].id}-min`
+        );
+        if (nextMin) nextMin.value = value;
+      }
+
+      if (bound === 'min' && idx > 0) {
+        const prevMax = document.getElementById(
+          `custom-zone-${customZonesConfig[idx - 1].id}-max`
+        );
+        if (prevMax) prevMax.value = value;
+      }
+
+      validateAndApplyCustomZones();
+    }
+
+    el.addEventListener('change', syncAdjacent);
+    el.addEventListener('blur', syncAdjacent);
   });
 }
 
 function bindCustomHrInputs() {
-  document.querySelectorAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
+  document.querySelectorAll('.custom-hr-max').forEach(el => {
     bindSelectOnFocus(el);
-    el.addEventListener('change', validateAndApplyCustomHR);
-    el.addEventListener('blur', validateAndApplyCustomHR);
+
+    function syncMax() {
+      const i = Number(el.dataset.index);
+      const value = wholeNumber(clampNonNegative(el.value));
+
+      // Keep adjacent boundaries together
+      if (i < 3) {
+        const next = document.getElementById(`custom-max-${i + 1}`);
+        if (next && Number(next.value) < value) next.value = value;
+      }
+
+      validateAndApplyCustomHR();
+    }
+
+    el.addEventListener('change', syncMax);
+    el.addEventListener('blur', syncMax);
+  });
+
+  document.querySelectorAll('.custom-hr-lthr').forEach(el => {
+    bindSelectOnFocus(el);
+
+    function syncLthr() {
+      const i = Number(el.dataset.index);
+      const value = wholeNumber(clampNonNegative(el.value));
+
+      if (i < 3) {
+        const next = document.getElementById(`custom-lthr-${i + 1}`);
+        if (next && Number(next.value) < value) next.value = value;
+      }
+
+      validateAndApplyCustomHR();
+    }
+
+    el.addEventListener('change', syncLthr);
+    el.addEventListener('blur', syncLthr);
   });
 }
 
