@@ -895,12 +895,18 @@ function validateAndApplyCustomZones() {
   }
 
   const nonOpen = updated.filter(z => z.id !== 'z1' && z.id !== 'z7');
-  for (let i = 0; i < nonOpen.length - 1; i++) {
-    if (nonOpen[i].max > nonOpen[i + 1].min && nonOpen[i].id !== 'ss' && nonOpen[i + 1].id !== 'ss') {
-      errorEl.textContent = 'Standard custom zones must remain ordered. Sweet Spot may overlap.';
+for (let i = 0; i < nonOpen.length - 1; i++) {
+  const a = nonOpen[i];
+  const b = nonOpen[i + 1];
+
+  // Enforce boundary ordering only when neither side is Sweet Spot
+  if (a.id !== 'ss' && b.id !== 'ss') {
+    if (a.max > b.min) {
+      errorEl.textContent = 'Zones must remain ordered (no overlap) except Sweet Spot.';
       return;
     }
   }
+}
 
   const z1 = updated.find(z => z.id === 'z1');
   const z2 = updated.find(z => z.id === 'z2');
