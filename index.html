@@ -528,6 +528,20 @@ const defaultZonesConfig = [
   { id: 'z6', label: 'Zone 6', desc: 'Anaerobic', min: 1.20, max: 1.50, target: 1.355, colorVar: 'z6' },
   { id: 'z7', label: 'Zone 7', desc: 'Neuromuscular', min: 1.50, max: null, target: 1.65, colorVar: 'z7' }
 ];
+ document.addEventListener('focusin', (e) => {
+  const el = e.target;
+  if (!(el instanceof HTMLInputElement)) return;
+
+  if (el.closest('#custom-zones-table')) {
+    el.type = 'number';
+    el.inputMode = 'numeric';
+  }
+
+  if (el.closest('#hr-custom-panel')) {
+    el.type = 'number';
+    el.inputMode = 'numeric';
+  }
+});
 
 const defaultHrPercentConfig = {
   max: [65, 75, 85, 95],
