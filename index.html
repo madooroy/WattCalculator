@@ -1194,7 +1194,8 @@ function initCache() {
     hr2LthrRange: document.getElementById('hr2-lthr-range'),
     hr3LthrRange: document.getElementById('hr3-lthr-range'),
     hr4LthrRange: document.getElementById('hr4-lthr-range'),
-    hr5LthrRange: document.getElementById('hr5-lthr-range')
+    hr5LthrRange: document.getElementById('hr5-lthr-range'),
+    document.querySelectorAll('input[type="number"]').forEach(input => {input.setAttribute('inputmode', 'numeric');
   });
 }
 
