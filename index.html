@@ -266,12 +266,6 @@ tr:last-child td { border-bottom: none; }
   gap: 10px 12px;
   align-items: center;
 }
-.power-edit-grid {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px 12px;
-  align-items: center;
-}
 .hr-group-title {
   font-size: 12px;
   font-weight: bold;
@@ -432,27 +426,24 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
 
-    <div id="custom-zones-table" class="card" style="padding:12px; display:none;" role="tabpanel" aria-labelledby="sub-btn-custom">
+    <div id="custom-zones-table" class="card" style="padding:8px; display:none;" role="tabpanel" aria-labelledby="sub-btn-custom">
       <div class="controls-row">
         <button id="reset-custom-zones" class="secondary-btn" type="button">Reset to Default</button>
       </div>
-      <div class="hr-group-title">Custom zone upper thresholds (%)</div>
-      <div class="power-edit-grid" id="custom-power-grid"></div>
-      <div class="hr-group-title" style="margin-top:16px;">Sweet Spot range (%)</div>
-      <div class="power-edit-grid" id="sweet-spot-grid"></div>
-      <div class="help-text">Set upper thresholds for each zone. Sweet Spot can overlap with Zone 3 and Zone 4.</div>
-      <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
-      <div class="table-scroll-wrapper" style="margin-top:10px;">
+      <div class="table-scroll-wrapper">
         <table>
           <thead>
             <tr>
               <th>Zone / Label</th>
+              <th style="text-align:center;">Custom Anchor %</th>
               <th style="text-align:right;">Target Range</th>
             </tr>
           </thead>
           <tbody id="custom-table-body"></tbody>
         </table>
       </div>
+      <div class="help-text">Custom zones also drive badge classification when the active palette is set to Custom.</div>
+      <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
     </div>
   </div>
 
@@ -484,11 +475,11 @@ tr:last-child td { border-bottom: none; }
             </tr>
           </thead>
           <tbody>
-            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-max-range">0</td><td class="range-col" id="hr1-lthr-range">0</td></tr>
-            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-max-range">0</td><td class="range-col" id="hr2-lthr-range">0</td></tr>
-            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-max-range">0</td><td class="range-col" id="hr3-lthr-range">0</td></tr>
-            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-max-range">0</td><td class="range-col" id="hr4-lthr-range">0</td></tr>
-            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-max-range">0</td><td class="range-col" id="hr5-lthr-range">0</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="hr1-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="hr2-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="hr3-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="hr4-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="hr5-lthr-range">0 BPM</td></tr>
           </tbody>
         </table>
       </div>
@@ -514,11 +505,11 @@ tr:last-child td { border-bottom: none; }
             </tr>
           </thead>
           <tbody>
-            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-max-range">0</td><td class="range-col" id="c-hr1-lthr-range">0</td></tr>
-            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-max-range">0</td><td class="range-col" id="c-hr2-lthr-range">0</td></tr>
-            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-max-range">0</td><td class="range-col" id="c-hr3-lthr-range">0</td></tr>
-            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-max-range">0</td><td class="range-col" id="c-hr4-lthr-range">0</td></tr>
-            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-max-range">0</td><td class="range-col" id="c-hr5-lthr-range">0</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="c-hr1-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="c-hr2-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="c-hr3-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="c-hr4-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="c-hr5-lthr-range">0 BPM</td></tr>
           </tbody>
         </table>
       </div>
@@ -537,17 +528,11 @@ const defaultZonesConfig = [
   { id: 'z6', label: 'Zone 6', desc: 'Anaerobic', min: 1.20, max: 1.50, target: 1.355, colorVar: 'z6' },
   { id: 'z7', label: 'Zone 7', desc: 'Neuromuscular', min: 1.50, max: null, target: 1.65, colorVar: 'z7' }
 ];
-
-document.addEventListener('focusin', (e) => {
+ document.addEventListener('focusin', (e) => {
   const el = e.target;
   if (!(el instanceof HTMLInputElement)) return;
 
-  // Select all text in input fields on focus
-  setTimeout(() => {
-    el.select();
-  }, 0);
-
-  if (el.closest('#custom-zones-table') || el.closest('#custom-zones-container') || el.closest('#custom-power-grid') || el.closest('#sweet-spot-grid')) {
+  if (el.closest('#custom-zones-table')) {
     el.type = 'number';
     el.inputMode = 'numeric';
   }
@@ -796,10 +781,7 @@ function switchTab(type) {
   };
 
   els.appTitle.textContent = titles[type] || 'Cycling Calculator';
-  if (type === 'zones') {
-    updateZones();
-    calcWkgOnDemand();
-  }
+  if (type === 'zones') updateZones();
   if (type === 'hr') {
     updateHRZones();
     updateCustomHRZones();
@@ -913,18 +895,6 @@ function calcWatts() {
   recalculateAllBadges();
 }
 
-function calcWkg() {
-  const ftp = clampNonNegative(els.ftpIn.value);
-  const weight = clampNonNegative(els.weightIn.value);
-  const unit = els.weightUnit.value;
-  const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
-  els.wkgOut.textContent = (weightKg > 0 && ftp > 0 ? ftp / weightKg : 0).toFixed(2);
-}
-
-function calcWkgOnDemand() {
-  calcWkg();
-}
-
 function generateDefaultTables() {
   let sHtml = '';
   let pHtml = '';
@@ -950,45 +920,49 @@ function generateDefaultTables() {
   els.pelotonTableBody.innerHTML = pHtml;
 }
 
-function generateCustomPowerGrids() {
-  let powerHtml = '';
-  let sweetSpotHtml = '';
+function getPowerAnchorForInput(zone, bound) {
+  return powerZoneAnchorMap[zone.id][bound];
+}
 
-  const zonesToEdit = ['z1', 'z2', 'z3', 'z4', 'z5', 'z6'];
-  zonesToEdit.forEach((zoneId, i) => {
-    const zone = defaultZonesConfig.find(z => z.id === zoneId);
-    if (zone) {
-      powerHtml += `
-<label style="font-size:14px;">${zone.label}</label>
+function renderPowerAnchorInput(zone, i, bound, prefix) {
+  const anchor = getPowerAnchorForInput(zone, bound);
+  return `<input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="${bound}" data-anchor="${anchor}" id="${prefix}-${bound}" type="number" min="0" max="300" step="1" value="${customPowerAnchors[anchor]}">`;
+}
+
+function generateCustomZonesTable() {
+  let html = '';
+  customZonesConfig.forEach((z, i) => {
+    const prefix = `custom-zone-${z.id}`;
+    let inputHtml = '';
+
+    if (z.id === 'z1') {
+      inputHtml = `
 <div class="inline-fields">
-  <input class="input-small custom-power-input" data-anchor="${zoneId}Max" type="number" min="0" max="300" step="1" value="${customPowerAnchors[zoneId + 'Max']}">
+  <span>&lt;</span>
+  ${renderPowerAnchorInput(z, i, 'max', prefix)}
+  <span>%</span>
+</div>`;
+    } else if (z.id === 'z7') {
+      inputHtml = `
+<div class="inline-fields">
+  <span>≥</span>
+  ${renderPowerAnchorInput(z, i, 'min', prefix)}
+  <span>%</span>
+</div>`;
+    } else {
+      inputHtml = `
+<div class="inline-fields">
+  ${renderPowerAnchorInput(z, i, 'min', prefix)}
+  <span>to &lt;</span>
+  ${renderPowerAnchorInput(z, i, 'max', prefix)}
   <span>%</span>
 </div>`;
     }
-  });
 
-  sweetSpotHtml = `
-<label style="font-size:14px;">Min</label>
-<div class="inline-fields">
-  <input class="input-small custom-ss-input" data-anchor="ssMin" type="number" min="0" max="300" step="1" value="${customPowerAnchors.ssMin}">
-  <span>%</span>
-</div>
-<label style="font-size:14px;">Max</label>
-<div class="inline-fields">
-  <input class="input-small custom-ss-input" data-anchor="ssMax" type="number" min="0" max="300" step="1" value="${customPowerAnchors.ssMax}">
-  <span>%</span>
-</div>`;
-
-  els.customPowerGrid.innerHTML = powerHtml;
-  els.sweetSpotGrid.innerHTML = sweetSpotHtml;
-}
-
-function generateCustomZonesResultTable() {
-  let html = '';
-  customZonesConfig.forEach(z => {
     html += `
 <tr>
   <td><div class="zone-cell"><span class="zone-badge" style="background:var(--c-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
+  <td style="text-align:center;">${inputHtml}</td>
   <td class="range-col" id="c-${z.id}-range">0 W</td>
 </tr>`;
   });
@@ -996,18 +970,24 @@ function generateCustomZonesResultTable() {
   els.customTableBody.innerHTML = html;
 }
 
+function syncPowerAnchorInputs(anchor, value) {
+  document.querySelectorAll(`.custom-zone-input[data-anchor="${anchor}"]`).forEach(input => {
+    if (input.value !== String(value)) input.value = String(value);
+  });
+}
+
 function validatePowerAnchors(anchors) {
   for (const key of powerAnchorOrder) {
     if (!(anchors[key] > 0)) return 'Custom zone anchors must be greater than 0.';
   }
-
-  if (anchors.ssMin >= anchors.ssMax) return 'Sweet Spot min must be lower than max.';
 
   for (let i = 1; i < contiguousPowerAnchorOrder.length; i++) {
     if (anchors[contiguousPowerAnchorOrder[i]] <= anchors[contiguousPowerAnchorOrder[i - 1]]) {
       return 'Custom power zone boundaries must be strictly increasing.';
     }
   }
+
+  if (anchors.ssMin >= anchors.ssMax) return 'Sweet Spot min must be lower than max.';
 
   return '';
 }
@@ -1016,227 +996,451 @@ function validateAndApplyCustomZones() {
   const errorEl = els.customZoneError;
   const nextAnchors = { ...customPowerAnchors };
 
-  document.querySelectorAll('.custom-power-input, .custom-ss-input').forEach(input => {
+  document.querySelectorAll('.custom-zone-input').forEach(input => {
     nextAnchors[input.dataset.anchor] = wholeNumber(clampNonNegative(input.value));
   });
 
-  const error = validatePowerAnchors(nextAnchors);
-  if (error) {
-    errorEl.textContent = error;
-    generateCustomPowerGrids();
-    return;
-  }
+  powerAnchorOrder.forEach(key => syncPowerAnchorInputs(key, nextAnchors[key]));
 
-  errorEl.textContent = '';
-  customPowerAnchors = nextAnchors;
+  const error = validatePowerAnchors(nextAnchors);
+  errorEl.textContent = error;
+  if (error) return;
+
+  customPowerAnchors = normalizePowerAnchors(nextAnchors);
   customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
   saveCustomPowerAnchors();
   updateZones();
-  recalculateAllBadges();
 }
 
 function updateZones() {
   const ftp = clampNonNegative(els.ftpIn.value);
+  const weight = clampNonNegative(els.weightIn.value);
+  const unit = els.weightUnit.value;
+
+  els.currentFtpDisplayKj.textContent = `${wholeNumber(ftp)}W`;
+  els.currentFtpDisplayWatts.textContent = `${wholeNumber(ftp)}W`;
+
+  const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
+  const wKg = (weightKg > 0 && ftp > 0) ? (ftp / weightKg).toFixed(2) : '0.00';
+  els.wkgOut.textContent = wKg;
 
   defaultZonesConfig.forEach(z => {
-    const range = getZoneRangeInfo(z, ftp);
-    const pctEl = document.getElementById(`${z.id}-pct-range`);
-    const rangeEl = document.getElementById(`${z.id}-range`);
+    const info = getZoneRangeInfo(z, ftp);
+    const sPctEl = document.getElementById(`${z.id}-pct-range`);
+    const sRangeEl = document.getElementById(`${z.id}-range`);
     const pPctEl = document.getElementById(`p-${z.id}-pct-range`);
     const pRangeEl = document.getElementById(`p-${z.id}-range`);
     const pTargetEl = document.getElementById(`p-${z.id}-target`);
+
+    if (sPctEl) sPctEl.textContent = info.pctText;
+    if (sRangeEl) sRangeEl.textContent = info.wattsText;
+    if (pPctEl) pPctEl.textContent = info.pctText;
+    if (pRangeEl) pRangeEl.textContent = info.wattsText;
+    if (pTargetEl) pTargetEl.textContent = info.targetText;
+  });
+
+  customZonesConfig.forEach(z => {
+    const info = getZoneRangeInfo(z, ftp);
     const cRangeEl = document.getElementById(`c-${z.id}-range`);
-
-    if (pctEl) pctEl.textContent = range.pctText;
-    if (rangeEl) rangeEl.textContent = range.wattsText;
-    if (pPctEl) pPctEl.textContent = range.pctText;
-    if (pRangeEl) pRangeEl.textContent = range.wattsText;
-    if (pTargetEl) pTargetEl.textContent = `${wholeNumber(ftp * z.target)} W`;
-    if (cRangeEl) cRangeEl.textContent = range.wattsText;
+    if (cRangeEl) cRangeEl.textContent = info.wattsText;
   });
-}
 
-function createCustomHRGrid(anchors, type) {
-  let html = '';
-  ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4'].forEach((label, i) => {
-    const value = anchors[type][i];
-    html += `
-<label style="font-size:14px;">${label}</label>
-<div class="inline-fields">
-  <input class="input-small custom-hr-input" data-type="${type}" data-index="${i}" type="number" min="0" max="${type === 'max' ? 100 : 999}" step="1" value="${value}">
-  <span>%</span>
-</div>`;
-  });
-  return html;
-}
-
-function updateCustomHRZones() {
-  els.customHrMaxGrid.innerHTML = createCustomHRGrid(customHrAnchors, 'max');
-  els.customHrLthrGrid.innerHTML = createCustomHRGrid(customHrAnchors, 'lthr');
-  updateHRZones();
+  recalculateAllBadges();
 }
 
 function updateHRZones() {
-  const maxHR = clampNonNegative(els.hrMaxIn.value);
+  const maxHr = clampNonNegative(els.hrMaxIn.value);
   const lthr = clampNonNegative(els.hrLthrIn.value);
 
-  for (let i = 0; i < 5; i++) {
-    const config = activeHrSubtab === 'custom' ? customHrAnchors : defaultHrPercentConfig;
-    const maxPct = config.max[i] || 0;
-    const lthrPct = config.lthr[i] || 0;
-    
-    const offset = activeHrSubtab === 'custom' ? 'c-' : '';
-    const hrMaxEl = document.getElementById(`${offset}hr${i+1}-max-range`);
-    const hrLthrEl = document.getElementById(`${offset}hr${i+1}-lthr-range`);
-    
-    if (hrMaxEl) hrMaxEl.textContent = `${Math.round(maxHR * (maxPct / 100))} bpm`;
-    if (hrLthrEl) hrLthrEl.textContent = `${Math.round(lthr * (lthrPct / 100))} bpm`;
+  const m1 = wholeNumber(maxHr * 0.65);
+  const m2 = wholeNumber(maxHr * 0.75);
+  const m3 = wholeNumber(maxHr * 0.85);
+  const m4 = wholeNumber(maxHr * 0.95);
+
+  els.hr1MaxRange.textContent = `< ${m1} BPM`;
+  els.hr2MaxRange.textContent = `${m1} to < ${m2} BPM`;
+  els.hr3MaxRange.textContent = `${m2} to < ${m3} BPM`;
+  els.hr4MaxRange.textContent = `${m3} to < ${m4} BPM`;
+  els.hr5MaxRange.textContent = `≥ ${m4} BPM`;
+
+  const l1 = wholeNumber(lthr * 0.68);
+  const l2 = wholeNumber(lthr * 0.83);
+  const l3 = wholeNumber(lthr * 0.94);
+  const l4 = wholeNumber(lthr * 1.05);
+
+  els.hr1LthrRange.textContent = `< ${l1} BPM`;
+  els.hr2LthrRange.textContent = `${l1} to < ${l2} BPM`;
+  els.hr3LthrRange.textContent = `${l2} to < ${l3} BPM`;
+  els.hr4LthrRange.textContent = `${l3} to < ${l4} BPM`;
+  els.hr5LthrRange.textContent = `≥ ${l4} BPM`;
+}
+
+function renderCustomHrControls() {
+  els.customHrMaxGrid.innerHTML = '';
+  els.customHrLthrGrid.innerHTML = '';
+
+  ['Zone 1 upper', 'Zone 2 upper', 'Zone 3 upper', 'Zone 4 upper'].forEach((label, i) => {
+    els.customHrMaxGrid.insertAdjacentHTML('beforeend', `
+<label for="custom-max-${i}" style="width:auto;">${label}</label>
+<div class="inline-fields">
+  <input class="input-small custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" min="0" max="100" step="1" value="${customHrAnchors.max[i]}">
+  <span>%</span>
+</div>
+`);
+
+    els.customHrLthrGrid.insertAdjacentHTML('beforeend', `
+<label for="custom-lthr-${i}" style="width:auto;">${label}</label>
+<div class="inline-fields">
+  <input class="input-small custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" min="0" max="150" step="1" value="${customHrAnchors.lthr[i]}">
+  <span>%</span>
+</div>
+`);
+  });
+}
+
+function readHrAnchorsFromInputs() {
+  return {
+    max: [...document.querySelectorAll('.custom-hr-max')].map(el => wholeNumber(Math.min(clampNonNegative(el.value), 100))),
+    lthr: [...document.querySelectorAll('.custom-hr-lthr')].map(el => wholeNumber(clampNonNegative(el.value)))
+  };
+}
+
+function validateHrAnchorSet(values, maxHr, lthr) {
+  for (let i = 1; i < values.max.length; i++) {
+    if (values.max[i] <= values.max[i - 1]) return 'Custom Max HR thresholds must be strictly increasing.';
   }
+
+  for (let i = 1; i < values.lthr.length; i++) {
+    if (values.lthr[i] <= values.lthr[i - 1]) return 'Custom LTHR thresholds must be strictly increasing.';
+  }
+
+  if (maxHr > 0 && lthr > 0) {
+    const maxAllowedPct = Math.floor((maxHr / lthr) * 100);
+    if (values.lthr.some(value => value > maxAllowedPct)) {
+      return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
+    }
+  }
+
+  return '';
 }
 
-function initializeElements() {
-  els.appTitle = document.getElementById('app-title');
-  els.btnKj = document.getElementById('btn-kj');
-  els.btnWatts = document.getElementById('btn-watts');
-  els.btnZones = document.getElementById('btn-zones');
-  els.btnHr = document.getElementById('btn-hr');
-  els.kjView = document.getElementById('kj-view');
-  els.wattsView = document.getElementById('watts-view');
-  els.zonesView = document.getElementById('zones-view');
-  els.hrView = document.getElementById('hr-view');
-  els.wattsIn = document.getElementById('watts-in');
-  els.kjMinIn = document.getElementById('kj-min-in');
-  els.proposedFtpKj = document.getElementById('proposed-ftp-kj');
-  els.kjOut = document.getElementById('kj-out');
-  els.kjCurrentBadge = document.getElementById('kj-current-badge');
-  els.kjProposedBadge = document.getElementById('kj-proposed-badge');
-  els.toggleSystemKj = document.getElementById('toggle-system-kj');
-  els.kjIn = document.getElementById('kj-in');
-  els.wattsMinIn = document.getElementById('watts-min-in');
-  els.proposedFtpWatts = document.getElementById('proposed-ftp-watts');
-  els.wattsOut = document.getElementById('watts-out');
-  els.wattsCurrentBadge = document.getElementById('watts-current-badge');
-  els.wattsProposedBadge = document.getElementById('watts-proposed-badge');
-  els.toggleSystemWatts = document.getElementById('toggle-system-watts');
-  els.ftpIn = document.getElementById('ftp-in');
-  els.weightUnit = document.getElementById('weight-unit');
-  els.weightUnitLbl = document.getElementById('weight-unit-lbl');
-  els.weightIn = document.getElementById('weight-in');
-  els.wkgOut = document.getElementById('wkg-out');
-  els.subBtnStandard = document.getElementById('sub-btn-standard');
-  els.subBtnPeloton = document.getElementById('sub-btn-peloton');
-  els.subBtnCustom = document.getElementById('sub-btn-custom');
-  els.standardZonesTable = document.getElementById('standard-zones-table');
-  els.pelotonZonesTable = document.getElementById('peloton-zones-table');
-  els.customZonesTable = document.getElementById('custom-zones-table');
-  els.standardTableBody = document.getElementById('standard-table-body');
-  els.pelotonTableBody = document.getElementById('peloton-table-body');
-  els.customTableBody = document.getElementById('custom-table-body');
-  els.customPowerGrid = document.getElementById('custom-power-grid');
-  els.sweetSpotGrid = document.getElementById('sweet-spot-grid');
-  els.resetCustomZones = document.getElementById('reset-custom-zones');
-  els.customZoneError = document.getElementById('custom-zone-error');
-  els.hrMaxIn = document.getElementById('hr-max-in');
-  els.hrLthrIn = document.getElementById('hr-lthr-in');
-  els.hrSubBtnDefault = document.getElementById('hr-sub-btn-default');
-  els.hrSubBtnCustom = document.getElementById('hr-sub-btn-custom');
-  els.hrDefaultPanel = document.getElementById('hr-default-panel');
-  els.hrCustomPanel = document.getElementById('hr-custom-panel');
-  els.customHrMaxGrid = document.getElementById('custom-hr-max-grid');
-  els.customHrLthrGrid = document.getElementById('custom-hr-lthr-grid');
-  els.resetCustomHr = document.getElementById('reset-custom-hr');
-  els.customHrError = document.getElementById('custom-hr-error');
+function writeHrAnchorInputs(values) {
+  document.querySelectorAll('.custom-hr-max').forEach((el, i) => {
+    if (Number(el.value) > 100 || el.value !== String(values.max[i])) el.value = String(values.max[i]);
+  });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  initializeElements();
-  generateDefaultTables();
-  generateCustomPowerGrids();
-  generateCustomZonesResultTable();
+function validateAndApplyCustomHR() {
+  const errorEl = els.customHrError;
+  const nextAnchors = readHrAnchorsFromInputs();
+  writeHrAnchorInputs(nextAnchors);
+
+  const error = validateHrAnchorSet(
+    nextAnchors,
+    clampNonNegative(els.hrMaxIn.value),
+    clampNonNegative(els.hrLthrIn.value)
+  );
+  errorEl.textContent = error;
+  if (error) return;
+
+  customHrAnchors = normalizeHrAnchors(nextAnchors);
+  saveCustomHrAnchors();
   updateCustomHRZones();
-  activeZoneSystem = localStorage.getItem('cycling_active_system') || 'peloton';
-  setZoneSubtab(activeZoneSystem);
+}
 
-  els.btnKj?.addEventListener('click', () => switchTab('kj'));
-  els.btnWatts?.addEventListener('click', () => switchTab('watts'));
-  els.btnZones?.addEventListener('click', () => switchTab('zones'));
-  els.btnHr?.addEventListener('click', () => switchTab('hr'));
+function applyHrRanges(prefix, maxHr, lthr, cfg) {
+  const m1 = wholeNumber(maxHr * (cfg.max[0] / 100));
+  const m2 = wholeNumber(maxHr * (cfg.max[1] / 100));
+  const m3 = wholeNumber(maxHr * (cfg.max[2] / 100));
+  const m4 = wholeNumber(maxHr * (cfg.max[3] / 100));
 
-  els.wattsIn?.addEventListener('input', calcKJ);
-  els.kjMinIn?.addEventListener('input', calcKJ);
-  els.proposedFtpKj?.addEventListener('input', () => syncProposedFTP(els.proposedFtpKj.value));
+  document.getElementById(`${prefix}hr1-max-range`).textContent = `< ${m1} BPM`;
+  document.getElementById(`${prefix}hr2-max-range`).textContent = `${m1} to < ${m2} BPM`;
+  document.getElementById(`${prefix}hr3-max-range`).textContent = `${m2} to < ${m3} BPM`;
+  document.getElementById(`${prefix}hr4-max-range`).textContent = `${m3} to < ${m4} BPM`;
+  document.getElementById(`${prefix}hr5-max-range`).textContent = `≥ ${m4} BPM`;
 
-  els.kjIn?.addEventListener('input', calcWatts);
-  els.wattsMinIn?.addEventListener('input', calcWatts);
-  els.proposedFtpWatts?.addEventListener('input', () => syncProposedFTP(els.proposedFtpWatts.value));
+  const l1 = wholeNumber(lthr * (cfg.lthr[0] / 100));
+  const l2 = wholeNumber(lthr * (cfg.lthr[1] / 100));
+  const l3 = wholeNumber(lthr * (cfg.lthr[2] / 100));
+  const l4 = wholeNumber(lthr * (cfg.lthr[3] / 100));
 
-  els.ftpIn?.addEventListener('input', () => {
-    sanitizeInput(els.ftpIn);
-    updateZones();
-    calcWkg();
-    recalculateAllBadges();
+  document.getElementById(`${prefix}hr1-lthr-range`).textContent = `< ${l1} BPM`;
+  document.getElementById(`${prefix}hr2-lthr-range`).textContent = `${l1} to < ${l2} BPM`;
+  document.getElementById(`${prefix}hr3-lthr-range`).textContent = `${l2} to < ${l3} BPM`;
+  document.getElementById(`${prefix}hr4-lthr-range`).textContent = `${l3} to < ${l4} BPM`;
+  document.getElementById(`${prefix}hr5-lthr-range`).textContent = `≥ ${l4} BPM`;
+}
+
+function updateCustomHRZones() {
+  const maxHr = clampNonNegative(els.hrMaxIn.value);
+  const lthr = clampNonNegative(els.hrLthrIn.value);
+  applyHrRanges('c-', maxHr, lthr, customHrAnchors);
+}
+
+function resetCustomZones() {
+  customPowerAnchors = defaultPowerAnchors();
+  customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
+  saveCustomPowerAnchors();
+  generateCustomZonesTable();
+  bindCustomZoneInputs();
+  updateZones();
+  els.customZoneError.textContent = '';
+}
+
+function resetCustomHR() {
+  customHrAnchors = deepClone(defaultHrPercentConfig);
+  saveCustomHrAnchors();
+  renderCustomHrControls();
+  bindCustomHrInputs();
+  updateCustomHRZones();
+  els.customHrError.textContent = '';
+}
+
+function bindSelectOnFocus(el) {
+  el.addEventListener('focus', () => el.select());
+  el.addEventListener('click', () => el.select());
+}
+
+function persistOnCommit(el, key, decimals = 0) {
+  const handler = () => {
+    const clean = sanitizeInput(el, decimals);
+    savePrimitive(key, clean);
+
+    if (el === els.ftpIn || el === els.weightIn) updateZones();
+
+    if (el === els.hrMaxIn || el === els.hrLthrIn) {
+      updateHRZones();
+      validateAndApplyCustomHR();
+    }
+
+    if (el === els.proposedFtpKj || el === els.proposedFtpWatts) {
+      syncProposedFTP(clean);
+      savePrimitive('cycling_proposed_ftp', clean);
+    }
+  };
+
+  el.addEventListener('change', handler);
+  el.addEventListener('blur', handler);
+}
+
+function persistOnInput(el, key, decimals = 0) {
+  if (!el) return;
+
+  el.addEventListener('input', () => {
+    const raw = String(el.value || '').trim();
+    if (raw === '') {
+      localStorage.removeItem(key);
+      return;
+    }
+
+    const n = clampNonNegative(raw);
+    const val = decimals > 0 ? String(Number(n).toFixed(decimals)) : String(wholeNumber(n));
+    localStorage.setItem(key, val);
   });
+}
 
-  els.weightUnit?.addEventListener('change', syncDropdowns);
-  els.weightIn?.addEventListener('input', () => {
-    sanitizeInput(els.weightIn, 1);
-    calcWkg();
+function initCache() {
+  Object.assign(els, {
+    appTitle: document.getElementById('app-title'),
+    btnKj: document.getElementById('btn-kj'),
+    btnWatts: document.getElementById('btn-watts'),
+    btnZones: document.getElementById('btn-zones'),
+    btnHr: document.getElementById('btn-hr'),
+    kjView: document.getElementById('kj-view'),
+    wattsView: document.getElementById('watts-view'),
+    zonesView: document.getElementById('zones-view'),
+    hrView: document.getElementById('hr-view'),
+    wattsIn: document.getElementById('watts-in'),
+    kjMinIn: document.getElementById('kj-min-in'),
+    proposedFtpKj: document.getElementById('proposed-ftp-kj'),
+    kjOut: document.getElementById('kj-out'),
+    toggleSystemKj: document.getElementById('toggle-system-kj'),
+    kjCurrentBadge: document.getElementById('kj-current-badge'),
+    kjProposedBadge: document.getElementById('kj-proposed-badge'),
+    currentFtpDisplayKj: document.getElementById('current-ftp-display-kj'),
+    kjIn: document.getElementById('kj-in'),
+    wattsMinIn: document.getElementById('watts-min-in'),
+    proposedFtpWatts: document.getElementById('proposed-ftp-watts'),
+    wattsOut: document.getElementById('watts-out'),
+    toggleSystemWatts: document.getElementById('toggle-system-watts'),
+    wattsCurrentBadge: document.getElementById('watts-current-badge'),
+    wattsProposedBadge: document.getElementById('watts-proposed-badge'),
+    currentFtpDisplayWatts: document.getElementById('current-ftp-display-watts'),
+    ftpIn: document.getElementById('ftp-in'),
+    weightUnit: document.getElementById('weight-unit'),
+    weightUnitLbl: document.getElementById('weight-unit-lbl'),
+    weightIn: document.getElementById('weight-in'),
+    wkgOut: document.getElementById('wkg-out'),
+    subBtnStandard: document.getElementById('sub-btn-standard'),
+    subBtnPeloton: document.getElementById('sub-btn-peloton'),
+    subBtnCustom: document.getElementById('sub-btn-custom'),
+    standardZonesTable: document.getElementById('standard-zones-table'),
+    pelotonZonesTable: document.getElementById('peloton-zones-table'),
+    customZonesTable: document.getElementById('custom-zones-table'),
+    standardTableBody: document.getElementById('standard-table-body'),
+    pelotonTableBody: document.getElementById('peloton-table-body'),
+    customTableBody: document.getElementById('custom-table-body'),
+    resetCustomZones: document.getElementById('reset-custom-zones'),
+    customZoneError: document.getElementById('custom-zone-error'),
+    hrMaxIn: document.getElementById('hr-max-in'),
+    hrLthrIn: document.getElementById('hr-lthr-in'),
+    hrSubBtnDefault: document.getElementById('hr-sub-btn-default'),
+    hrSubBtnCustom: document.getElementById('hr-sub-btn-custom'),
+    hrDefaultPanel: document.getElementById('hr-default-panel'),
+    hrCustomPanel: document.getElementById('hr-custom-panel'),
+    resetCustomHr: document.getElementById('reset-custom-hr'),
+    customHrError: document.getElementById('custom-hr-error'),
+    customHrMaxGrid: document.getElementById('custom-hr-max-grid'),
+    customHrLthrGrid: document.getElementById('custom-hr-lthr-grid'),
+    hr1MaxRange: document.getElementById('hr1-max-range'),
+    hr2MaxRange: document.getElementById('hr2-max-range'),
+    hr3MaxRange: document.getElementById('hr3-max-range'),
+    hr4MaxRange: document.getElementById('hr4-max-range'),
+    hr5MaxRange: document.getElementById('hr5-max-range'),
+    hr1LthrRange: document.getElementById('hr1-lthr-range'),
+    hr2LthrRange: document.getElementById('hr2-lthr-range'),
+    hr3LthrRange: document.getElementById('hr3-lthr-range'),
+    hr4LthrRange: document.getElementById('hr4-lthr-range'),
+    hr5LthrRange: document.getElementById('hr5-lthr-range')
   });
+}
 
-  els.subBtnStandard?.addEventListener('click', () => setZoneSubtab('standard'));
-  els.subBtnPeloton?.addEventListener('click', () => setZoneSubtab('peloton'));
-  els.subBtnCustom?.addEventListener('click', () => setZoneSubtab('custom'));
+function bindCustomZoneInputs() {
+  document.querySelectorAll('.custom-zone-input').forEach(el => {
+    bindSelectOnFocus(el);
 
-  els.toggleSystemKj?.addEventListener('click', toggleActiveSystem);
-  els.toggleSystemWatts?.addEventListener('click', toggleActiveSystem);
-
-  els.resetCustomZones?.addEventListener('click', () => {
-    customPowerAnchors = defaultPowerAnchors();
-    customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
-    saveCustomPowerAnchors();
-    generateCustomPowerGrids();
-    generateCustomZonesResultTable();
-    updateZones();
-    recalculateAllBadges();
-  });
-
-  document.addEventListener('change', (e) => {
-    if (e.target.classList.contains('custom-power-input') || e.target.classList.contains('custom-ss-input')) {
+    function syncAnchor() {
+      const value = wholeNumber(clampNonNegative(el.value));
+      syncPowerAnchorInputs(el.dataset.anchor, value);
       validateAndApplyCustomZones();
     }
+
+    el.addEventListener('input', syncAnchor);
+    el.addEventListener('change', syncAnchor);
+    el.addEventListener('blur', syncAnchor);
   });
+}
 
-  els.hrMaxIn?.addEventListener('input', updateHRZones);
-  els.hrLthrIn?.addEventListener('input', updateHRZones);
+function bindCustomHrInputs() {
+  document.querySelectorAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
+    bindSelectOnFocus(el);
 
-  els.hrSubBtnDefault?.addEventListener('click', () => setHrSubtab('default'));
-  els.hrSubBtnCustom?.addEventListener('click', () => setHrSubtab('custom'));
-
-  els.resetCustomHr?.addEventListener('click', () => {
-    customHrAnchors = deepClone(defaultHrPercentConfig);
-    saveCustomHrAnchors();
-    updateCustomHRZones();
-  });
-
-  document.addEventListener('change', (e) => {
-    if (e.target.classList.contains('custom-hr-input')) {
-      const type = e.target.dataset.type;
-      const index = parseInt(e.target.dataset.index, 10);
-      let value = wholeNumber(clampNonNegative(e.target.value));
-      
-      if (type === 'max') value = Math.min(value, 100);
-      
-      customHrAnchors[type][index] = value;
-      e.target.value = String(value);
-      
-      saveCustomHrAnchors();
-      updateHRZones();
+    function syncHrAnchors() {
+      validateAndApplyCustomHR();
     }
+
+    el.addEventListener('input', syncHrAnchors);
+    el.addEventListener('change', syncHrAnchors);
+    el.addEventListener('blur', syncHrAnchors);
+  });
+}
+
+function bindEvents() {
+  [
+    els.wattsIn, els.kjMinIn, els.kjIn, els.wattsMinIn,
+    els.ftpIn, els.weightIn, els.hrMaxIn, els.hrLthrIn,
+    els.proposedFtpKj, els.proposedFtpWatts
+  ].forEach(bindSelectOnFocus);
+
+  document.querySelectorAll('[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
+  els.toggleSystemKj.addEventListener('click', toggleActiveSystem);
+  els.toggleSystemWatts.addEventListener('click', toggleActiveSystem);
+
+  document.querySelectorAll('[data-zone-subtab]').forEach(btn => {
+    btn.addEventListener('click', () => setZoneSubtab(btn.dataset.zoneSubtab));
+  });
+
+  document.querySelectorAll('[data-hr-subtab]').forEach(btn => {
+    btn.addEventListener('click', () => setHrSubtab(btn.dataset.hrSubtab));
+  });
+
+  els.resetCustomZones.addEventListener('click', resetCustomZones);
+  els.resetCustomHr.addEventListener('click', resetCustomHR);
+
+  els.wattsIn.addEventListener('input', calcKJ);
+  els.kjMinIn.addEventListener('input', calcKJ);
+  els.kjIn.addEventListener('input', calcWatts);
+  els.wattsMinIn.addEventListener('input', calcWatts);
+
+  els.ftpIn.addEventListener('input', updateZones);
+  els.weightIn.addEventListener('input', updateZones);
+
+  els.weightUnit.addEventListener('change', () => {
+    syncDropdowns();
+    updateZones();
+    savePrimitive('cycling_unit', els.weightUnit.value);
+  });
+
+  const syncProposed = (e) => syncProposedFTP(e.target.value);
+  els.proposedFtpKj.addEventListener('input', syncProposed);
+  els.proposedFtpWatts.addEventListener('input', syncProposed);
+
+  els.hrMaxIn.addEventListener('input', () => {
+    updateHRZones();
+    validateAndApplyCustomHR();
+  });
+
+  els.hrLthrIn.addEventListener('input', () => {
+    updateHRZones();
+    validateAndApplyCustomHR();
+  });
+
+  persistOnCommit(els.ftpIn, 'cycling_ftp');
+  persistOnCommit(els.weightIn, 'cycling_weight', 1);
+  persistOnCommit(els.hrMaxIn, 'cycling_hr_max_val');
+  persistOnCommit(els.hrLthrIn, 'cycling_hr_lthr_val');
+  persistOnCommit(els.proposedFtpKj, 'cycling_proposed_ftp');
+  persistOnCommit(els.proposedFtpWatts, 'cycling_proposed_ftp');
+
+  persistOnInput(els.wattsIn, 'cycling_find_kj_avg_watts');
+  persistOnInput(els.kjIn, 'cycling_find_watts_total_kj');
+}
+
+function loadSavedValues() {
+  const f = localStorage.getItem('cycling_ftp');
+  const w = localStorage.getItem('cycling_weight');
+  const u = localStorage.getItem('cycling_unit');
+  const mx = localStorage.getItem('cycling_hr_max_val');
+  const lt = localStorage.getItem('cycling_hr_lthr_val');
+  const p = localStorage.getItem('cycling_proposed_ftp');
+  const s = localStorage.getItem('cycling_active_system') || 'peloton';
+
+  const kjWatts = localStorage.getItem('cycling_find_kj_avg_watts');
+  const totalKj = localStorage.getItem('cycling_find_watts_total_kj');
+
+  if (f !== null) els.ftpIn.value = String(wholeNumber(clampNonNegative(f)));
+  if (w !== null) els.weightIn.value = String(clampNonNegative(w));
+  if (u === 'lbs' || u === 'kg') els.weightUnit.value = u;
+  if (mx !== null) els.hrMaxIn.value = String(wholeNumber(clampNonNegative(mx)));
+  if (lt !== null) els.hrLthrIn.value = String(wholeNumber(clampNonNegative(lt)));
+
+  if (kjWatts !== null) els.wattsIn.value = String(wholeNumber(clampNonNegative(kjWatts)));
+  if (totalKj !== null) els.kjIn.value = String(wholeNumber(clampNonNegative(totalKj)));
+
+  syncProposedFTP(p || '250');
+  syncDropdowns();
+  setZoneSubtab(['standard', 'peloton', 'custom'].includes(s) ? s : 'peloton');
+  setHrSubtab('default');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initCache();
+  generateDefaultTables();
+  generateCustomZonesTable();
+  renderCustomHrControls();
+  bindEvents();
+  bindCustomZoneInputs();
+  bindCustomHrInputs();
+  loadSavedValues();
+  updateZones();
+  updateHRZones();
+  updateCustomHRZones();
   calcKJ();
   calcWatts();
-  calcWkg();
 });
 </script>
 </body>
