@@ -537,9 +537,15 @@ const defaultZonesConfig = [
   { id: 'z6', label: 'Zone 6', desc: 'Anaerobic', min: 1.20, max: 1.50, target: 1.355, colorVar: 'z6' },
   { id: 'z7', label: 'Zone 7', desc: 'Neuromuscular', min: 1.50, max: null, target: 1.65, colorVar: 'z7' }
 ];
- document.addEventListener('focusin', (e) => {
+
+document.addEventListener('focusin', (e) => {
   const el = e.target;
   if (!(el instanceof HTMLInputElement)) return;
+
+  // Select all text in input fields on focus
+  setTimeout(() => {
+    el.select();
+  }, 0);
 
   if (el.closest('#custom-zones-table') || el.closest('#custom-zones-container') || el.closest('#custom-power-grid') || el.closest('#sweet-spot-grid')) {
     el.type = 'number';
@@ -790,7 +796,10 @@ function switchTab(type) {
   };
 
   els.appTitle.textContent = titles[type] || 'Cycling Calculator';
-  if (type === 'zones') updateZones();
+  if (type === 'zones') {
+    updateZones();
+    calcWkgOnDemand();
+  }
   if (type === 'hr') {
     updateHRZones();
     updateCustomHRZones();
@@ -902,6 +911,18 @@ function calcWatts() {
   const min = clampNonNegative(els.wattsMinIn.value);
   els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));
   recalculateAllBadges();
+}
+
+function calcWkg() {
+  const ftp = clampNonNegative(els.ftpIn.value);
+  const weight = clampNonNegative(els.weightIn.value);
+  const unit = els.weightUnit.value;
+  const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
+  els.wkgOut.textContent = (weightKg > 0 && ftp > 0 ? ftp / weightKg : 0).toFixed(2);
+}
+
+function calcWkgOnDemand() {
+  calcWkg();
 }
 
 function generateDefaultTables() {
@@ -1152,17 +1173,14 @@ document.addEventListener('DOMContentLoaded', () => {
   els.ftpIn?.addEventListener('input', () => {
     sanitizeInput(els.ftpIn);
     updateZones();
+    calcWkg();
     recalculateAllBadges();
   });
 
   els.weightUnit?.addEventListener('change', syncDropdowns);
   els.weightIn?.addEventListener('input', () => {
     sanitizeInput(els.weightIn, 1);
-    const ftp = clampNonNegative(els.ftpIn.value);
-    const weight = clampNonNegative(els.weightIn.value);
-    const unit = els.weightUnit.value;
-    const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
-    els.wkgOut.textContent = (weightKg > 0 ? ftp / weightKg : 0).toFixed(2);
+    calcWkg();
   });
 
   els.subBtnStandard?.addEventListener('click', () => setZoneSubtab('standard'));
@@ -1218,6 +1236,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   calcKJ();
   calcWatts();
+  calcWkg();
 });
 </script>
 </body>
