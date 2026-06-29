@@ -551,8 +551,6 @@ const defaultHrPercentConfig = {
 const els = {};
 let activeZoneSystem = 'peloton';
 let activeHrSubtab = 'default';
-let customZonesConfig = loadCustomZonesConfig();
-let customHrPercentConfig = loadCustomHrPercentConfig();
 
 function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -583,29 +581,121 @@ function savePrimitive(key, value) {
   localStorage.setItem(key, String(value));
 }
 
-function loadCustomZonesConfig() {
+const powerAnchorOrder = ['z1Max', 'z2Max', 'z3Max', 'ssMin', 'ssMax', 'z4Max', 'z5Max', 'z6Max'];
+const contiguousPowerAnchorOrder = ['z1Max', 'z2Max', 'z3Max', 'z4Max', 'z5Max', 'z6Max'];
+const powerZoneAnchorMap = {
+  z1: { max: 'z1Max' },
+  z2: { min: 'z1Max', max: 'z2Max' },
+  z3: { min: 'z2Max', max: 'z3Max' },
+  ss: { min: 'ssMin', max: 'ssMax' },
+  z4: { min: 'z3Max', max: 'z4Max' },
+  z5: { min: 'z4Max', max: 'z5Max' },
+  z6: { min: 'z5Max', max: 'z6Max' },
+  z7: { min: 'z6Max' }
+};
+
+function defaultPowerAnchors() {
+  return {
+    z1Max: 55,
+    z2Max: 75,
+    z3Max: 90,
+    ssMin: 88,
+    ssMax: 94,
+    z4Max: 105,
+    z5Max: 120,
+    z6Max: 150
+  };
+}
+
+function normalizePowerAnchors(value) {
+  const defaults = defaultPowerAnchors();
+  const source = value && typeof value === 'object' ? value : {};
+  return powerAnchorOrder.reduce((anchors, key) => {
+    const n = clampNonNegative(source[key]);
+    anchors[key] = n > 0 ? wholeNumber(n) : defaults[key];
+    return anchors;
+  }, {});
+}
+
+function anchorsFromZonesConfig(zones) {
+  const defaults = defaultPowerAnchors();
+  if (!Array.isArray(zones)) return defaults;
+  const byId = Object.fromEntries(zones.map(z => [z.id, z]));
+  return normalizePowerAnchors({
+    z1Max: byId.z1 && byId.z1.max !== null ? byId.z1.max * 100 : defaults.z1Max,
+    z2Max: byId.z2 && byId.z2.max !== null ? byId.z2.max * 100 : defaults.z2Max,
+    z3Max: byId.z3 && byId.z3.max !== null ? byId.z3.max * 100 : defaults.z3Max,
+    ssMin: byId.ss ? byId.ss.min * 100 : defaults.ssMin,
+    ssMax: byId.ss && byId.ss.max !== null ? byId.ss.max * 100 : defaults.ssMax,
+    z4Max: byId.z4 && byId.z4.max !== null ? byId.z4.max * 100 : defaults.z4Max,
+    z5Max: byId.z5 && byId.z5.max !== null ? byId.z5.max * 100 : defaults.z5Max,
+    z6Max: byId.z6 && byId.z6.max !== null ? byId.z6.max * 100 : defaults.z6Max
+  });
+}
+
+function zonesFromPowerAnchors(anchors) {
+  const normalized = normalizePowerAnchors(anchors);
+  return defaultZonesConfig.map(z => {
+    const map = powerZoneAnchorMap[z.id];
+    return {
+      ...z,
+      min: map.min ? normalized[map.min] / 100 : 0,
+      max: map.max ? normalized[map.max] / 100 : null
+    };
+  });
+}
+
+function loadCustomPowerAnchors() {
   try {
     const raw = localStorage.getItem('cycling_custom_zones');
-    if (!raw) return deepClone(defaultZonesConfig);
+    if (!raw) return defaultPowerAnchors();
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length === defaultZonesConfig.length ? parsed : deepClone(defaultZonesConfig);
+    if (Array.isArray(parsed)) return anchorsFromZonesConfig(parsed);
+    if (parsed && parsed.version === 2 && parsed.anchors) return normalizePowerAnchors(parsed.anchors);
+    if (parsed && parsed.anchors) return normalizePowerAnchors(parsed.anchors);
+    return normalizePowerAnchors(parsed);
   } catch {
-    return deepClone(defaultZonesConfig);
+    return defaultPowerAnchors();
   }
 }
 
-function loadCustomHrPercentConfig() {
+function saveCustomPowerAnchors() {
+  saveField('cycling_custom_zones', { version: 2, anchors: customPowerAnchors });
+}
+
+function normalizeHrAnchors(value) {
+  const source = value && typeof value === 'object' ? value : {};
+  return {
+    max: [0, 1, 2, 3].map(i => {
+      const n = clampNonNegative(source.max && source.max[i]);
+      return n > 0 ? wholeNumber(Math.min(n, 100)) : defaultHrPercentConfig.max[i];
+    }),
+    lthr: [0, 1, 2, 3].map(i => {
+      const n = clampNonNegative(source.lthr && source.lthr[i]);
+      return n > 0 ? wholeNumber(n) : defaultHrPercentConfig.lthr[i];
+    })
+  };
+}
+
+function loadCustomHrAnchors() {
   try {
     const raw = localStorage.getItem('cycling_custom_hr');
     if (!raw) return deepClone(defaultHrPercentConfig);
     const parsed = JSON.parse(raw);
-    if (!parsed || !Array.isArray(parsed.max) || !Array.isArray(parsed.lthr)) return deepClone(defaultHrPercentConfig);
-    if (parsed.max.length !== 4 || parsed.lthr.length !== 4) return deepClone(defaultHrPercentConfig);
-    return parsed;
+    if (parsed && parsed.version === 2 && parsed.anchors) return normalizeHrAnchors(parsed.anchors);
+    return normalizeHrAnchors(parsed);
   } catch {
     return deepClone(defaultHrPercentConfig);
   }
 }
+
+function saveCustomHrAnchors() {
+  saveField('cycling_custom_hr', { version: 2, anchors: customHrAnchors });
+}
+
+let customPowerAnchors = loadCustomPowerAnchors();
+let customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
+let customHrAnchors = loadCustomHrAnchors();
 
 function getZonesConfigForSystem(system) {
   if (system === 'custom') return customZonesConfig;
@@ -830,6 +920,15 @@ function generateDefaultTables() {
   els.pelotonTableBody.innerHTML = pHtml;
 }
 
+function getPowerAnchorForInput(zone, bound) {
+  return powerZoneAnchorMap[zone.id][bound];
+}
+
+function renderPowerAnchorInput(zone, i, bound, prefix) {
+  const anchor = getPowerAnchorForInput(zone, bound);
+  return `<input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="${bound}" data-anchor="${anchor}" id="${prefix}-${bound}" type="number" min="0" max="300" step="1" value="${customPowerAnchors[anchor]}">`;
+}
+
 function generateCustomZonesTable() {
   let html = '';
   customZonesConfig.forEach((z, i) => {
@@ -840,22 +939,22 @@ function generateCustomZonesTable() {
       inputHtml = `
 <div class="inline-fields">
   <span>&lt;</span>
-  <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${Math.round(z.max * 100)}">
+  ${renderPowerAnchorInput(z, i, 'max', prefix)}
   <span>%</span>
 </div>`;
     } else if (z.id === 'z7') {
       inputHtml = `
 <div class="inline-fields">
   <span>≥</span>
-  <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" id="${prefix}-min" type="number" min="0" max="300" step="1" value="${Math.round(z.min * 100)}">
+  ${renderPowerAnchorInput(z, i, 'min', prefix)}
   <span>%</span>
 </div>`;
     } else {
       inputHtml = `
 <div class="inline-fields">
-  <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" id="${prefix}-min" type="number" min="0" max="300" step="1" value="${Math.round(z.min * 100)}">
+  ${renderPowerAnchorInput(z, i, 'min', prefix)}
   <span>to &lt;</span>
-  <input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${Math.round(z.max * 100)}">
+  ${renderPowerAnchorInput(z, i, 'max', prefix)}
   <span>%</span>
 </div>`;
     }
@@ -871,59 +970,45 @@ function generateCustomZonesTable() {
   els.customTableBody.innerHTML = html;
 }
 
-function validateAndApplyCustomZones() {
-  const updated = deepClone(customZonesConfig);
-  const errorEl = els.customZoneError;
-  errorEl.textContent = '';
-
-  updated.forEach((z, i) => {
-    const minEl = document.getElementById(`custom-zone-${z.id}-min`);
-    const maxEl = document.getElementById(`custom-zone-${z.id}-max`);
-    if (minEl) updated[i].min = clampNonNegative(minEl.value) / 100;
-    if (maxEl) updated[i].max = clampNonNegative(maxEl.value) / 100;
+function syncPowerAnchorInputs(anchor, value) {
+  document.querySelectorAll(`.custom-zone-input[data-anchor="${anchor}"]`).forEach(input => {
+    if (input.value !== String(value)) input.value = String(value);
   });
-
-  for (const z of updated) {
-    if (z.max !== null && z.max <= 0) {
-      errorEl.textContent = 'Upper bounds must be greater than 0.';
-      return;
-    }
-    if (z.max !== null && z.min >= z.max) {
-      errorEl.textContent = `${z.label} min must be lower than max.`;
-      return;
-    }
-  }
-
-  const nonOpen = updated.filter(z => z.id !== 'z1' && z.id !== 'z7');
-for (let i = 0; i < nonOpen.length - 1; i++) {
-  const a = nonOpen[i];
-  const b = nonOpen[i + 1];
-
-  // Enforce boundary ordering only when neither side is Sweet Spot
-  if (a.id !== 'ss' && b.id !== 'ss') {
-    if (a.max > b.min) {
-      errorEl.textContent = 'Zones must remain ordered (no overlap) except Sweet Spot.';
-      return;
-    }
-  }
 }
 
-  const z1 = updated.find(z => z.id === 'z1');
-  const z2 = updated.find(z => z.id === 'z2');
-  const z6 = updated.find(z => z.id === 'z6');
-  const z7 = updated.find(z => z.id === 'z7');
-
-  if (z1.max > z2.min) {
-    errorEl.textContent = 'Zone 1 upper bound cannot exceed Zone 2 lower bound.';
-    return;
-  }
-  if (z7.min < z6.max) {
-    errorEl.textContent = 'Zone 7 lower bound cannot be below Zone 6 upper bound.';
-    return;
+function validatePowerAnchors(anchors) {
+  for (const key of powerAnchorOrder) {
+    if (!(anchors[key] > 0)) return 'Custom zone anchors must be greater than 0.';
   }
 
-  customZonesConfig = updated;
-  saveField('cycling_custom_zones', customZonesConfig);
+  for (let i = 1; i < contiguousPowerAnchorOrder.length; i++) {
+    if (anchors[contiguousPowerAnchorOrder[i]] <= anchors[contiguousPowerAnchorOrder[i - 1]]) {
+      return 'Custom power zone boundaries must be strictly increasing.';
+    }
+  }
+
+  if (anchors.ssMin >= anchors.ssMax) return 'Sweet Spot min must be lower than max.';
+
+  return '';
+}
+
+function validateAndApplyCustomZones() {
+  const errorEl = els.customZoneError;
+  const nextAnchors = { ...customPowerAnchors };
+
+  document.querySelectorAll('.custom-zone-input').forEach(input => {
+    nextAnchors[input.dataset.anchor] = wholeNumber(clampNonNegative(input.value));
+  });
+
+  powerAnchorOrder.forEach(key => syncPowerAnchorInputs(key, nextAnchors[key]));
+
+  const error = validatePowerAnchors(nextAnchors);
+  errorEl.textContent = error;
+  if (error) return;
+
+  customPowerAnchors = normalizePowerAnchors(nextAnchors);
+  customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
+  saveCustomPowerAnchors();
   updateZones();
 }
 
@@ -998,7 +1083,7 @@ function renderCustomHrControls() {
     els.customHrMaxGrid.insertAdjacentHTML('beforeend', `
 <label for="custom-max-${i}" style="width:auto;">${label}</label>
 <div class="inline-fields">
-  <input class="input-small custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" min="0" max="100" step="1" value="${customHrPercentConfig.max[i]}">
+  <input class="input-small custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" min="0" max="100" step="1" value="${customHrAnchors.max[i]}">
   <span>%</span>
 </div>
 `);
@@ -1006,58 +1091,60 @@ function renderCustomHrControls() {
     els.customHrLthrGrid.insertAdjacentHTML('beforeend', `
 <label for="custom-lthr-${i}" style="width:auto;">${label}</label>
 <div class="inline-fields">
-  <input class="input-small custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" min="0" max="150" step="1" value="${customHrPercentConfig.lthr[i]}">
+  <input class="input-small custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" min="0" max="150" step="1" value="${customHrAnchors.lthr[i]}">
   <span>%</span>
 </div>
 `);
   });
 }
 
-function validateAndApplyCustomHR() {
-  const errorEl = els.customHrError;
-  errorEl.textContent = '';
+function readHrAnchorsFromInputs() {
+  return {
+    max: [...document.querySelectorAll('.custom-hr-max')].map(el => wholeNumber(Math.min(clampNonNegative(el.value), 100))),
+    lthr: [...document.querySelectorAll('.custom-hr-lthr')].map(el => wholeNumber(clampNonNegative(el.value)))
+  };
+}
 
-  const maxInputs = [...document.querySelectorAll('.custom-hr-max')].map(el => clampNonNegative(el.value));
-  const lthrInputs = [...document.querySelectorAll('.custom-hr-lthr')].map(el => clampNonNegative(el.value));
-  const maxHr = clampNonNegative(els.hrMaxIn.value);
-  const lthr = clampNonNegative(els.hrLthrIn.value);
-
-  for (let i = 0; i < maxInputs.length; i++) {
-    if (maxInputs[i] > 100) {
-      maxInputs[i] = 100;
-      document.querySelectorAll('.custom-hr-max')[i].value = '100';
-    }
-    if (i > 0 && maxInputs[i] <= maxInputs[i - 1]) {
-      errorEl.textContent = 'Custom Max HR thresholds must be strictly increasing.';
-      return;
-    }
+function validateHrAnchorSet(values, maxHr, lthr) {
+  for (let i = 1; i < values.max.length; i++) {
+    if (values.max[i] <= values.max[i - 1]) return 'Custom Max HR thresholds must be strictly increasing.';
   }
 
-  for (let i = 0; i < lthrInputs.length; i++) {
-    if (i > 0 && lthrInputs[i] <= lthrInputs[i - 1]) {
-      errorEl.textContent = 'Custom LTHR thresholds must be strictly increasing.';
-      return;
-    }
+  for (let i = 1; i < values.lthr.length; i++) {
+    if (values.lthr[i] <= values.lthr[i - 1]) return 'Custom LTHR thresholds must be strictly increasing.';
   }
 
   if (maxHr > 0 && lthr > 0) {
     const maxAllowedPct = Math.floor((maxHr / lthr) * 100);
-    for (let i = 0; i < lthrInputs.length; i++) {
-      if (lthrInputs[i] > maxAllowedPct) {
-        lthrInputs[i] = maxAllowedPct;
-        document.querySelectorAll('.custom-hr-lthr')[i].value = String(maxAllowedPct);
-      }
-    }
-    for (let i = 1; i < lthrInputs.length; i++) {
-      if (lthrInputs[i] <= lthrInputs[i - 1]) {
-        errorEl.textContent = 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower earlier thresholds.';
-        return;
-      }
+    if (values.lthr.some(value => value > maxAllowedPct)) {
+      return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
     }
   }
 
-  customHrPercentConfig = { max: maxInputs, lthr: lthrInputs };
-  saveField('cycling_custom_hr', customHrPercentConfig);
+  return '';
+}
+
+function writeHrAnchorInputs(values) {
+  document.querySelectorAll('.custom-hr-max').forEach((el, i) => {
+    if (Number(el.value) > 100 || el.value !== String(values.max[i])) el.value = String(values.max[i]);
+  });
+}
+
+function validateAndApplyCustomHR() {
+  const errorEl = els.customHrError;
+  const nextAnchors = readHrAnchorsFromInputs();
+  writeHrAnchorInputs(nextAnchors);
+
+  const error = validateHrAnchorSet(
+    nextAnchors,
+    clampNonNegative(els.hrMaxIn.value),
+    clampNonNegative(els.hrLthrIn.value)
+  );
+  errorEl.textContent = error;
+  if (error) return;
+
+  customHrAnchors = normalizeHrAnchors(nextAnchors);
+  saveCustomHrAnchors();
   updateCustomHRZones();
 }
 
@@ -1088,12 +1175,13 @@ function applyHrRanges(prefix, maxHr, lthr, cfg) {
 function updateCustomHRZones() {
   const maxHr = clampNonNegative(els.hrMaxIn.value);
   const lthr = clampNonNegative(els.hrLthrIn.value);
-  applyHrRanges('c-', maxHr, lthr, customHrPercentConfig);
+  applyHrRanges('c-', maxHr, lthr, customHrAnchors);
 }
 
 function resetCustomZones() {
-  customZonesConfig = deepClone(defaultZonesConfig);
-  saveField('cycling_custom_zones', customZonesConfig);
+  customPowerAnchors = defaultPowerAnchors();
+  customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
+  saveCustomPowerAnchors();
   generateCustomZonesTable();
   bindCustomZoneInputs();
   updateZones();
@@ -1101,8 +1189,8 @@ function resetCustomZones() {
 }
 
 function resetCustomHR() {
-  customHrPercentConfig = deepClone(defaultHrPercentConfig);
-  saveField('cycling_custom_hr', customHrPercentConfig);
+  customHrAnchors = deepClone(defaultHrPercentConfig);
+  saveCustomHrAnchors();
   renderCustomHrControls();
   bindCustomHrInputs();
   updateCustomHRZones();
@@ -1222,72 +1310,29 @@ function bindCustomZoneInputs() {
   document.querySelectorAll('.custom-zone-input').forEach(el => {
     bindSelectOnFocus(el);
 
-    function syncAdjacent() {
-      const idx = Number(el.dataset.zoneIndex);
-      const bound = el.dataset.bound;
+    function syncAnchor() {
       const value = wholeNumber(clampNonNegative(el.value));
-
-      // Update the neighboring zone so there are no gaps
-      if (bound === 'max' && idx < customZonesConfig.length - 1) {
-        const nextMin = document.getElementById(
-          `custom-zone-${customZonesConfig[idx + 1].id}-min`
-        );
-        if (nextMin) nextMin.value = value;
-      }
-
-      if (bound === 'min' && idx > 0) {
-        const prevMax = document.getElementById(
-          `custom-zone-${customZonesConfig[idx - 1].id}-max`
-        );
-        if (prevMax) prevMax.value = value;
-      }
-
+      syncPowerAnchorInputs(el.dataset.anchor, value);
       validateAndApplyCustomZones();
     }
 
-    el.addEventListener('change', syncAdjacent);
-    el.addEventListener('blur', syncAdjacent);
+    el.addEventListener('input', syncAnchor);
+    el.addEventListener('change', syncAnchor);
+    el.addEventListener('blur', syncAnchor);
   });
 }
 
 function bindCustomHrInputs() {
-  document.querySelectorAll('.custom-hr-max').forEach(el => {
+  document.querySelectorAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
     bindSelectOnFocus(el);
 
-    function syncMax() {
-      const i = Number(el.dataset.index);
-      const value = wholeNumber(clampNonNegative(el.value));
-
-      // Keep adjacent boundaries together
-      if (i < 3) {
-        const next = document.getElementById(`custom-max-${i + 1}`);
-        if (next && Number(next.value) < value) next.value = value;
-      }
-
+    function syncHrAnchors() {
       validateAndApplyCustomHR();
     }
 
-    el.addEventListener('change', syncMax);
-    el.addEventListener('blur', syncMax);
-  });
-
-  document.querySelectorAll('.custom-hr-lthr').forEach(el => {
-    bindSelectOnFocus(el);
-
-    function syncLthr() {
-      const i = Number(el.dataset.index);
-      const value = wholeNumber(clampNonNegative(el.value));
-
-      if (i < 3) {
-        const next = document.getElementById(`custom-lthr-${i + 1}`);
-        if (next && Number(next.value) < value) next.value = value;
-      }
-
-      validateAndApplyCustomHR();
-    }
-
-    el.addEventListener('change', syncLthr);
-    el.addEventListener('blur', syncLthr);
+    el.addEventListener('input', syncHrAnchors);
+    el.addEventListener('change', syncHrAnchors);
+    el.addEventListener('blur', syncHrAnchors);
   });
 }
 
