@@ -528,7 +528,8 @@ const defaultZonesConfig = [
   { id: 'z6', label: 'Zone 6', desc: 'Anaerobic', min: 1.20, max: 1.50, target: 1.355, colorVar: 'z6' },
   { id: 'z7', label: 'Zone 7', desc: 'Neuromuscular', min: 1.50, max: null, target: 1.65, colorVar: 'z7' }
 ];
- document.addEventListener('focusin', (e) => {
+
+document.addEventListener('focusin', (e) => {
   const el = e.target;
   if (!(el instanceof HTMLInputElement)) return;
 
@@ -552,96 +553,56 @@ const els = {};
 let activeZoneSystem = 'peloton';
 let activeHrSubtab = 'default';
 
-function deepClone(obj) {
-  return JSON.parse(JSON.stringify(obj));
-}
+function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
+function clampNonNegative(value) { const n = parseFloat(value); return Number.isFinite(n) && n >= 0 ? n : 0; }
+function wholeNumber(value) { return Math.round(value); }
+function kjFromWattsMinutes(watts, minutes) { return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0; }
+function wattsFromKjMinutes(kj, minutes) { return minutes > 0 && kj > 0 ? (kj * 1000) / (minutes * 60) : 0; }
+function saveField(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+function savePrimitive(key, value) { localStorage.setItem(key, String(value)); }
 
-function clampNonNegative(value) {
-  const n = parseFloat(value);
-  return Number.isFinite(n) && n >= 0 ? n : 0;
-}
-
-function wholeNumber(value) {
-  return Math.round(value);
-}
-
-function kjFromWattsMinutes(watts, minutes) {
-  return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0;
-}
-
-function wattsFromKjMinutes(kj, minutes) {
-  return minutes > 0 && kj > 0 ? (kj * 1000) / (minutes * 60) : 0;
-}
-
-function saveField(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
-
-function savePrimitive(key, value) {
-  localStorage.setItem(key, String(value));
-}
-
-const powerAnchorOrder = ['z1Max', 'z2Max', 'z3Max', 'ssMin', 'ssMax', 'z4Max', 'z5Max', 'z6Max'];
-const contiguousPowerAnchorOrder = ['z1Max', 'z2Max', 'z3Max', 'z4Max', 'z5Max', 'z6Max'];
-const powerZoneAnchorMap = {
-  z1: { max: 'z1Max' },
-  z2: { min: 'z1Max', max: 'z2Max' },
-  z3: { min: 'z2Max', max: 'z3Max' },
-  ss: { min: 'ssMin', max: 'ssMax' },
-  z4: { min: 'z3Max', max: 'z4Max' },
-  z5: { min: 'z4Max', max: 'z5Max' },
-  z6: { min: 'z5Max', max: 'z6Max' },
-  z7: { min: 'z6Max' }
-};
+const powerAnchorOrder = ['z1', 'z2', 'z3', 'ssMin', 'ssMax', 'z4', 'z5', 'z6'];
 
 function defaultPowerAnchors() {
   return {
-    z1Max: 55,
-    z2Max: 75,
-    z3Max: 90,
+    z1: 55,
+    z2: 75,
+    z3: 90,
     ssMin: 88,
     ssMax: 94,
-    z4Max: 105,
-    z5Max: 120,
-    z6Max: 150
+    z4: 105,
+    z5: 120,
+    z6: 150
   };
 }
 
 function normalizePowerAnchors(value) {
   const defaults = defaultPowerAnchors();
   const source = value && typeof value === 'object' ? value : {};
-  return powerAnchorOrder.reduce((anchors, key) => {
-    const n = clampNonNegative(source[key]);
-    anchors[key] = n > 0 ? wholeNumber(n) : defaults[key];
-    return anchors;
-  }, {});
-}
-
-function anchorsFromZonesConfig(zones) {
-  const defaults = defaultPowerAnchors();
-  if (!Array.isArray(zones)) return defaults;
-  const byId = Object.fromEntries(zones.map(z => [z.id, z]));
-  return normalizePowerAnchors({
-    z1Max: byId.z1 && byId.z1.max !== null ? byId.z1.max * 100 : defaults.z1Max,
-    z2Max: byId.z2 && byId.z2.max !== null ? byId.z2.max * 100 : defaults.z2Max,
-    z3Max: byId.z3 && byId.z3.max !== null ? byId.z3.max * 100 : defaults.z3Max,
-    ssMin: byId.ss ? byId.ss.min * 100 : defaults.ssMin,
-    ssMax: byId.ss && byId.ss.max !== null ? byId.ss.max * 100 : defaults.ssMax,
-    z4Max: byId.z4 && byId.z4.max !== null ? byId.z4.max * 100 : defaults.z4Max,
-    z5Max: byId.z5 && byId.z5.max !== null ? byId.z5.max * 100 : defaults.z5Max,
-    z6Max: byId.z6 && byId.z6.max !== null ? byId.z6.max * 100 : defaults.z6Max
-  });
+  return {
+    z1: wholeNumber(clampNonNegative(source.z1)) || defaults.z1,
+    z2: wholeNumber(clampNonNegative(source.z2)) || defaults.z2,
+    z3: wholeNumber(clampNonNegative(source.z3)) || defaults.z3,
+    ssMin: wholeNumber(clampNonNegative(source.ssMin)) || defaults.ssMin,
+    ssMax: wholeNumber(clampNonNegative(source.ssMax)) || defaults.ssMax,
+    z4: wholeNumber(clampNonNegative(source.z4)) || defaults.z4,
+    z5: wholeNumber(clampNonNegative(source.z5)) || defaults.z5,
+    z6: wholeNumber(clampNonNegative(source.z6)) || defaults.z6
+  };
 }
 
 function zonesFromPowerAnchors(anchors) {
-  const normalized = normalizePowerAnchors(anchors);
+  const a = normalizePowerAnchors(anchors);
   return defaultZonesConfig.map(z => {
-    const map = powerZoneAnchorMap[z.id];
-    return {
-      ...z,
-      min: map.min ? normalized[map.min] / 100 : 0,
-      max: map.max ? normalized[map.max] / 100 : null
-    };
+    if (z.id === 'z1') return { ...z, min: 0, max: a.z1 / 100 };
+    if (z.id === 'z2') return { ...z, min: a.z1 / 100, max: a.z2 / 100 };
+    if (z.id === 'z3') return { ...z, min: a.z2 / 100, max: a.z3 / 100 };
+    if (z.id === 'ss') return { ...z, min: a.ssMin / 100, max: a.ssMax / 100 };
+    if (z.id === 'z4') return { ...z, min: a.z3 / 100, max: a.z4 / 100 };
+    if (z.id === 'z5') return { ...z, min: a.z4 / 100, max: a.z5 / 100 };
+    if (z.id === 'z6') return { ...z, min: a.z5 / 100, max: a.z6 / 100 };
+    if (z.id === 'z7') return { ...z, min: a.z6 / 100, max: null };
+    return z;
   });
 }
 
@@ -650,7 +611,6 @@ function loadCustomPowerAnchors() {
     const raw = localStorage.getItem('cycling_custom_zones');
     if (!raw) return defaultPowerAnchors();
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) return anchorsFromZonesConfig(parsed);
     if (parsed && parsed.version === 2 && parsed.anchors) return normalizePowerAnchors(parsed.anchors);
     if (parsed && parsed.anchors) return normalizePowerAnchors(parsed.anchors);
     return normalizePowerAnchors(parsed);
@@ -697,16 +657,8 @@ let customPowerAnchors = loadCustomPowerAnchors();
 let customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
 let customHrAnchors = loadCustomHrAnchors();
 
-function getZonesConfigForSystem(system) {
-  if (system === 'custom') return customZonesConfig;
-  return defaultZonesConfig;
-}
-
-function getColorVarPrefix(system) {
-  if (system === 'peloton') return 'p-';
-  if (system === 'custom') return 'c-';
-  return '';
-}
+function getZonesConfigForSystem(system) { if (system === 'custom') return customZonesConfig; return defaultZonesConfig; }
+function getColorVarPrefix(system) { if (system === 'peloton') return 'p-'; if (system === 'custom') return 'c-'; return ''; }
 
 function getZoneForRatio(ratio, system = activeZoneSystem) {
   if (!(ratio > 0)) return null;
@@ -725,10 +677,7 @@ function getOutputZone(watts, ftp) {
   if (ftp <= 0 || watts <= 0) return { label: 'None', color: '#8e8e93' };
   const zone = getZoneForRatio(watts / ftp);
   if (!zone) return { label: 'None', color: '#8e8e93' };
-  return {
-    label: zone.label,
-    color: `var(--${getColorVarPrefix(activeZoneSystem)}${zone.colorVar})`
-  };
+  return { label: zone.label, color: `var(--${getColorVarPrefix(activeZoneSystem)}${zone.colorVar})` };
 }
 
 function getZoneRangeInfo(zone, ftp) {
@@ -748,11 +697,7 @@ function getZoneRangeInfo(zone, ftp) {
     wattsText = `${minW} W to < ${maxW} W`;
   }
 
-  return {
-    pctText,
-    wattsText,
-    targetText: `${wholeNumber(ftp * zone.target)} W`
-  };
+  return { pctText, wattsText, targetText: `${wholeNumber(ftp * zone.target)} W` };
 }
 
 function sanitizeInput(el, decimals = 0) {
@@ -773,19 +718,10 @@ function switchTab(type) {
     view.hidden = !active;
   });
 
-  const titles = {
-    kj: 'Calculate kJ',
-    watts: 'Calculate Watts',
-    zones: 'Power Zones',
-    hr: 'Heart Rate Zones'
-  };
-
+  const titles = { kj: 'Calculate kJ', watts: 'Calculate Watts', zones: 'Power Zones', hr: 'Heart Rate Zones' };
   els.appTitle.textContent = titles[type] || 'Cycling Calculator';
   if (type === 'zones') updateZones();
-  if (type === 'hr') {
-    updateHRZones();
-    updateCustomHRZones();
-  }
+  if (type === 'hr') { updateHRZones(); updateCustomHRZones(); }
 }
 
 function toggleActiveSystem() {
@@ -847,22 +783,12 @@ function setHrSubtab(val) {
   updateCustomHRZones();
 }
 
-function syncDropdowns() {
-  els.weightUnitLbl.textContent = els.weightUnit.value;
-}
-
-function syncProposedFTP(val) {
-  const clean = String(wholeNumber(clampNonNegative(val)));
-  els.proposedFtpKj.value = clean;
-  els.proposedFtpWatts.value = clean;
-  recalculateAllBadges();
-}
+function syncDropdowns() { els.weightUnitLbl.textContent = els.weightUnit.value; }
+function syncProposedFTP(val) { const clean = String(wholeNumber(clampNonNegative(val))); els.proposedFtpKj.value = clean; els.proposedFtpWatts.value = clean; recalculateAllBadges(); }
 
 function updateBadgeUI(badgeEl, prefix, watts, ftp) {
   const zone = getOutputZone(watts, ftp);
-  const pctText = (ftp > 0 && watts > 0)
-    ? ` (${((watts / ftp) * 100).toFixed(1)}% of ${wholeNumber(ftp)}W)`
-    : ftp > 0 ? ` (${wholeNumber(ftp)}W)` : '';
+  const pctText = (ftp > 0 && watts > 0) ? ` (${((watts / ftp) * 100).toFixed(1)}% of ${wholeNumber(ftp)}W)` : ftp > 0 ? ` (${wholeNumber(ftp)}W)` : '';
   badgeEl.textContent = `${prefix}: ${zone.label}${pctText}`;
   badgeEl.style.backgroundColor = zone.color;
 }
@@ -881,53 +807,22 @@ function recalculateAllBadges() {
   updateBadgeUI(els.wattsProposedBadge, 'Proposed', calculatedWatts, proposedFTP);
 }
 
-function calcKJ() {
-  const watts = clampNonNegative(els.wattsIn.value);
-  const min = clampNonNegative(els.kjMinIn.value);
-  els.kjOut.textContent = String(Math.floor(kjFromWattsMinutes(watts, min)));
-  recalculateAllBadges();
-}
-
-function calcWatts() {
-  const kj = clampNonNegative(els.kjIn.value);
-  const min = clampNonNegative(els.wattsMinIn.value);
-  els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));
-  recalculateAllBadges();
-}
+function calcKJ() { const watts = clampNonNegative(els.wattsIn.value); const min = clampNonNegative(els.kjMinIn.value); els.kjOut.textContent = String(Math.floor(kjFromWattsMinutes(watts, min))); recalculateAllBadges(); }
+function calcWatts() { const kj = clampNonNegative(els.kjIn.value); const min = clampNonNegative(els.wattsMinIn.value); els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min))); recalculateAllBadges(); }
 
 function generateDefaultTables() {
   let sHtml = '';
   let pHtml = '';
-
   defaultZonesConfig.forEach(z => {
-    sHtml += `
-<tr>
-  <td><div class="zone-cell"><span class="zone-badge" style="background:var(--${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
-  <td class="range-col" id="${z.id}-pct-range" style="padding-right:10px;">0%</td>
-  <td class="range-col" id="${z.id}-range">0 W</td>
-</tr>`;
-    pHtml += `
-<tr>
-  <td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
-  <td style="text-align:center; font-weight:bold;">${Math.round(z.target * 100)}%</td>
-  <td style="text-align:center; font-weight:bold" id="p-${z.id}-target">0 W</td>
-  <td style="text-align:right; font-weight:bold; padding-right:10px;" id="p-${z.id}-pct-range">0%</td>
-  <td class="range-col" id="p-${z.id}-range">0 W</td>
-</tr>`;
+    sHtml += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="range-col" id="${z.id}-pct-range" style="padding-right:10px;">0%</td><td class="range-col" id="${z.id}-range">0 W</td></tr>`;
+    pHtml += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td style="text-align:center; font-weight:bold;">${Math.round(z.target * 100)}%</td><td style="text-align:center; font-weight:bold" id="p-${z.id}-target">0 W</td><td style="text-align:right; font-weight:bold; padding-right:10px;" id="p-${z.id}-pct-range">0%</td><td class="range-col" id="p-${z.id}-range">0 W</td></tr>`;
   });
-
   els.standardTableBody.innerHTML = sHtml;
   els.pelotonTableBody.innerHTML = pHtml;
 }
 
-function getPowerAnchorForInput(zone, bound) {
-  return powerZoneAnchorMap[zone.id][bound];
-}
-
-function renderPowerAnchorInput(zone, i, bound, prefix) {
-  const anchor = getPowerAnchorForInput(zone, bound);
-  return `<input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="${bound}" data-anchor="${anchor}" id="${prefix}-${bound}" type="number" min="0" max="300" step="1" value="${customPowerAnchors[anchor]}">`;
-}
+function getPowerAnchorForInput(zone, bound) { if (zone.id === 'ss') return bound === 'min' ? 'ssMin' : 'ssMax'; return zone.id; }
+function renderPowerAnchorInput(zone, i, bound, prefix) { const anchor = getPowerAnchorForInput(zone, bound); return `<input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="${bound}" data-anchor="${anchor}" id="${prefix}-${bound}" type="number" min="0" max="300" step="1" value="${customPowerAnchors[anchor]}">`; }
 
 function generateCustomZonesTable() {
   let html = '';
@@ -935,38 +830,18 @@ function generateCustomZonesTable() {
     const prefix = `custom-zone-${z.id}`;
     let inputHtml = '';
 
-    if (z.id === 'z1') {
-      inputHtml = `
-<div class="inline-fields">
-  <span>&lt;</span>
-  ${renderPowerAnchorInput(z, i, 'max', prefix)}
-  <span>%</span>
-</div>`;
+    if (z.id === 'ss') {
+      inputHtml = `<div class="inline-fields"><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" min="0" max="300" step="1" value="${customPowerAnchors.ssMin}"><span>to</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${customPowerAnchors.ssMax}"><span>%</span></div>`;
+    } else if (z.id === 'z1') {
+      inputHtml = `<div class="inline-fields"><span>&lt;</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${customPowerAnchors.z1}"><span>%</span></div>`;
     } else if (z.id === 'z7') {
-      inputHtml = `
-<div class="inline-fields">
-  <span>≥</span>
-  ${renderPowerAnchorInput(z, i, 'min', prefix)}
-  <span>%</span>
-</div>`;
+      inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" min="0" max="300" step="1" value="${customPowerAnchors.z6}"><span>%</span></div>`;
     } else {
-      inputHtml = `
-<div class="inline-fields">
-  ${renderPowerAnchorInput(z, i, 'min', prefix)}
-  <span>to &lt;</span>
-  ${renderPowerAnchorInput(z, i, 'max', prefix)}
-  <span>%</span>
-</div>`;
+      inputHtml = `<div class="inline-fields"><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${customPowerAnchors[z.id]}"><span>%</span></div>`;
     }
 
-    html += `
-<tr>
-  <td><div class="zone-cell"><span class="zone-badge" style="background:var(--c-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
-  <td style="text-align:center;">${inputHtml}</td>
-  <td class="range-col" id="c-${z.id}-range">0 W</td>
-</tr>`;
+    html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--c-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td style="text-align:center;">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">0 W</td></tr>`;
   });
-
   els.customTableBody.innerHTML = html;
 }
 
@@ -977,18 +852,10 @@ function syncPowerAnchorInputs(anchor, value) {
 }
 
 function validatePowerAnchors(anchors) {
-  for (const key of powerAnchorOrder) {
-    if (!(anchors[key] > 0)) return 'Custom zone anchors must be greater than 0.';
-  }
-
-  for (let i = 1; i < contiguousPowerAnchorOrder.length; i++) {
-    if (anchors[contiguousPowerAnchorOrder[i]] <= anchors[contiguousPowerAnchorOrder[i - 1]]) {
-      return 'Custom power zone boundaries must be strictly increasing.';
-    }
-  }
-
+  const required = ['z1', 'z2', 'z3', 'ssMin', 'ssMax', 'z4', 'z5', 'z6'];
+  for (const key of required) if (!(anchors[key] > 0)) return 'Custom zone anchors must be greater than 0.';
+  if (!(anchors.z1 < anchors.z2 && anchors.z2 < anchors.z3 && anchors.z3 < anchors.z4 && anchors.z4 < anchors.z5 && anchors.z5 < anchors.z6)) return 'Custom power zone boundaries must be strictly increasing.';
   if (anchors.ssMin >= anchors.ssMax) return 'Sweet Spot min must be lower than max.';
-
   return '';
 }
 
@@ -999,8 +866,6 @@ function validateAndApplyCustomZones() {
   document.querySelectorAll('.custom-zone-input').forEach(input => {
     nextAnchors[input.dataset.anchor] = wholeNumber(clampNonNegative(input.value));
   });
-
-  powerAnchorOrder.forEach(key => syncPowerAnchorInputs(key, nextAnchors[key]));
 
   const error = validatePowerAnchors(nextAnchors);
   errorEl.textContent = error;
@@ -1080,21 +945,8 @@ function renderCustomHrControls() {
   els.customHrLthrGrid.innerHTML = '';
 
   ['Zone 1 upper', 'Zone 2 upper', 'Zone 3 upper', 'Zone 4 upper'].forEach((label, i) => {
-    els.customHrMaxGrid.insertAdjacentHTML('beforeend', `
-<label for="custom-max-${i}" style="width:auto;">${label}</label>
-<div class="inline-fields">
-  <input class="input-small custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" min="0" max="100" step="1" value="${customHrAnchors.max[i]}">
-  <span>%</span>
-</div>
-`);
-
-    els.customHrLthrGrid.insertAdjacentHTML('beforeend', `
-<label for="custom-lthr-${i}" style="width:auto;">${label}</label>
-<div class="inline-fields">
-  <input class="input-small custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" min="0" max="150" step="1" value="${customHrAnchors.lthr[i]}">
-  <span>%</span>
-</div>
-`);
+    els.customHrMaxGrid.insertAdjacentHTML('beforeend', `<label for="custom-max-${i}" style="width:auto;">${label}</label><div class="inline-fields"><input class="input-small custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" min="0" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`);
+    els.customHrLthrGrid.insertAdjacentHTML('beforeend', `<label for="custom-lthr-${i}" style="width:auto;">${label}</label><div class="inline-fields"><input class="input-small custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" min="0" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`);
   });
 }
 
@@ -1106,21 +958,12 @@ function readHrAnchorsFromInputs() {
 }
 
 function validateHrAnchorSet(values, maxHr, lthr) {
-  for (let i = 1; i < values.max.length; i++) {
-    if (values.max[i] <= values.max[i - 1]) return 'Custom Max HR thresholds must be strictly increasing.';
-  }
-
-  for (let i = 1; i < values.lthr.length; i++) {
-    if (values.lthr[i] <= values.lthr[i - 1]) return 'Custom LTHR thresholds must be strictly increasing.';
-  }
-
+  for (let i = 1; i < values.max.length; i++) if (values.max[i] <= values.max[i - 1]) return 'Custom Max HR thresholds must be strictly increasing.';
+  for (let i = 1; i < values.lthr.length; i++) if (values.lthr[i] <= values.lthr[i - 1]) return 'Custom LTHR thresholds must be strictly increasing.';
   if (maxHr > 0 && lthr > 0) {
     const maxAllowedPct = Math.floor((maxHr / lthr) * 100);
-    if (values.lthr.some(value => value > maxAllowedPct)) {
-      return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
-    }
+    if (values.lthr.some(value => value > maxAllowedPct)) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
   }
-
   return '';
 }
 
@@ -1135,11 +978,7 @@ function validateAndApplyCustomHR() {
   const nextAnchors = readHrAnchorsFromInputs();
   writeHrAnchorInputs(nextAnchors);
 
-  const error = validateHrAnchorSet(
-    nextAnchors,
-    clampNonNegative(els.hrMaxIn.value),
-    clampNonNegative(els.hrLthrIn.value)
-  );
+  const error = validateHrAnchorSet(nextAnchors, clampNonNegative(els.hrMaxIn.value), clampNonNegative(els.hrLthrIn.value));
   errorEl.textContent = error;
   if (error) return;
 
@@ -1197,10 +1036,7 @@ function resetCustomHR() {
   els.customHrError.textContent = '';
 }
 
-function bindSelectOnFocus(el) {
-  el.addEventListener('focus', () => el.select());
-  el.addEventListener('click', () => el.select());
-}
+function bindSelectOnFocus(el) { el.addEventListener('focus', () => el.select()); el.addEventListener('click', () => el.select()); }
 
 function persistOnCommit(el, key, decimals = 0) {
   const handler = () => {
@@ -1226,7 +1062,6 @@ function persistOnCommit(el, key, decimals = 0) {
 
 function persistOnInput(el, key, decimals = 0) {
   if (!el) return;
-
   el.addEventListener('input', () => {
     const raw = String(el.value || '').trim();
     if (raw === '') {
@@ -1310,11 +1145,11 @@ function bindCustomZoneInputs() {
   document.querySelectorAll('.custom-zone-input').forEach(el => {
     bindSelectOnFocus(el);
 
-    function syncAnchor() {
+    const syncAnchor = () => {
       const value = wholeNumber(clampNonNegative(el.value));
       syncPowerAnchorInputs(el.dataset.anchor, value);
       validateAndApplyCustomZones();
-    }
+    };
 
     el.addEventListener('input', syncAnchor);
     el.addEventListener('change', syncAnchor);
@@ -1325,11 +1160,7 @@ function bindCustomZoneInputs() {
 function bindCustomHrInputs() {
   document.querySelectorAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
     bindSelectOnFocus(el);
-
-    function syncHrAnchors() {
-      validateAndApplyCustomHR();
-    }
-
+    const syncHrAnchors = () => validateAndApplyCustomHR();
     el.addEventListener('input', syncHrAnchors);
     el.addEventListener('change', syncHrAnchors);
     el.addEventListener('blur', syncHrAnchors);
@@ -1337,26 +1168,14 @@ function bindCustomHrInputs() {
 }
 
 function bindEvents() {
-  [
-    els.wattsIn, els.kjMinIn, els.kjIn, els.wattsMinIn,
-    els.ftpIn, els.weightIn, els.hrMaxIn, els.hrLthrIn,
-    els.proposedFtpKj, els.proposedFtpWatts
-  ].forEach(bindSelectOnFocus);
+  [els.wattsIn, els.kjMinIn, els.kjIn, els.wattsMinIn, els.ftpIn, els.weightIn, els.hrMaxIn, els.hrLthrIn, els.proposedFtpKj, els.proposedFtpWatts].forEach(bindSelectOnFocus);
 
-  document.querySelectorAll('[data-tab]').forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-  });
-
+  document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
   els.toggleSystemKj.addEventListener('click', toggleActiveSystem);
   els.toggleSystemWatts.addEventListener('click', toggleActiveSystem);
 
-  document.querySelectorAll('[data-zone-subtab]').forEach(btn => {
-    btn.addEventListener('click', () => setZoneSubtab(btn.dataset.zoneSubtab));
-  });
-
-  document.querySelectorAll('[data-hr-subtab]').forEach(btn => {
-    btn.addEventListener('click', () => setHrSubtab(btn.dataset.hrSubtab));
-  });
+  document.querySelectorAll('[data-zone-subtab]').forEach(btn => btn.addEventListener('click', () => setZoneSubtab(btn.dataset.zoneSubtab)));
+  document.querySelectorAll('[data-hr-subtab]').forEach(btn => btn.addEventListener('click', () => setHrSubtab(btn.dataset.hrSubtab)));
 
   els.resetCustomZones.addEventListener('click', resetCustomZones);
   els.resetCustomHr.addEventListener('click', resetCustomHR);
@@ -1379,15 +1198,8 @@ function bindEvents() {
   els.proposedFtpKj.addEventListener('input', syncProposed);
   els.proposedFtpWatts.addEventListener('input', syncProposed);
 
-  els.hrMaxIn.addEventListener('input', () => {
-    updateHRZones();
-    validateAndApplyCustomHR();
-  });
-
-  els.hrLthrIn.addEventListener('input', () => {
-    updateHRZones();
-    validateAndApplyCustomHR();
-  });
+  els.hrMaxIn.addEventListener('input', () => { updateHRZones(); validateAndApplyCustomHR(); });
+  els.hrLthrIn.addEventListener('input', () => { updateHRZones(); validateAndApplyCustomHR(); });
 
   persistOnCommit(els.ftpIn, 'cycling_ftp');
   persistOnCommit(els.weightIn, 'cycling_weight', 1);
@@ -1417,7 +1229,6 @@ function loadSavedValues() {
   if (u === 'lbs' || u === 'kg') els.weightUnit.value = u;
   if (mx !== null) els.hrMaxIn.value = String(wholeNumber(clampNonNegative(mx)));
   if (lt !== null) els.hrLthrIn.value = String(wholeNumber(clampNonNegative(lt)));
-
   if (kjWatts !== null) els.wattsIn.value = String(wholeNumber(clampNonNegative(kjWatts)));
   if (totalKj !== null) els.kjIn.value = String(wholeNumber(clampNonNegative(totalKj)));
 
