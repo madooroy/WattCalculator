@@ -7,7 +7,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-
 :root {
   --bg: #f2f2f7;
   --card: #ffffff;
@@ -350,12 +349,10 @@ tr:last-child td { border-bottom: none; }
   font-weight: bold;
 }
 
-#peloton-zones-table td {
-  font-size: 13px;
-  font-weight: bold;
-}
-
-#custom-zones-table td {
+#peloton-zones-table td,
+#custom-zones-table td,
+#hr-default-panel td,
+#hr-custom-panel td {
   font-size: 13px;
   font-weight: bold;
 }
@@ -365,16 +362,6 @@ tr:last-child td { border-bottom: none; }
   font-weight: bold;
 }
 
-#hr-default-panel td {
-  font-size: 13px;
-  font-weight: bold;
-}
-
-#hr-custom-panel td {
-  font-size: 13px;
-  font-weight: bold;
-}  
-  
 .controls-row {
   display: flex;
   justify-content: flex-end;
@@ -418,6 +405,7 @@ tr:last-child td { border-bottom: none; }
   margin-top: 8px;
   min-height: 16px;
 }
+
 #hr-view th,
 #hr-view td {
   white-space: normal;
@@ -487,7 +475,6 @@ tr:last-child td { border-bottom: none; }
   }
 }
 </style>
-
 </head>
 <body>
 <div class="container">
@@ -596,47 +583,26 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div class="sub-tabs" role="tablist" aria-label="Power zone systems">
-  <button id="sub-btn-default-power" class="sub-tab active" role="tab" aria-selected="true" aria-controls="default-power-zones-table" data-zone-subtab="default" type="button" tabindex="0">Default Power Zones</button>
-  <button id="sub-btn-custom-power" class="sub-tab" role="tab" aria-selected="false" aria-controls="custom-zones-table" data-zone-subtab="custom" type="button" tabindex="-1">Custom Power Zones</button>
-</div>
+      <button id="sub-btn-default-power" class="sub-tab active" role="tab" aria-selected="true" aria-controls="default-power-zones-table" data-zone-subtab="default" type="button" tabindex="0">Default Power Zones</button>
+      <button id="sub-btn-custom-power" class="sub-tab" role="tab" aria-selected="false" aria-controls="custom-zones-table" data-zone-subtab="custom" type="button" tabindex="-1">Custom Power Zones</button>
+    </div>
 
-<div id="default-power-zones-table" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="sub-btn-default-power">
-  <div class="table-scroll-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Zone / Label</th>
-          <th style="text-align:center;">Blue Line Target %</th>
-          <th style="text-align:center;">Blue Line Target Watts</th>
-          <th style="text-align:right; padding-right:10px;">Anchor PCT Range</th>
-          <th style="text-align:right;">Target Range</th>
-        </tr>
-      </thead>
-      <tbody id="default-power-table-body"></tbody>
-    </table>
-  </div>
-</div>
-
-<div id="custom-zones-table" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="sub-btn-custom-power" hidden>
-  <div class="controls-row">
-    <button id="reset-custom-zones" class="secondary-btn" type="button">Reset to Default</button>
-  </div>
-  <div class="table-scroll-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Zone / Label</th>
-          <th style="text-align:center;">Custom Anchor %</th>
-          <th style="text-align:right;">Target Range</th>
-        </tr>
-      </thead>
-      <tbody id="custom-table-body"></tbody>
-    </table>
-  </div>
-  <div class="help-text">Custom zones also drive badge classification when the active palette is set to Custom.</div>
-  <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
-</div>
-
+    <div id="default-power-zones-table" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="sub-btn-default-power">
+      <div class="table-scroll-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Zone / Label</th>
+              <th style="text-align:center;">Blue Line Target %</th>
+              <th style="text-align:center;">Blue Line Target Watts</th>
+              <th style="text-align:right; padding-right:10px;">Anchor PCT Range</th>
+              <th style="text-align:right;">Target Range</th>
+            </tr>
+          </thead>
+          <tbody id="default-power-table-body"></tbody>
+        </table>
+      </div>
+    </div>
 
     <div id="custom-zones-table" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="sub-btn-custom-power" hidden>
       <div class="controls-row">
@@ -660,120 +626,119 @@ tr:last-child td { border-bottom: none; }
   </div>
 
   <div id="hr-view" class="view" role="tabpanel" aria-labelledby="btn-hr" hidden>
-  <div class="card">
-    <div class="row">
-      <label for="hr-max-in">Max Heart Rate (BPM)</label>
-      <input type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="0" step="1" autocomplete="off">
+    <div class="card">
+      <div class="row">
+        <label for="hr-max-in">Max Heart Rate (BPM)</label>
+        <input type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="0" step="1" autocomplete="off">
+      </div>
+      <div class="row">
+        <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
+        <input type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="0" step="1" autocomplete="off">
+      </div>
     </div>
-    <div class="row">
-      <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
-      <input type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="0" step="1" autocomplete="off">
+
+    <div class="sub-tabs" role="tablist" aria-label="Heart rate systems">
+      <button id="hr-sub-btn-default" class="sub-tab active" role="tab" aria-selected="true" aria-controls="hr-default-panel" data-hr-subtab="default" type="button" tabindex="0">Default</button>
+      <button id="hr-sub-btn-custom" class="sub-tab" role="tab" aria-selected="false" aria-controls="hr-custom-panel" data-hr-subtab="custom" type="button" tabindex="-1">Custom</button>
+    </div>
+
+    <div id="hr-default-panel" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="hr-sub-btn-default">
+      <div class="hr-group-title" style="margin: 4px 0 8px;">Max Heart Rate Zones</div>
+      <div class="table-scroll-wrapper">
+        <table class="hr-split-table">
+          <thead>
+            <tr>
+              <th>Zone / Label</th>
+              <th style="text-align:right;">Anchor PCT Range</th>
+              <th style="text-align:right;">BPM Range</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-max-pct-range">0%</td><td class="range-col" id="hr1-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-max-pct-range">0%</td><td class="range-col" id="hr2-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-max-pct-range">0%</td><td class="range-col" id="hr3-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-max-pct-range">0%</td><td class="range-col" id="hr4-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-max-pct-range">0%</td><td class="range-col" id="hr5-max-range">0 BPM</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="hr-group-title" style="margin: 16px 0 8px;">Lactate Threshold Heart Rate Zones</div>
+      <div class="table-scroll-wrapper">
+        <table class="hr-split-table">
+          <thead>
+            <tr>
+              <th>Zone / Label</th>
+              <th style="text-align:right;">Anchor PCT Range</th>
+              <th style="text-align:right;">BPM Range</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-lthr-pct-range">0%</td><td class="range-col" id="hr1-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-lthr-pct-range">0%</td><td class="range-col" id="hr2-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-lthr-pct-range">0%</td><td class="range-col" id="hr3-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-lthr-pct-range">0%</td><td class="range-col" id="hr4-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-lthr-pct-range">0%</td><td class="range-col" id="hr5-lthr-range">0 BPM</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="hr-custom-panel" class="card" style="padding:12px;" role="tabpanel" aria-labelledby="hr-sub-btn-custom" hidden>
+      <div class="controls-row">
+        <button id="reset-custom-hr" class="secondary-btn" type="button">Reset to Default</button>
+      </div>
+
+      <div class="hr-group-title">Custom Max HR upper thresholds (%)</div>
+      <div class="hr-edit-grid" id="custom-hr-max-grid"></div>
+
+      <div class="hr-group-title" style="margin-top:16px;">Custom LTHR upper thresholds (%)</div>
+      <div class="hr-edit-grid" id="custom-hr-lthr-grid"></div>
+
+      <div class="help-text">Max HR thresholds cannot exceed 100%. LTHR thresholds are automatically limited so the resulting BPM does not exceed your entered Max HR.</div>
+      <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
+
+      <div class="hr-group-title" style="margin: 16px 0 8px;">Custom Max Heart Rate Zones</div>
+      <div class="table-scroll-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Zone / Label</th>
+              <th style="text-align:right;">Anchor PCT Range</th>
+              <th style="text-align:right;">BPM Range</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-max-pct-range">0%</td><td class="range-col" id="c-hr1-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-max-pct-range">0%</td><td class="range-col" id="c-hr2-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-max-pct-range">0%</td><td class="range-col" id="c-hr3-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-max-pct-range">0%</td><td class="range-col" id="c-hr4-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-max-pct-range">0%</td><td class="range-col" id="c-hr5-max-range">0 BPM</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="hr-group-title" style="margin: 16px 0 8px;">Custom Lactate Threshold Heart Rate Zones</div>
+      <div class="table-scroll-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Zone / Label</th>
+              <th style="text-align:right;">Anchor PCT Range</th>
+              <th style="text-align:right;">BPM Range</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-lthr-pct-range">0%</td><td class="range-col" id="c-hr1-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-lthr-pct-range">0%</td><td class="range-col" id="c-hr2-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-lthr-pct-range">0%</td><td class="range-col" id="c-hr3-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-lthr-pct-range">0%</td><td class="range-col" id="c-hr4-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-lthr-pct-range">0%</td><td class="range-col" id="c-hr5-lthr-range">0 BPM</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-
-  <div class="sub-tabs" role="tablist" aria-label="Heart rate systems">
-  <button id="hr-sub-btn-default" class="sub-tab active" role="tab" aria-selected="true" aria-controls="hr-default-panel" data-hr-subtab="default" type="button" tabindex="0">Default</button>
-  <button id="hr-sub-btn-custom" class="sub-tab" role="tab" aria-selected="false" aria-controls="hr-custom-panel" data-hr-subtab="custom" type="button" tabindex="-1">Custom</button>
-</div>
-
-<div id="hr-default-panel" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="hr-sub-btn-default">
-  ...
-</div>
-
-<div id="hr-custom-panel" class="card" style="padding:12px;" role="tabpanel" aria-labelledby="hr-sub-btn-custom" hidden>
-  <div class="controls-row">
-    <button id="reset-custom-hr" class="secondary-btn" type="button">Reset to Default</button>
-  </div>
-
-  <div class="hr-group-title">Custom Max HR upper thresholds (%)</div>
-  <div class="hr-edit-grid" id="custom-hr-max-grid"></div>
-
-  <div class="hr-group-title" style="margin-top:16px;">Custom LTHR upper thresholds (%)</div>
-  <div class="hr-edit-grid" id="custom-hr-lthr-grid"></div>
-
-  <div class="help-text">Max HR thresholds cannot exceed 100%. LTHR thresholds are automatically limited so the resulting BPM does not exceed your entered Max HR.</div>
-  <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
-
-  <div class="hr-group-title" style="margin: 16px 0 8px;">Custom Max Heart Rate Zones</div>
-  <div class="table-scroll-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Zone / Label</th>
-          <th style="text-align:right;">Anchor PCT Range</th>
-          <th style="text-align:right;">BPM Range</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td>
-          <td class="range-col" id="c-hr1-max-pct-range">0%</td>
-          <td class="range-col" id="c-hr1-max-range">0 BPM</td>
-        </tr>
-        <tr>
-          <td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td>
-          <td class="range-col" id="c-hr2-max-pct-range">0%</td>
-          <td class="range-col" id="c-hr2-max-range">0 BPM</td>
-        </tr>
-        <tr>
-          <td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td>
-          <td class="range-col" id="c-hr3-max-pct-range">0%</td>
-          <td class="range-col" id="c-hr3-max-range">0 BPM</td>
-        </tr>
-        <tr>
-          <td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td>
-          <td class="range-col" id="c-hr4-max-pct-range">0%</td>
-          <td class="range-col" id="c-hr4-max-range">0 BPM</td>
-        </tr>
-        <tr>
-          <td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td>
-          <td class="range-col" id="c-hr5-max-pct-range">0%</td>
-          <td class="range-col" id="c-hr5-max-range">0 BPM</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="hr-group-title" style="margin: 16px 0 8px;">Custom Lactate Threshold Heart Rate Zones</div>
-  <div class="table-scroll-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Zone / Label</th>
-          <th style="text-align:right;">Anchor PCT Range</th>
-          <th style="text-align:right;">BPM Range</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td>
-          <td class="range-col" id="c-hr1-lthr-pct-range">0%</td>
-          <td class="range-col" id="c-hr1-lthr-range">0 BPM</td>
-        </tr>
-        <tr>
-          <td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td>
-          <td class="range-col" id="c-hr2-lthr-pct-range">0%</td>
-          <td class="range-col" id="c-hr2-lthr-range">0 BPM</td>
-        </tr>
-        <tr>
-          <td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td>
-          <td class="range-col" id="c-hr3-lthr-pct-range">0%</td>
-          <td class="range-col" id="c-hr3-lthr-range">0 BPM</td>
-        </tr>
-        <tr>
-          <td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td>
-          <td class="range-col" id="c-hr4-lthr-pct-range">0%</td>
-          <td class="range-col" id="c-hr4-lthr-range">0 BPM</td>
-        </tr>
-        <tr>
-          <td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td>
-          <td class="range-col" id="c-hr5-lthr-pct-range">0%</td>
-          <td class="range-col" id="c-hr5-lthr-range">0 BPM</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 </div>
 
 <script>
@@ -787,16 +752,6 @@ const defaultZonesConfig = [
   { id: 'z6', label: 'Zone 6', desc: 'Anaerobic', min: 1.20, max: 1.50, target: 1.355, colorVar: 'z6' },
   { id: 'z7', label: 'Zone 7', desc: 'Neuromuscular', min: 1.50, max: null, target: 1.65, colorVar: 'z7' }
 ];
-
-document.addEventListener('focusin', (e) => {
-  const el = e.target;
-  if (!(el instanceof HTMLInputElement)) return;
-
-  if (el.closest('#custom-zones-table') || el.closest('#hr-custom-panel')) {
-    el.type = 'number';
-    el.inputMode = 'numeric';
-  }
-});
 
 const defaultHrPercentConfig = {
   max: [65, 75, 85, 95],
@@ -1114,13 +1069,13 @@ function generateCustomZonesTable() {
     let inputHtml = '';
 
     if (z.id === 'ss') {
-      inputHtml = `<div class="inline-fields"><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" min="0" max="300" step="1" value="${customPowerAnchors.ssMin}"><span>to</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${customPowerAnchors.ssMax}"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMin}"><span>to</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMax}"><span>%</span></div>`;
     } else if (z.id === 'z1') {
-      inputHtml = `<div class="inline-fields"><span>&lt;</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${customPowerAnchors.z1}"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><span>&lt;</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z1}"><span>%</span></div>`;
     } else if (z.id === 'z7') {
-      inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" min="0" max="300" step="1" value="${customPowerAnchors.z6}"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z6}"><span>%</span></div>`;
     } else {
-      inputHtml = `<div class="inline-fields"><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" min="0" max="300" step="1" value="${customPowerAnchors[z.id]}"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors[z.id]}"><span>%</span></div>`;
     }
 
     html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td style="text-align:center;">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">0 W</td></tr>`;
@@ -1130,7 +1085,7 @@ function generateCustomZonesTable() {
 
 function syncPowerAnchorInputs(anchor, value) {
   document.querySelectorAll(`.custom-zone-input[data-anchor="${anchor}"]`).forEach(input => {
-    if (input.value !== String(value)) input.value = String(value);
+    if (document.activeElement !== input && input.value !== String(value)) input.value = String(value);
   });
 }
 
@@ -1200,8 +1155,8 @@ function renderCustomHrControls() {
   els.customHrLthrGrid.innerHTML = '';
 
   ['Zone 1 upper', 'Zone 2 upper', 'Zone 3 upper', 'Zone 4 upper'].forEach((label, i) => {
-    els.customHrMaxGrid.insertAdjacentHTML('beforeend', `<label for="custom-max-${i}" style="width:auto;">${label}</label><div class="inline-fields"><input class="input-small custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" min="0" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`);
-    els.customHrLthrGrid.insertAdjacentHTML('beforeend', `<label for="custom-lthr-${i}" style="width:auto;">${label}</label><div class="inline-fields"><input class="input-small custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" min="0" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`);
+    els.customHrMaxGrid.insertAdjacentHTML('beforeend', `<label for="custom-max-${i}" style="width:auto;">${label}</label><div class="inline-fields"><input class="input-small custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`);
+    els.customHrLthrGrid.insertAdjacentHTML('beforeend', `<label for="custom-lthr-${i}" style="width:auto;">${label}</label><div class="inline-fields"><input class="input-small custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`);
   });
 }
 
@@ -1225,7 +1180,11 @@ function validateHrAnchorSet(values, maxHr, lthr) {
 function writeHrAnchorInputs(values) {
   document.querySelectorAll('.custom-hr-max').forEach((el, i) => {
     const next = String(values.max[i]);
-    if (el.value !== next) el.value = next;
+    if (document.activeElement !== el && el.value !== next) el.value = next;
+  });
+  document.querySelectorAll('.custom-hr-lthr').forEach((el, i) => {
+    const next = String(values.lthr[i]);
+    if (document.activeElement !== el && el.value !== next) el.value = next;
   });
 }
 
@@ -1305,7 +1264,6 @@ function resetCustomHR() {
 
 function bindSelectOnFocus(el) {
   el.addEventListener('focus', () => el.select());
-  el.addEventListener('click', () => el.select());
 }
 
 function persistOnCommit(el, key, decimals = 0, afterSave) {
@@ -1389,27 +1347,27 @@ function initCache() {
 
 function bindCustomZoneInputs() {
   document.querySelectorAll('.custom-zone-input').forEach(el => {
-    bindSelectOnFocus(el);
-
-    const syncAnchor = () => {
+    const commit = () => {
+      sanitizeInput(el, 0);
       const value = wholeNumber(clampNonNegative(el.value));
       syncPowerAnchorInputs(el.dataset.anchor, value);
       validateAndApplyCustomZones();
     };
 
-    el.addEventListener('input', syncAnchor);
-    el.addEventListener('change', syncAnchor);
-    el.addEventListener('blur', syncAnchor);
+    el.addEventListener('change', commit);
+    el.addEventListener('blur', commit);
   });
 }
 
 function bindCustomHrInputs() {
   document.querySelectorAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
-    bindSelectOnFocus(el);
-    const syncHrAnchors = () => validateAndApplyCustomHR();
-    el.addEventListener('input', syncHrAnchors);
-    el.addEventListener('change', syncHrAnchors);
-    el.addEventListener('blur', syncHrAnchors);
+    const commit = () => {
+      sanitizeInput(el, 0);
+      validateAndApplyCustomHR();
+    };
+
+    el.addEventListener('change', commit);
+    el.addEventListener('blur', commit);
   });
 }
 
