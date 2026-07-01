@@ -548,27 +548,11 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div class="sub-tabs" role="tablist" aria-label="Power zone systems">
-      <button id="sub-btn-standard" class="sub-tab" role="tab" aria-selected="false" aria-controls="standard-zones-table" data-zone-subtab="standard" type="button">Power Zones</button>
-      <button id="sub-btn-peloton" class="sub-tab active" role="tab" aria-selected="true" aria-controls="peloton-zones-table" data-zone-subtab="peloton" type="button">Peloton Power Zones</button>
-      <button id="sub-btn-custom" class="sub-tab" role="tab" aria-selected="false" aria-controls="custom-zones-table" data-zone-subtab="custom" type="button">Custom</button>
-    </div>
+  <button id="sub-btn-peloton" class="sub-tab active" role="tab" aria-selected="true" aria-controls="peloton-zones-table" data-zone-subtab="peloton" type="button">Power Zones</button>
+  <button id="sub-btn-custom" class="sub-tab" role="tab" aria-selected="false" aria-controls="custom-zones-table" data-zone-subtab="custom" type="button">Custom</button>
+</div>
 
-    <div id="standard-zones-table" class="card" style="padding:8px; display:none;" role="tabpanel" aria-labelledby="sub-btn-standard">
-      <div class="table-scroll-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Zone / Label</th>
-              <th style="text-align:right; padding-right:10px;">Anchor PCT Range</th>
-              <th style="text-align:right;">Target Range</th>
-            </tr>
-          </thead>
-          <tbody id="standard-table-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="peloton-zones-table" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="sub-btn-peloton">
+   <div id="peloton-zones-table" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="sub-btn-peloton">
       <div class="table-scroll-wrapper">
         <table>
           <thead>
@@ -724,8 +708,6 @@ function wattsFromKjMinutes(kj, minutes) { return minutes > 0 && kj > 0 ? (kj * 
 function saveField(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
 function savePrimitive(key, value) { localStorage.setItem(key, String(value)); }
 
-const powerAnchorOrder = ['z1', 'z2', 'z3', 'ssMin', 'ssMax', 'z4', 'z5', 'z6'];
-
 function defaultPowerAnchors() {
   return {
     z1: 55,
@@ -820,8 +802,12 @@ let customPowerAnchors = loadCustomPowerAnchors();
 let customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
 let customHrAnchors = loadCustomHrAnchors();
 
-function getZonesConfigForSystem(system) { if (system === 'custom') return customZonesConfig; return defaultZonesConfig; }
-function getColorVarPrefix(system) { if (system === 'peloton') return 'p-'; if (system === 'custom') return 'c-'; return ''; }
+function getZonesConfigForSystem(system) {
+  return system === 'custom' ? customZonesConfig : defaultZonesConfig;
+}
+function getColorVarPrefix(system) {
+  return system === 'custom' ? 'c-' : 'p-';
+}
 
 function getZoneForRatio(ratio, system = activeZoneSystem) {
   if (!(ratio > 0)) return null;
@@ -888,42 +874,39 @@ function switchTab(type) {
 }
 
 function toggleActiveSystem() {
-  const order = ['standard', 'peloton', 'custom'];
-  const next = order[(order.indexOf(activeZoneSystem) + 1) % order.length];
+  const next = activeZoneSystem === 'peloton' ? 'custom' : 'peloton';
   setZoneSubtab(next);
 }
 
 function setSystemState(val) {
   activeZoneSystem = val;
   savePrimitive('cycling_active_system', val);
+
   const labelMap = {
-    standard: 'Palette: Standard',
-    peloton: 'Palette: Peloton Power Zone Bar',
+    peloton: 'Palette: Power Zones',
     custom: 'Palette: Custom'
   };
+
   const buttonText = labelMap[val];
   els.toggleSystemKj.textContent = buttonText;
   els.toggleSystemWatts.textContent = buttonText;
-  els.toggleSystemKj.setAttribute('aria-pressed', String(val !== 'standard'));
-  els.toggleSystemWatts.setAttribute('aria-pressed', String(val !== 'standard'));
+  els.toggleSystemKj.setAttribute('aria-pressed', String(val === 'custom'));
+  els.toggleSystemWatts.setAttribute('aria-pressed', String(val === 'custom'));
   recalculateAllBadges();
 }
 
 function setZoneSubtab(val) {
   setSystemState(val);
-  const isStandard = val === 'standard';
+
   const isPeloton = val === 'peloton';
   const isCustom = val === 'custom';
 
-  els.subBtnStandard.classList.toggle('active', isStandard);
   els.subBtnPeloton.classList.toggle('active', isPeloton);
   els.subBtnCustom.classList.toggle('active', isCustom);
 
-  els.subBtnStandard.setAttribute('aria-selected', String(isStandard));
   els.subBtnPeloton.setAttribute('aria-selected', String(isPeloton));
   els.subBtnCustom.setAttribute('aria-selected', String(isCustom));
 
-  els.standardZonesTable.style.display = isStandard ? 'block' : 'none';
   els.pelotonZonesTable.style.display = isPeloton ? 'block' : 'none';
   els.customZonesTable.style.display = isCustom ? 'block' : 'none';
 
@@ -974,18 +957,12 @@ function calcKJ() { const watts = clampNonNegative(els.wattsIn.value); const min
 function calcWatts() { const kj = clampNonNegative(els.kjIn.value); const min = clampNonNegative(els.wattsMinIn.value); els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min))); recalculateAllBadges(); }
 
 function generateDefaultTables() {
-  let sHtml = '';
   let pHtml = '';
   defaultZonesConfig.forEach(z => {
-    sHtml += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="range-col" id="${z.id}-pct-range" style="padding-right:10px;">0%</td><td class="range-col" id="${z.id}-range">0 W</td></tr>`;
     pHtml += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td style="text-align:center; font-weight:bold;">${Math.round(z.target * 100)}%</td><td style="text-align:center; font-weight:bold" id="p-${z.id}-target">0 W</td><td style="text-align:right; font-weight:bold; padding-right:10px;" id="p-${z.id}-pct-range">0%</td><td class="range-col" id="p-${z.id}-range">0 W</td></tr>`;
   });
-  els.standardTableBody.innerHTML = sHtml;
   els.pelotonTableBody.innerHTML = pHtml;
 }
-
-function getPowerAnchorForInput(zone, bound) { if (zone.id === 'ss') return bound === 'min' ? 'ssMin' : 'ssMax'; return zone.id; }
-function renderPowerAnchorInput(zone, i, bound, prefix) { const anchor = getPowerAnchorForInput(zone, bound); return `<input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="${bound}" data-anchor="${anchor}" id="${prefix}-${bound}" type="number" min="0" max="300" step="1" value="${customPowerAnchors[anchor]}">`; }
 
 function generateCustomZonesTable() {
   let html = '';
@@ -1053,19 +1030,15 @@ function updateZones() {
   els.wkgOut.textContent = wKg;
 
   defaultZonesConfig.forEach(z => {
-    const info = getZoneRangeInfo(z, ftp);
-    const sPctEl = document.getElementById(`${z.id}-pct-range`);
-    const sRangeEl = document.getElementById(`${z.id}-range`);
-    const pPctEl = document.getElementById(`p-${z.id}-pct-range`);
-    const pRangeEl = document.getElementById(`p-${z.id}-range`);
-    const pTargetEl = document.getElementById(`p-${z.id}-target`);
+  const info = getZoneRangeInfo(z, ftp);
+  const pPctEl = document.getElementById(`p-${z.id}-pct-range`);
+  const pRangeEl = document.getElementById(`p-${z.id}-range`);
+  const pTargetEl = document.getElementById(`p-${z.id}-target`);
 
-    if (sPctEl) sPctEl.textContent = info.pctText;
-    if (sRangeEl) sRangeEl.textContent = info.wattsText;
-    if (pPctEl) pPctEl.textContent = info.pctText;
-    if (pRangeEl) pRangeEl.textContent = info.wattsText;
-    if (pTargetEl) pTargetEl.textContent = info.targetText;
-  });
+  if (pPctEl) pPctEl.textContent = info.pctText;
+  if (pRangeEl) pRangeEl.textContent = info.wattsText;
+  if (pTargetEl) pTargetEl.textContent = info.targetText;
+});
 
   customZonesConfig.forEach(z => {
     const info = getZoneRangeInfo(z, ftp);
@@ -1274,13 +1247,10 @@ function initCache() {
     weightUnitLbl: document.getElementById('weight-unit-lbl'),
     weightIn: document.getElementById('weight-in'),
     wkgOut: document.getElementById('wkg-out'),
-    subBtnStandard: document.getElementById('sub-btn-standard'),
     subBtnPeloton: document.getElementById('sub-btn-peloton'),
     subBtnCustom: document.getElementById('sub-btn-custom'),
-    standardZonesTable: document.getElementById('standard-zones-table'),
     pelotonZonesTable: document.getElementById('peloton-zones-table'),
     customZonesTable: document.getElementById('custom-zones-table'),
-    standardTableBody: document.getElementById('standard-table-body'),
     pelotonTableBody: document.getElementById('peloton-table-body'),
     customTableBody: document.getElementById('custom-table-body'),
     resetCustomZones: document.getElementById('reset-custom-zones'),
@@ -1401,7 +1371,7 @@ function loadSavedValues() {
 
   syncProposedFTP(p || '250');
   syncDropdowns();
-  setZoneSubtab(['standard', 'peloton', 'custom'].includes(s) ? s : 'peloton');
+  setZoneSubtab(['peloton', 'custom'].includes(s) ? s : 'peloton');
   setHrSubtab('default');
 }
 
