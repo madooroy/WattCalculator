@@ -608,23 +608,42 @@ tr:last-child td { border-bottom: none; }
   </div>
 
   <div id="hr-default-panel" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="hr-sub-btn-default">
+    <div class="hr-group-title" style="margin: 4px 0 10px;">Max Heart Rate Zones</div>
     <div class="table-scroll-wrapper">
       <table>
         <thead>
           <tr>
             <th>Zone / Label</th>
             <th style="text-align:right; padding-right:12px;">Max HR Anchor PCT Range</th>
-            <th style="text-align:right; padding-right:12px;">Max HR</th>
-            <th style="text-align:right;">LTHR Anchor PCT Range</th>
+            <th style="text-align:right;">Max HR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr1-max-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr2-max-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr3-max-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr4-max-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr5-max-range">0 BPM</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="hr-group-title" style="margin: 16px 0 10px;">Lactate Threshold Heart Rate Zones</div>
+    <div class="table-scroll-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Zone / Label</th>
+            <th style="text-align:right; padding-right:12px;">LTHR Anchor PCT Range</th>
             <th style="text-align:right;">LTHR</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr1-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="hr1-lthr-pct-range">0%</td><td class="range-col" id="hr1-lthr-range">0 BPM</td></tr>
-          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr2-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="hr2-lthr-pct-range">0%</td><td class="range-col" id="hr2-lthr-range">0 BPM</td></tr>
-          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr3-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="hr3-lthr-pct-range">0%</td><td class="range-col" id="hr3-lthr-range">0 BPM</td></tr>
-          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr4-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="hr4-lthr-pct-range">0%</td><td class="range-col" id="hr4-lthr-range">0 BPM</td></tr>
-          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr5-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="hr5-lthr-pct-range">0%</td><td class="range-col" id="hr5-lthr-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-lthr-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr1-lthr-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-lthr-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr2-lthr-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-lthr-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr3-lthr-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-lthr-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr4-lthr-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-lthr-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="hr5-lthr-range">0 BPM</td></tr>
         </tbody>
       </table>
     </div>
@@ -641,23 +660,42 @@ tr:last-child td { border-bottom: none; }
     <div class="help-text">Max HR thresholds cannot exceed 100%. LTHR thresholds are automatically limited so the resulting BPM does not exceed your entered Max HR.</div>
     <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
 
+    <div class="hr-group-title" style="margin: 16px 0 10px;">Custom Max Heart Rate Zones</div>
     <div class="table-scroll-wrapper" style="margin-top:10px;">
       <table>
         <thead>
           <tr>
             <th>Zone / Label</th>
             <th style="text-align:right; padding-right:12px;">Max HR Anchor PCT Range</th>
-            <th style="text-align:right; padding-right:12px;">Custom Max HR</th>
-            <th style="text-align:right;">LTHR Anchor PCT Range</th>
+            <th style="text-align:right;">Custom Max HR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr1-max-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr2-max-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr3-max-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr4-max-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr5-max-range">0 BPM</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="hr-group-title" style="margin: 16px 0 10px;">Custom Lactate Threshold Heart Rate Zones</div>
+    <div class="table-scroll-wrapper" style="margin-top:10px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Zone / Label</th>
+            <th style="text-align:right; padding-right:12px;">LTHR Anchor PCT Range</th>
             <th style="text-align:right;">Custom LTHR</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr1-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="c-hr1-lthr-pct-range">0%</td><td class="range-col" id="c-hr1-lthr-range">0 BPM</td></tr>
-          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr2-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="c-hr2-lthr-pct-range">0%</td><td class="range-col" id="c-hr2-lthr-range">0 BPM</td></tr>
-          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr3-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="c-hr3-lthr-pct-range">0%</td><td class="range-col" id="c-hr3-lthr-range">0 BPM</td></tr>
-          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr4-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="c-hr4-lthr-pct-range">0%</td><td class="range-col" id="c-hr4-lthr-range">0 BPM</td></tr>
-          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-max-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr5-max-range" style="padding-right:12px;">0 BPM</td><td class="range-col" id="c-hr5-lthr-pct-range">0%</td><td class="range-col" id="c-hr5-lthr-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-lthr-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr1-lthr-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-lthr-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr2-lthr-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-lthr-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr3-lthr-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-lthr-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr4-lthr-range">0 BPM</td></tr>
+          <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-lthr-pct-range" style="padding-right:12px;">0%</td><td class="range-col" id="c-hr5-lthr-range">0 BPM</td></tr>
         </tbody>
       </table>
     </div>
