@@ -339,7 +339,7 @@ tr:last-child td { border-bottom: none; }
   font-weight: bold;
 }
 
-#power-zones-table td {
+#peloton-zones-table td {
   font-size: 13px;
   font-weight: bold;
 }
@@ -515,7 +515,7 @@ tr:last-child td { border-bottom: none; }
     <div class="card result-box">
       <div class="result-val" id="kj-out" aria-live="polite">0</div>
       <div class="result-lbl">Total Kilojoules</div>
-      <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="true">Zone Bars: Power Zone Bar</button>
+      <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="true">Palette: Peloton Power Zone Bar</button>
       <div class="badge-container">
         <div class="calc-badge" id="kj-current-badge">Current: --</div>
         <div class="calc-badge" id="kj-proposed-badge">Proposed: --</div>
@@ -549,7 +549,7 @@ tr:last-child td { border-bottom: none; }
     <div class="card result-box">
       <div class="result-val" id="watts-out" aria-live="polite">0</div>
       <div class="result-lbl">Average Watts</div>
-      <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="true">Zone Bars: Power Zone Bar</button>
+      <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="true">Palette: Peloton Power Zone Bar</button>
       <div class="badge-container">
         <div class="calc-badge" id="watts-current-badge">Current: --</div>
         <div class="calc-badge" id="watts-proposed-badge">Proposed: --</div>
@@ -585,11 +585,11 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div class="sub-tabs" role="tablist" aria-label="Power zone systems">
-  <button id="sub-btn-power" class="sub-tab active" role="tab" aria-selected="true" aria-controls="power-zones-table" data-zone-subtab="power" type="button">Default Power Zones</button>
-  <button id="sub-btn-custom" class="sub-tab" role="tab" aria-selected="false" aria-controls="custom-zones-table" data-zone-subtab="custom" type="button">Custom Power Zones</button>
+  <button id="sub-btn-peloton" class="sub-tab active" role="tab" aria-selected="true" aria-controls="peloton-zones-table" data-zone-subtab="peloton" type="button">Power Zones</button>
+  <button id="sub-btn-custom" class="sub-tab" role="tab" aria-selected="false" aria-controls="custom-zones-table" data-zone-subtab="custom" type="button">Custom</button>
 </div>
 
-   <div id="power-zones-table" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="sub-btn-power">
+   <div id="peloton-zones-table" class="card" style="padding:8px;" role="tabpanel" aria-labelledby="sub-btn-peloton">
       <div class="table-scroll-wrapper">
         <table>
           <thead>
@@ -601,7 +601,7 @@ tr:last-child td { border-bottom: none; }
               <th style="text-align:right;">Target Range</th>
             </tr>
           </thead>
-          <tbody id="power-table-body"></tbody>
+          <tbody id="peloton-table-body"></tbody>
         </table>
       </div>
     </div>
@@ -815,7 +815,7 @@ const defaultHrPercentConfig = {
 };
 
 const els = {};
-let activeZoneSystem = 'power';
+let activeZoneSystem = 'peloton';
 let activeHrSubtab = 'default';
 
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -992,7 +992,7 @@ function switchTab(type) {
 }
 
 function toggleActiveSystem() {
-  const next = activeZoneSystem === 'power' ? 'custom' : 'power';
+  const next = activeZoneSystem === 'peloton' ? 'custom' : 'peloton';
   setZoneSubtab(next);
 }
 
@@ -1001,8 +1001,8 @@ function setSystemState(val) {
   savePrimitive('cycling_active_system', val);
 
   const labelMap = {
-    power: 'Zone Bars: Default Power Zones',
-    custom: 'Zone Bars: Custom Power Zones'
+    peloton: 'Palette: Power Zones',
+    custom: 'Palette: Custom'
   };
 
   const buttonText = labelMap[val];
@@ -1016,16 +1016,16 @@ function setSystemState(val) {
 function setZoneSubtab(val) {
   setSystemState(val);
 
-  const isPower = val === 'power';
+  const isPeloton = val === 'peloton';
   const isCustom = val === 'custom';
 
-  els.subBtnPpwer.classList.toggle('active', isPower);
+  els.subBtnPeloton.classList.toggle('active', isPeloton);
   els.subBtnCustom.classList.toggle('active', isCustom);
 
-  els.subBtnPower.setAttribute('aria-selected', String(isPower));
+  els.subBtnPeloton.setAttribute('aria-selected', String(isPeloton));
   els.subBtnCustom.setAttribute('aria-selected', String(isCustom));
 
-  els.powerZonesTable.style.display = isPower ? 'block' : 'none';
+  els.pelotonZonesTable.style.display = isPeloton ? 'block' : 'none';
   els.customZonesTable.style.display = isCustom ? 'block' : 'none';
 
   updateZones();
@@ -1079,7 +1079,7 @@ function generateDefaultTables() {
   defaultZonesConfig.forEach(z => {
     pHtml += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td style="text-align:center; font-weight:bold;">${Math.round(z.target * 100)}%</td><td style="text-align:center; font-weight:bold" id="p-${z.id}-target">0 W</td><td style="text-align:right; font-weight:bold; padding-right:10px;" id="p-${z.id}-pct-range">0%</td><td class="range-col" id="p-${z.id}-range">0 W</td></tr>`;
   });
-  els.powerTableBody.innerHTML = pHtml;
+  els.pelotonTableBody.innerHTML = pHtml;
 }
 
 function generateCustomZonesTable() {
@@ -1365,11 +1365,11 @@ function initCache() {
     weightUnitLbl: document.getElementById('weight-unit-lbl'),
     weightIn: document.getElementById('weight-in'),
     wkgOut: document.getElementById('wkg-out'),
-    subBtnPower: document.getElementById('sub-btn-power'),
+    subBtnPeloton: document.getElementById('sub-btn-peloton'),
     subBtnCustom: document.getElementById('sub-btn-custom'),
-    powerZonesTable: document.getElementById('power-zones-table'),
+    pelotonZonesTable: document.getElementById('peloton-zones-table'),
     customZonesTable: document.getElementById('custom-zones-table'),
-    powerTableBody: document.getElementById('power-table-body'),
+    pelotonTableBody: document.getElementById('peloton-table-body'),
     customTableBody: document.getElementById('custom-table-body'),
     resetCustomZones: document.getElementById('reset-custom-zones'),
     customZoneError: document.getElementById('custom-zone-error'),
@@ -1474,7 +1474,7 @@ function loadSavedValues() {
   const mx = localStorage.getItem('cycling_hr_max_val');
   const lt = localStorage.getItem('cycling_hr_lthr_val');
   const p = localStorage.getItem('cycling_proposed_ftp');
-  const s = localStorage.getItem('cycling_active_system') || 'power';
+  const s = localStorage.getItem('cycling_active_system') || 'peloton';
 
   const kjWatts = localStorage.getItem('cycling_find_kj_avg_watts');
   const totalKj = localStorage.getItem('cycling_find_watts_total_kj');
@@ -1489,7 +1489,7 @@ function loadSavedValues() {
 
   syncProposedFTP(p || '250');
   syncDropdowns();
-  setZoneSubtab(['power', 'custom'].includes(s) ? s : 'power');
+  setZoneSubtab(['peloton', 'custom'].includes(s) ? s : 'peloton');
   setHrSubtab('default');
 }
 
