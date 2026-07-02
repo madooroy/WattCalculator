@@ -531,9 +531,16 @@ tr:last-child td { border-bottom: none; }
   min-height: 16px;
 }
 
-#hr-view th,
-#hr-view td {
-  white-space: normal;
+#default-power-zones-table th,
+#default-power-zones-table td,
+#custom-zones-table th,
+#custom-zones-table td {
+  white-space: nowrap;
+}  
+  
+#hr-view td.range-col,
+#hr-view th.text-right {
+  white-space: nowrap;
 }
 
 #hr-view table {
@@ -723,7 +730,7 @@ tr:last-child td { border-bottom: none; }
               <th class="text-center">Blue Line Target %</th>
               <th class="text-center">Blue Line Target Watts</th>
               <th class="text-right pr-10">Anchor PCT Range</th>
-              <th class="text-right">Target Range</th>
+              <th class="text-right">Target Range Watts</th>
             </tr>
           </thead>
           <tbody id="default-power-table-body"></tbody>
@@ -741,7 +748,7 @@ tr:last-child td { border-bottom: none; }
             <tr>
               <th>Zone / Label</th>
               <th class="text-center">Custom Anchor %</th>
-              <th class="text-right">Target Range</th>
+              <th class="text-right">Target Range Watts</th>
             </tr>
           </thead>
           <tbody id="custom-table-body"></tbody>
@@ -1089,19 +1096,19 @@ function getZoneRangeInfo(zone, ftp) {
 
   if (zone.max === null) {
     pctText = `≥ ${Math.round(zone.min * 100)}%`;
-    wattsText = `≥ ${minW} W`;
+    wattsText = `≥ ${minW}`;
   } else if (zone.id === 'z1') {
     pctText = `≤ ${Math.round(zone.max * 100)}%`;
-    wattsText = `≤ ${maxW} W`;
+    wattsText = `≤ ${maxW}`;
   } else {
     pctText = `${Math.round(zone.min * 100)}% to ${Math.round(zone.max * 100)}%`;
-    wattsText = `${minW} W to ${maxW} W`;
+    wattsText = `${minW} to ${maxW}`;
   }
 
   return {
     pctText,
     wattsText,
-    targetText: `${wholeNumber(ftp * zone.target)} W`
+    targetText: `${wholeNumber(ftp * zone.target)}`
   };
 }
 
@@ -1423,9 +1430,9 @@ function formatHrPctRanges(values) {
 function bpmRangeTexts(cuts) {
   return [
     `≤ ${cuts[0]} BPM`,
-    `${cuts[0]} to ${cuts[1]} BPM`,
-    `${cuts[1]} to ${cuts[2]} BPM`,
-    `${cuts[2]} to ${cuts[3]} BPM`,
+    `${cuts[0]} to ${cuts[1]}`,
+    `${cuts[1]} to ${cuts[2]}`,
+    `${cuts[2]} to ${cuts[3]}`,
     `≥ ${cuts[3]} BPM`
   ];
 }
