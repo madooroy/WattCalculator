@@ -732,16 +732,18 @@ tr:last-child td { border-bottom: none; }
   </div>
 
   <div id="hr-view" class="view" role="tabpanel" aria-labelledby="btn-hr" hidden>
-    <div class="card">
-      <div class="row">
-        <label for="hr-max-in">Max Heart Rate (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="0" step="1" autocomplete="off">
-      </div>
-      <div class="row">
-        <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="0" step="1" autocomplete="off">
-      </div>
+  <div class="card">
+    <div class="row">
+      <label for="hr-max-in">Max Heart Rate (BPM)</label>
+      <!-- FIX: Added explicitly mapped id="hr-max-in" attribute -->
+      <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="0" step="1" autocomplete="off">
     </div>
+    <div class="row">
+      <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
+      <!-- FIX: Added explicitly mapped id="hr-lthr-in" attribute -->
+      <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="0" step="1" autocomplete="off">
+    </div>
+  </div>
 
     <div class="sub-tabs" role="tablist" aria-label="Heart rate systems">
       <button id="hr-sub-btn-default" class="sub-tab active" role="tab" aria-selected="true" aria-controls="hr-default-panel" data-hr-subtab="default" type="button" tabindex="0">Default</button>
@@ -1740,34 +1742,42 @@ function loadSavedValues() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  // 1. Establish core target elements references
-  initCache();
-  
-  // 2. Load and recover any persisted physical fields prior to rendering tables
-  loadSavedValues();
-  
-  // 3. Programmatically generate visual layout tables
-  generateDefaultTables();
-  generateCustomZonesTable();
-  renderCustomHrControls();
-  
-  // 4. Attach functional listeners and user execution events
-  bindEvents();
-  bindCustomZoneInputs();
-  bindCustomHrInputs();
-  
-  // 5. Explicitly force an update to all numeric calculations and dashboard displays
-  updateZones();
-  updateHRZones();
-  updateCustomHRZones();
-  
-  // 6. Execute operational math logic formulas using cleanly loaded elements
-  calcKJ();
-  calcWatts();
-  
-  // 7. Inject auto-select-on-focus listeners to the programmatically rendered tables
-  bindSelectOnFocusToAll(els.customZonesTable);
-  bindSelectOnFocusToAll(els.hrCustomPanel);
+  try {
+    // 1. Establish core target elements cache mapping
+    initCache();
+    
+    // 2. Safely render structural dynamic layouts and inputs to the DOM
+    generateDefaultTables();
+    generateCustomZonesTable();
+    renderCustomHrControls();
+    
+    // 3. Populate recovery parameters and values from user localStorage safely
+    try {
+      loadSavedValues();
+    } catch (storageError) {
+      console.warn("Storage recovery skipped, applying default variables:", storageError);
+    }
+    
+    // 4. Attach application tab routing selectors, keybind parameters, and form change events
+    bindEvents();
+    bindCustomZoneInputs();
+    bindCustomHrInputs();
+    
+    // 5. Force compile foundational mathematical zone scales
+    updateZones();
+    updateHRZones();
+    updateCustomHRZones();
+    
+    // 6. Execute high-level math work formulas 
+    calcKJ();
+    calcWatts();
+    
+    // 7. Enforce total document text selection focus loops
+    bindSelectOnFocusToAll(document);
+    
+  } catch (fatalError) {
+    console.error("Fatal initialization loop halted. Check for missing HTML structural nodes:", fatalError);
+  }
 });
 </script>
 </body>
