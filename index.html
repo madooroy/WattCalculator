@@ -239,21 +239,21 @@ input[type="number"] {
   appearance: textfield;
 }
 tr[data-zone] { transition: background-color 0.2s ease; }
-tr[data-zone="z1"] { background-color: color-mix(in srgb, var(--p-z1) 6%, var(--card)); }
-tr[data-zone="z2"] { background-color: color-mix(in srgb, var(--p-z2) 6%, var(--card)); }
-tr[data-zone="z3"] { background-color: color-mix(in srgb, var(--p-z3) 6%, var(--card)); }
-tr[data-zone="ss"] { background-color: color-mix(in srgb, var(--p-ss) 6%, var(--card)); }
-tr[data-zone="z4"] { background-color: color-mix(in srgb, var(--p-z4) 6%, var(--card)); }
-tr[data-zone="z5"] { background-color: color-mix(in srgb, var(--p-z5) 6%, var(--card)); }
-tr[data-zone="z6"] { background-color: color-mix(in srgb, var(--p-z6) 6%, var(--card)); }
-tr[data-zone="z7"] { background-color: color-mix(in srgb, var(--p-z7) 6%, var(--card)); }
+tr[data-zone="z1"] { background-color: color-mix(in srgb, var(--p-z1) 12%, var(--card)); }
+tr[data-zone="z2"] { background-color: color-mix(in srgb, var(--p-z2) 12%, var(--card)); }
+tr[data-zone="z3"] { background-color: color-mix(in srgb, var(--p-z3) 12%, var(--card)); }
+tr[data-zone="ss"] { background-color: color-mix(in srgb, var(--p-ss) 12%, var(--card)); }
+tr[data-zone="z4"] { background-color: color-mix(in srgb, var(--p-z4) 12%, var(--card)); }
+tr[data-zone="z5"] { background-color: color-mix(in srgb, var(--p-z5) 12%, var(--card)); }
+tr[data-zone="z6"] { background-color: color-mix(in srgb, var(--p-z6) 12%, var(--card)); }
+tr[data-zone="z7"] { background-color: color-mix(in srgb, var(--p-z7) 12%, var(--card)); }
 
 tr[data-hr-zone] { transition: background-color 0.2s ease; }
-tr[data-hr-zone="z1"] { background-color: color-mix(in srgb, var(--hr-z1) 6%, var(--card)); }
-tr[data-hr-zone="z2"] { background-color: color-mix(in srgb, var(--hr-z2) 6%, var(--card)); }
-tr[data-hr-zone="z3"] { background-color: color-mix(in srgb, var(--hr-z3) 6%, var(--card)); }
-tr[data-hr-zone="z4"] { background-color: color-mix(in srgb, var(--hr-z4) 6%, var(--card)); }
-tr[data-hr-zone="z5"] { background-color: color-mix(in srgb, var(--hr-z5) 6%, var(--card)); }
+tr[data-hr-zone="z1"] { background-color: color-mix(in srgb, var(--hr-z1) 12%, var(--card)); }
+tr[data-hr-zone="z2"] { background-color: color-mix(in srgb, var(--hr-z2) 12%, var(--card)); }
+tr[data-hr-zone="z3"] { background-color: color-mix(in srgb, var(--hr-z3) 12%, var(--card)); }
+tr[data-hr-zone="z4"] { background-color: color-mix(in srgb, var(--hr-z4) 12%, var(--card)); }
+tr[data-hr-zone="z5"] { background-color: color-mix(in srgb, var(--hr-z5) 12%, var(--card)); }
 
 td { border-bottom: 1px solid var(--border); }
 
@@ -1740,19 +1740,34 @@ function loadSavedValues() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // 1. Establish core target elements references
   initCache();
+  
+  // 2. Load and recover any persisted physical fields prior to rendering tables
+  loadSavedValues();
+  
+  // 3. Programmatically generate visual layout tables
   generateDefaultTables();
   generateCustomZonesTable();
   renderCustomHrControls();
+  
+  // 4. Attach functional listeners and user execution events
   bindEvents();
   bindCustomZoneInputs();
   bindCustomHrInputs();
-  loadSavedValues();
+  
+  // 5. Explicitly force an update to all numeric calculations and dashboard displays
   updateZones();
   updateHRZones();
   updateCustomHRZones();
+  
+  // 6. Execute operational math logic formulas using cleanly loaded elements
   calcKJ();
   calcWatts();
+  
+  // 7. Inject auto-select-on-focus listeners to the programmatically rendered tables
+  bindSelectOnFocusToAll(els.customZonesTable);
+  bindSelectOnFocusToAll(els.hrCustomPanel);
 });
 </script>
 </body>
