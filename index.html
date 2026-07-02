@@ -1747,7 +1747,7 @@ function loadSavedValues() {
   setHrSubtab('default');
 } // This cleanly closes your loadSavedValues() function
 
-// --- DEFINITIVELY SOLVES IOS SAFARI LOADING RACE CONDITIONS ---
+// --- ROBUST APP INITIALIZATION & FALLBACK ENGINE ---
 function bootstrapApplication() {
   try {
     // 1. Establish core target elements cache mapping
@@ -1758,28 +1758,46 @@ function bootstrapApplication() {
     generateCustomZonesTable();
     renderCustomHrControls();
     
-    // 3. Populate recovery parameters and values from user localStorage safely
+    // 3. Populate recovery parameters from storage safely
     try {
       loadSavedValues();
     } catch (storageError) {
-      console.warn("Storage recovery skipped, applying defaults:", storageError);
+      console.warn("Storage recovery bypassed, utilizing baseline values:", storageError);
     }
+
+    // 4. SAFARI MICRO-PATCH: Protect required inputs from lingering at "0" or blank
+    const fallbackRules = [
+      { element: els.wattsIn, defaultValue: "150" },
+      { element: els.kjMinIn, defaultValue: "60" },
+      { element: els.kjIn, defaultValue: "500" },
+      { element: els.wattsMinIn, defaultValue: "60" },
+      { element: els.ftpIn, defaultValue: "250" },
+      { element: els.weightIn, defaultValue: "165" },
+      { element: els.hrMaxIn, defaultValue: "190" },
+      { element: els.hrLthrIn, defaultValue: "170" }
+    ];
+
+    fallbackRules.forEach(({ element, defaultValue }) => {
+      if (!element || element.value.trim() === "" || element.value === "0") {
+        element.value = defaultValue;
+      }
+    });
     
-    // 4. Attach application calculations, tab routing, and validation actions
+    // 5. Attach calculation handlers and routing loops
     bindEvents();
     bindCustomZoneInputs();
     bindCustomHrInputs();
     
-    // 5. Force update all zonal calculations, weights, and display elements
+    // 6. Force recalculate internal zone scales
     updateZones();
     updateHRZones();
     updateCustomHRZones();
     
-    // 6. Force execution of calculations after elements are fully populated
+    // 7. Force execution of calculations using validated properties
     calcKJ();
     calcWatts();
     
-    // 7. Enforce total document text selection focus hooks
+    // 8. Enforce total document text selection focus hooks
     bindSelectOnFocusToAll(document);
     
   } catch (fatalError) {
@@ -1789,10 +1807,8 @@ function bootstrapApplication() {
 
 // Mobile WebKit Safeguard Module: Ensures execution doesn't run "too early" on iPhone
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  // If iOS loaded the script out of order, add a brief delay to let values bind
   setTimeout(bootstrapApplication, 50);
 } else {
-  // Fallback to structural listener execution loop
   window.addEventListener('DOMContentLoaded', () => {
     setTimeout(bootstrapApplication, 50);
   });
