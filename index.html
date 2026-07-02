@@ -664,7 +664,7 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div class="subnote-right">From Power Zones Tab</div>
       </div>
->
+
       <div class="row">
         <label for="proposed-ftp-watts">New FTP for Comparison</label>
         <input class="input-boxed" type="number" inputmode="numeric" id="proposed-ftp-watts" value="250" min="0" step="1" autocomplete="off">
@@ -1091,11 +1091,11 @@ function getZoneRangeInfo(zone, ftp) {
     pctText = `≥ ${Math.round(zone.min * 100)}%`;
     wattsText = `≥ ${minW} W`;
   } else if (zone.id === 'z1') {
-    pctText = `< ${Math.round(zone.max * 100)}%`;
-    wattsText = `< ${maxW} W`;
+    pctText = `≤ ${Math.round(zone.max * 100)}%`;
+    wattsText = `≤ ${maxW} W`;
   } else {
-    pctText = `${Math.round(zone.min * 100)}% to < ${Math.round(zone.max * 100)}%`;
-    wattsText = `${minW} W to < ${maxW} W`;
+    pctText = `${Math.round(zone.min * 100)}% to ${Math.round(zone.max * 100)}%`;
+    wattsText = `${minW} W to ${maxW} W`;
   }
 
   return {
@@ -1412,20 +1412,20 @@ function validateAndApplyCustomHR() {
 
 function formatHrPctRanges(values) {
   return [
-    `< ${values[0]}%`,
-    `${values[0]}% to < ${values[1]}%`,
-    `${values[1]}% to < ${values[2]}%`,
-    `${values[2]}% to < ${values[3]}%`,
+    `≤ ${values[0]}%`,
+    `${values[0]}% to ${values[1]}%`,
+    `${values[1]}% to ${values[2]}%`,
+    `${values[2]}% to ${values[3]}%`,
     `≥ ${values[3]}%`
   ];
 }
 
 function bpmRangeTexts(cuts) {
   return [
-    `< ${cuts[0]} BPM`,
-    `${cuts[0]} to < ${cuts[1]} BPM`,
-    `${cuts[1]} to < ${cuts[2]} BPM`,
-    `${cuts[2]} to < ${cuts[3]} BPM`,
+    `≤ ${cuts[0]} BPM`,
+    `${cuts[0]} to ${cuts[1]} BPM`,
+    `${cuts[1]} to ${cuts[2]} BPM`,
+    `${cuts[2]} to ${cuts[3]} BPM`,
     `≥ ${cuts[3]} BPM`
   ];
 }
