@@ -1727,13 +1727,19 @@ function loadSavedValues() {
 
   mappings.forEach(([key, el, transform]) => {
     const value = safeStorageGet(key);
-    if (value !== null) el.value = transform(value);
+    // FIX: Only apply the saved value if it isn't null, isn't empty, and isn't a zero string for essential entries
+    if (value !== null && value.trim() !== "" && value !== "0") {
+      el.value = transform(value);
+    }
   });
 
   const unit = safeStorageGet('cycling_unit');
   if (unit === 'lbs' || unit === 'kg') els.weightUnit.value = unit;
 
-  setNewFTP(safeStorageGet('cycling_new_ftp') || '250', false);
+  // Safeguard proposed comparison FTP so it defaults cleanly to a real number if storage is blank
+  const savedNewFtp = safeStorageGet('cycling_new_ftp');
+  setNewFTP(savedNewFtp && savedNewFtp !== "0" ? savedNewFtp : '250', false);
+  
   syncDropdowns();
 
   const system = safeStorageGet('cycling_active_system');
