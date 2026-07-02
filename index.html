@@ -167,6 +167,17 @@ input {
   color: var(--text);
 }
 
+  input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 .input-small {
   width: 84px;
   min-height: 40px;
@@ -174,11 +185,47 @@ input {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 4px;
-  font-size: 16px;
+  font-size: 13px;
+  font-weight: bold;
   background: transparent;
   color: var(--text);
 }
 
+  .numeric-input {
+  font-weight: bold;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+  .range-col {
+  text-align: right;
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+#default-power-zones-table td:last-child,
+#custom-zones-table td:last-child,
+#hr-default-panel td:last-child,
+#hr-custom-panel td:last-child {
+  text-align: right;
+  font-family: monospace;
+}
+
+#default-power-zones-table td,
+#custom-zones-table td,
+#hr-default-panel td,
+#hr-custom-panel td,
+.range-col {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.table-scroll-wrapper .input-small,
+.hr-edit-grid .input-small {
+  font-size: 13px;
+  font-weight: bold;
+}
 .select-wrapper {
   position: relative;
   width: 40%;
@@ -342,21 +389,6 @@ tr:last-child td { border-bottom: none; }
   white-space: normal;
 }
 
-.range-col {
-  text-align: right;
-  font-family: monospace;
-  font-size: 13px;
-  font-weight: bold;
-}
-
-#peloton-zones-table td,
-#custom-zones-table td,
-#hr-default-panel td,
-#hr-custom-panel td {
-  font-size: 13px;
-  font-weight: bold;
-}
-
 #custom-zones-table .input-small {
   font-size: 13px;
   font-weight: bold;
@@ -495,7 +527,7 @@ tr:last-child td { border-bottom: none; }
       </div>
       <div class="row">
         <label for="kj-min-in">Time (Minutes)</label>
-        <input type="number" inputmode="numeric" id="kj-min-in" value="60" min="0" step="0.1" autocomplete="off">
+        <input type="number" inputmode="numeric" id="kj-min-in" value="60" min="0" step="1" autocomplete="off">
       </div>
       <div class="row" style="align-items: flex-start; flex-direction: column; gap: 4px;">
         <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
@@ -513,7 +545,7 @@ tr:last-child td { border-bottom: none; }
     <div class="card result-box">
       <div class="result-val" id="kj-out" aria-live="polite">0</div>
       <div class="result-lbl">Total Kilojoules</div>
-      <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="true">Palette: Peloton Power Zone Bar</button>
+      <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="true">Palette: Default Power Zone Bar</button>
       <div class="badge-container">
         <div class="calc-badge" id="kj-current-badge">Current: --</div>
         <div class="calc-badge" id="kj-proposed-badge">Proposed: --</div>
@@ -529,7 +561,7 @@ tr:last-child td { border-bottom: none; }
       </div>
       <div class="row">
         <label for="watts-min-in">Time (Minutes)</label>
-        <input type="number" inputmode="numeric" id="watts-min-in" value="60" min="0" step="0.1" autocomplete="off">
+        <input type="number" inputmode="numeric" id="watts-min-in" value="60" min="0" step="1" autocomplete="off">
       </div>
       <div class="row" style="align-items:flex-start; flex-direction:column; gap:4px;">
         <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
@@ -547,7 +579,7 @@ tr:last-child td { border-bottom: none; }
     <div class="card result-box">
       <div class="result-val" id="watts-out" aria-live="polite">0</div>
       <div class="result-lbl">Average Watts</div>
-      <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="true">Palette: Peloton Power Zone Bar</button>
+      <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="true">Palette: Default Power Zone Bar</button>
       <div class="badge-container">
         <div class="calc-badge" id="watts-current-badge">Current: --</div>
         <div class="calc-badge" id="watts-proposed-badge">Proposed: --</div>
@@ -573,7 +605,7 @@ tr:last-child td { border-bottom: none; }
       </div>
       <div class="row">
         <label for="weight-in">Enter Your Weight</label>
-        <input type="number" inputmode="numeric" id="weight-in" placeholder="165" value="165" min="0" step="0.1" autocomplete="off">
+        <input type="number" inputmode="numeric" id="weight-in" placeholder="165" value="165" min="0" step="1" autocomplete="off">
       </div>
     </div>
 
@@ -1069,13 +1101,13 @@ function generateCustomZonesTable() {
     let inputHtml = '';
 
     if (z.id === 'ss') {
-      inputHtml = `<div class="inline-fields"><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMin}"><span>to</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMax}"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMin}"><span>to</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMax}"><span>%</span></div>`;
     } else if (z.id === 'z1') {
-      inputHtml = `<div class="inline-fields"><span>&lt;</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z1}"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><span>&lt;</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z1}"><span>%</span></div>`;
     } else if (z.id === 'z7') {
-      inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z6}"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z6}"><span>%</span></div>`;
     } else {
-      inputHtml = `<div class="inline-fields"><input class="input-small custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors[z.id]}"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors[z.id]}"><span>%</span></div>`;
     }
 
     html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td style="text-align:center;">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">0 W</td></tr>`;
@@ -1155,8 +1187,8 @@ function renderCustomHrControls() {
   els.customHrLthrGrid.innerHTML = '';
 
   ['Zone 1 upper', 'Zone 2 upper', 'Zone 3 upper', 'Zone 4 upper'].forEach((label, i) => {
-    els.customHrMaxGrid.insertAdjacentHTML('beforeend', `<label for="custom-max-${i}" style="width:auto;">${label}</label><div class="inline-fields"><input class="input-small custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`);
-    els.customHrLthrGrid.insertAdjacentHTML('beforeend', `<label for="custom-lthr-${i}" style="width:auto;">${label}</label><div class="inline-fields"><input class="input-small custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`);
+    els.customHrMaxGrid.insertAdjacentHTML('beforeend', `<label for="custom-max-${i}" style="width:auto;">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`);
+    els.customHrLthrGrid.insertAdjacentHTML('beforeend', `<label for="custom-lthr-${i}" style="width:auto;">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`);
   });
 }
 
@@ -1263,9 +1295,29 @@ function resetCustomHR() {
 }
 
 function bindSelectOnFocus(el) {
-  el.addEventListener('focus', () => el.select());
+  if (!el || el.dataset.selectBound === 'true') return;
+  el.dataset.selectBound = 'true';
+
+  const selectAll = () => {
+    requestAnimationFrame(() => {
+      try {
+        el.select();
+        if (typeof el.setSelectionRange === 'function') {
+          el.setSelectionRange(0, el.value.length);
+        }
+      } catch {}
+    });
+  };
+
+  el.addEventListener('focus', selectAll);
+  el.addEventListener('click', selectAll);
+  el.addEventListener('touchend', selectAll);
 }
 
+  function bindSelectOnFocusToAll(root = document) {
+  root.querySelectorAll('input').forEach(bindSelectOnFocus);
+}
+  
 function persistOnCommit(el, key, decimals = 0, afterSave) {
   const handler = () => {
     const clean = sanitizeInput(el, decimals);
@@ -1392,8 +1444,8 @@ function bindTablistKeyboard(selector, activate) {
 }
 
 function bindEvents() {
-  [els.wattsIn, els.kjMinIn, els.kjIn, els.wattsMinIn, els.ftpIn, els.weightIn, els.hrMaxIn, els.hrLthrIn, els.proposedFtpKj, els.proposedFtpWatts].forEach(bindSelectOnFocus);
-
+  bindSelectOnFocusToAll();
+  
   document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
   document.querySelectorAll('[data-zone-subtab]').forEach(btn => btn.addEventListener('click', () => setZoneSubtab(btn.dataset.zoneSubtab)));
   document.querySelectorAll('[data-hr-subtab]').forEach(btn => btn.addEventListener('click', () => setHrSubtab(btn.dataset.hrSubtab)));
