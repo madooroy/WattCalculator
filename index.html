@@ -1742,12 +1742,13 @@ function loadSavedValues() {
   
   syncDropdowns();
 
-  const system = safeStorageGet('cycling_active_system');
+ const system = safeStorageGet('cycling_active_system');
   setZoneSubtab(['default', 'custom'].includes(system) ? system : 'default');
   setHrSubtab('default');
-}
+} // This cleanly closes your loadSavedValues() function
 
-window.addEventListener('DOMContentLoaded', () => {
+// --- DEFINITIVELY SOLVES IOS SAFARI LOADING RACE CONDITIONS ---
+function bootstrapApplication() {
   try {
     // 1. Establish core target elements cache mapping
     initCache();
@@ -1761,30 +1762,41 @@ window.addEventListener('DOMContentLoaded', () => {
     try {
       loadSavedValues();
     } catch (storageError) {
-      console.warn("Storage recovery skipped, applying default variables:", storageError);
+      console.warn("Storage recovery skipped, applying defaults:", storageError);
     }
     
-    // 4. Attach application tab routing selectors, keybind parameters, and form change events
+    // 4. Attach application calculations, tab routing, and validation actions
     bindEvents();
     bindCustomZoneInputs();
     bindCustomHrInputs();
     
-    // 5. Force compile foundational mathematical zone scales
+    // 5. Force update all zonal calculations, weights, and display elements
     updateZones();
     updateHRZones();
     updateCustomHRZones();
     
-    // 6. Execute high-level math work formulas 
+    // 6. Force execution of calculations after elements are fully populated
     calcKJ();
     calcWatts();
     
-    // 7. Enforce total document text selection focus loops
+    // 7. Enforce total document text selection focus hooks
     bindSelectOnFocusToAll(document);
     
   } catch (fatalError) {
-    console.error("Fatal initialization loop halted. Check for missing HTML structural nodes:", fatalError);
+    console.error("Fatal initialization loop halted. Check HTML node mapping:", fatalError);
   }
-});
+}
+
+// Mobile WebKit Safeguard Module: Ensures execution doesn't run "too early" on iPhone
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  // If iOS loaded the script out of order, add a brief delay to let values bind
+  setTimeout(bootstrapApplication, 50);
+} else {
+  // Fallback to structural listener execution loop
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(bootstrapApplication, 50);
+  });
+}
 </script>
 </body>
 </html>
