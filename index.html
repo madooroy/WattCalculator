@@ -576,7 +576,7 @@ tr:last-child td { border-bottom: none; }
     <div class="card result-box">
       <div class="result-val" id="kj-out" aria-live="polite">0</div>
       <div class="result-lbl">Total Kilojoules</div>
-      <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="true">Palette: Default Power Zone Bar</button>
+      <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="true">Zones: Default Power Zone Bar</button>
       <div class="badge-container">
         <div class="calc-badge" id="kj-current-badge">Current: --</div>
         <div class="calc-badge" id="kj-proposed-badge">Proposed: --</div>
@@ -610,7 +610,7 @@ tr:last-child td { border-bottom: none; }
     <div class="card result-box">
       <div class="result-val" id="watts-out" aria-live="polite">0</div>
       <div class="result-lbl">Average Watts</div>
-      <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="true">Palette: Default Power Zone Bar</button>
+      <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="true">Zones: Default Power Zone Bar</button>
       <div class="badge-container">
         <div class="calc-badge" id="watts-current-badge">Current: --</div>
         <div class="calc-badge" id="watts-proposed-badge">Proposed: --</div>
@@ -683,7 +683,7 @@ tr:last-child td { border-bottom: none; }
           <tbody id="custom-table-body"></tbody>
         </table>
       </div>
-      <div class="help-text">Custom zones also drive badge classification when the active palette is set to Custom.</div>
+      <div class="help-text">Custom zones also drive badge classification when the active zones is set to Custom.</div>
       <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
     </div>
   </div>
@@ -1034,8 +1034,8 @@ function setSystemState(val) {
   savePrimitive('cycling_active_system', val);
 
   const labelMap = {
-    default: 'Palette: Default Power Zones',
-    custom: 'Palette: Custom Power Zones'
+    default: 'Zones: Default Power Zones',
+    custom: 'Zones: Custom Power Zones'
   };
 
   const buttonText = labelMap[val];
