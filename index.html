@@ -568,7 +568,7 @@ tr:last-child td { border-bottom: none; }
         <div style="font-size:11px; color:var(--muted); text-align:right; width:100%; line-height:1.2;">From Power Zones Tab</div>
       </div>
       <div class="row">
-        <label for="proposed-ftp-kj">Proposed FTP (Watts)</label>
+        <label for="proposed-ftp-kj">New FTP for Comparison</label>
         <input class="input-boxed" input type="number" inputmode="numeric" id="proposed-ftp-kj" value="250" min="0" step="1" autocomplete="off">
       </div>
     </div>
@@ -578,8 +578,8 @@ tr:last-child td { border-bottom: none; }
       <div class="result-lbl">Total Kilojoules</div>
       <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="true">Zones: Default Power Zone Bar</button>
       <div class="badge-container">
-        <div class="calc-badge" id="kj-current-badge">Current: --</div>
-        <div class="calc-badge" id="kj-proposed-badge">Proposed: --</div>
+        <div class="calc-badge" id="kj-current-badge">Current FTP: --</div>
+        <div class="calc-badge" id="kj-new-badge">New FTP: --</div>
       </div>
     </div>
   </div>
@@ -602,7 +602,7 @@ tr:last-child td { border-bottom: none; }
         <div style="font-size:11px; color:var(--muted); text-align:right; width:100%; line-height:1.2;">From Power Zones Tab</div>
       </div>
       <div class="row">
-        <label for="proposed-ftp-watts">Proposed FTP (Watts)</label>
+        <label for="proposed-ftp-watts">New FTP for Comparison</label>
         <input class="input-boxed" input type="number" inputmode="numeric" id="proposed-ftp-watts" value="250" min="0" step="1" autocomplete="off">
       </div>
     </div>
@@ -612,8 +612,8 @@ tr:last-child td { border-bottom: none; }
       <div class="result-lbl">Average Watts</div>
       <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="true">Zones: Default Power Zone Bar</button>
       <div class="badge-container">
-        <div class="calc-badge" id="watts-current-badge">Current: --</div>
-        <div class="calc-badge" id="watts-proposed-badge">Proposed: --</div>
+        <div class="calc-badge" id="watts-current-badge">Current FTP: --</div>
+        <div class="calc-badge" id="watts-new-badge">New FTP: --</div>
       </div>
     </div>
   </div>
@@ -1074,11 +1074,11 @@ function setHrSubtab(val) {
 
 function syncDropdowns() { els.weightUnitLbl.textContent = els.weightUnit.value; }
 
-function setProposedFTP(val, persist = true) {
+function setNewFTP(val, persist = true) {
   const clean = String(wholeNumber(clampNonNegative(val)));
-  els.proposedFtpKj.value = clean;
-  els.proposedFtpWatts.value = clean;
-  if (persist) savePrimitive('cycling_proposed_ftp', clean);
+  els.newFtpKj.value = clean;
+  els.newFtpWatts.value = clean;
+  if (persist) savePrimitive('cycling_new_ftp', clean);
   recalculateAllBadges();
 }
 
@@ -1091,16 +1091,16 @@ function updateBadgeUI(badgeEl, prefix, watts, ftp) {
 
 function recalculateAllBadges() {
   const currentFTP = clampNonNegative(els.ftpIn.value);
-  const proposedFTP = clampNonNegative(els.proposedFtpKj.value);
+  const newFTP = clampNonNegative(els.newFtpKj.value);
   const kjWatts = clampNonNegative(els.wattsIn.value);
   const wattsKj = clampNonNegative(els.kjIn.value);
   const wattsMin = clampNonNegative(els.wattsMinIn.value);
   const calculatedWatts = Math.ceil(wattsFromKjMinutes(wattsKj, wattsMin));
 
-  updateBadgeUI(els.kjCurrentBadge, 'Current', kjWatts, currentFTP);
-  updateBadgeUI(els.kjProposedBadge, 'Proposed', kjWatts, proposedFTP);
-  updateBadgeUI(els.wattsCurrentBadge, 'Current', calculatedWatts, currentFTP);
-  updateBadgeUI(els.wattsProposedBadge, 'Proposed', calculatedWatts, proposedFTP);
+  updateBadgeUI(els.kjCurrentBadge, 'Current FTP', kjWatts, currentFTP);
+  updateBadgeUI(els.kjNewBadge, 'New FTP', kjWatts, newFTP);
+  updateBadgeUI(els.wattsCurrentBadge, 'Current FTP', calculatedWatts, currentFTP);
+  updateBadgeUI(els.wattsNewBadge, 'New FTP', calculatedWatts, newFTP);
 }
 
 function calcKJ() {
@@ -1388,19 +1388,19 @@ function initCache() {
     hrView: document.getElementById('hr-view'),
     wattsIn: document.getElementById('watts-in'),
     kjMinIn: document.getElementById('kj-min-in'),
-    proposedFtpKj: document.getElementById('proposed-ftp-kj'),
+    newFtpKj: document.getElementById('proposed-ftp-kj'),
     kjOut: document.getElementById('kj-out'),
     toggleSystemKj: document.getElementById('toggle-system-kj'),
     kjCurrentBadge: document.getElementById('kj-current-badge'),
-    kjProposedBadge: document.getElementById('kj-proposed-badge'),
+    kjNewBadge: document.getElementById('kj-new-badge'),
     currentFtpDisplayKj: document.getElementById('current-ftp-display-kj'),
     kjIn: document.getElementById('kj-in'),
     wattsMinIn: document.getElementById('watts-min-in'),
-    proposedFtpWatts: document.getElementById('proposed-ftp-watts'),
+    newFtpWatts: document.getElementById('proposed-ftp-watts'),
     wattsOut: document.getElementById('watts-out'),
     toggleSystemWatts: document.getElementById('toggle-system-watts'),
     wattsCurrentBadge: document.getElementById('watts-current-badge'),
-    wattsProposedBadge: document.getElementById('watts-proposed-badge'),
+    wattsNewBadge: document.getElementById('watts-new-badge'),
     currentFtpDisplayWatts: document.getElementById('current-ftp-display-watts'),
     ftpIn: document.getElementById('ftp-in'),
     weightUnit: document.getElementById('weight-unit'),
@@ -1495,7 +1495,6 @@ function bindEvents() {
   els.kjMinIn.addEventListener('input', calcKJ);
   els.kjIn.addEventListener('input', calcWatts);
   els.wattsMinIn.addEventListener('input', calcWatts);
-
   els.ftpIn.addEventListener('input', updateZones);
   els.weightIn.addEventListener('input', updateZones);
 
@@ -1506,8 +1505,8 @@ function bindEvents() {
   });
 
   const syncProposed = (e) => setProposedFTP(e.target.value, false);
-  els.proposedFtpKj.addEventListener('input', syncProposed);
-  els.proposedFtpWatts.addEventListener('input', syncProposed);
+  els.newFtpKj.addEventListener('input', syncProposed);
+  els.newFtpWatts.addEventListener('input', syncProposed);
 
   els.hrMaxIn.addEventListener('input', () => { updateHRZones(); validateAndApplyCustomHR(); });
   els.hrLthrIn.addEventListener('input', () => { updateHRZones(); validateAndApplyCustomHR(); });
@@ -1516,8 +1515,8 @@ function bindEvents() {
   persistOnCommit(els.weightIn, 'cycling_weight', 1, updateZones);
   persistOnCommit(els.hrMaxIn, 'cycling_hr_max_val', 0, () => { updateHRZones(); validateAndApplyCustomHR(); });
   persistOnCommit(els.hrLthrIn, 'cycling_hr_lthr_val', 0, () => { updateHRZones(); validateAndApplyCustomHR(); });
-  persistOnCommit(els.proposedFtpKj, 'cycling_proposed_ftp', 0, clean => setProposedFTP(clean, false));
-  persistOnCommit(els.proposedFtpWatts, 'cycling_proposed_ftp', 0, clean => setProposedFTP(clean, false));
+  persistOnCommit(els.newFtpKj, 'cycling_new_ftp', 0, clean => setNewFTP(clean, false));
+  persistOnCommit(els.newFtpWatts, 'cycling_new_ftp', 0, clean => setNewFTP(clean, false));
 
   persistOnInput(els.wattsIn, 'cycling_find_kj_avg_watts');
   persistOnInput(els.kjIn, 'cycling_find_watts_total_kj');
@@ -1541,7 +1540,7 @@ function loadSavedValues() {
   const unit = safeStorageGet('cycling_unit');
   if (unit === 'lbs' || unit === 'kg') els.weightUnit.value = unit;
 
-  setProposedFTP(safeStorageGet('cycling_proposed_ftp') || '250', false);
+  setNewFTP(safeStorageGet('cycling_new_ftp') || safeStorageGet('cycling_new_ftp') || '250', false);
   syncDropdowns();
 
   const system = safeStorageGet('cycling_active_system');
