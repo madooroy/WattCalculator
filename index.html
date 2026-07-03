@@ -1095,15 +1095,15 @@ function getZoneRangeInfo(zone, ftp) {
   let pctText = '';
   let wattsText = '';
 
-  if (zone.max === null) {
-    pctText = `≥ ${Math.round(zone.min * 100)}%`;
-    wattsText = `≥ ${minW}`;
-  } else if (zone.id === 'z1') {
-    pctText = `≤ ${Math.round(zone.max * 100)}%`;
-    wattsText = `≤ ${maxW}`;
-  } else {
+  if (zone.id === 'ss') {
     pctText = `${Math.round(zone.min * 100)}% to ${Math.round(zone.max * 100)}%`;
     wattsText = `${minW} to ${maxW}`;
+  } else if (zone.max === null) {
+    pctText = `> ${Math.round(zone.min * 100)}%`;
+    wattsText = `> ${minW}`;
+  } else {
+    pctText = `≤ ${Math.round(zone.max * 100)}%`;
+    wattsText = `≤ ${maxW}`;
   }
 
   return {
@@ -1421,20 +1421,20 @@ function validateAndApplyCustomHR() {
 function formatHrPctRanges(values) {
   return [
     `≤ ${values[0]}%`,
-    `${values[0]}% to ${values[1]}%`,
-    `${values[1]}% to ${values[2]}%`,
-    `${values[2]}% to ${values[3]}%`,
-    `≥ ${values[3]}%`
+    `≤ ${values[1]}%`,
+    `≤ ${values[2]}%`,
+    `≤ ${values[3]}%`,
+    `> ${values[3]}%`
   ];
 }
 
 function bpmRangeTexts(cuts) {
   return [
     `≤ ${cuts[0]}`,
-    `${cuts[0]} to ${cuts[1]}`,
-    `${cuts[1]} to ${cuts[2]}`,
-    `${cuts[2]} to ${cuts[3]}`,
-    `≥ ${cuts[3]}`
+    `≤ ${cuts[1]}`,
+    `≤ ${cuts[2]}`,
+    `≤ ${cuts[3]}`,
+    `> ${cuts[3]}`
   ];
 }
 
