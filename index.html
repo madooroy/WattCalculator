@@ -651,61 +651,95 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div class="card result-box">
+      <div class="result-val" id="watts-out" aria-live="polite">0</div>
+      <div class="result-lbl">Average Watts</div>
+      <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
+      <div class="badge-container">
+        <div class="calc-badge" id="watts-current-badge">Current FTP: --</div>
+        <div class="calc-badge" id="watts-new-badge">New FTP: --</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="zones-view" class="view" role="tabpanel" aria-labelledby="btn-zones" hidden>
+    <div class="card">
+      <div class="row">
+        <label for="ftp-in">Enter Your FTP (Watts)</label>
+        <input class="input-boxed" type="number" inputmode="numeric" id="ftp-in" placeholder="250" value="250" min="0" step="1" autocomplete="off">
+      </div>
+      <div class="row">
+        <label for="weight-unit">Weight Unit</label>
+        <div class="select-wrapper">
+          <span class="select-display" id="weight-unit-lbl" aria-hidden="true">lbs</span>
+          <select id="weight-unit" aria-label="Weight unit">
+            <option value="lbs">lbs</option>
+            <option value="kg">kg</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <label for="weight-in">Enter Your Weight</label>
+        <input class="input-boxed" type="number" inputmode="numeric" id="weight-in" placeholder="165" value="165" min="0" step="1" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="card result-box">
       <div class="result-val" id="wkg-out" aria-live="polite">0.00</div>
       <div class="result-lbl">Power to Weight Ratio (W/kg)</div>
     </div>
 
-    <!-- Clean, Unified Power Zone Navigation Systems -->
-    <div class="sub-tabs" role="tablist" aria-label="Power systems">
-      <button id="sub-btn-default-power" class="sub-tab active" role="tab" aria-selected="true" aria-controls="default-power-zones-table" data-zone-subtab="default" type="button" tabindex="0">Default</button>
-      <button id="sub-btn-custom-power" class="sub-tab" role="tab" aria-selected="false" aria-controls="custom-zones-table" data-zone-subtab="custom" type="button" tabindex="-1">Custom</button>
-    </div>
-    <div class="controls-row">
-      <button id="reset-custom-zones" class="secondary-btn" type="button">Reset to Default</button>
-    </div>
-    <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
-
-    <!-- Default Table Body Container matches JavaScript query anchors perfectly -->
-    <div class="table-scroll-wrapper" id="default-power-zones-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Zone / Label</th>
-            <th class="text-center">Target %</th>
-            <th class="text-center">Target W</th>
-            <th class="text-right pr-10">Range %</th>
-            <th>Range W</th>
-          </tr>
-        </thead>
-        <tbody id="default-power-table-body"></tbody>
-      </table>
+    <div class="sub-tabs" role="tablist" aria-label="Power zone systems">
+      <button id="sub-btn-default-power" class="sub-tab active" role="tab" aria-selected="true" aria-controls="default-power-zones-table" data-zone-subtab="default" type="button" tabindex="0">Default Power Zones</button>
+      <button id="sub-btn-custom-power" class="sub-tab" role="tab" aria-selected="false" aria-controls="custom-zones-table" data-zone-subtab="custom" type="button" tabindex="-1">Custom Power Zones</button>
     </div>
 
-    <!-- Custom Table Panel handles user boundaries safely -->
-    <div class="table-scroll-wrapper" id="custom-zones-table" hidden>
-      <table>
-        <thead>
-          <tr>
-            <th>Zone / Label</th>
-            <th class="text-center">Custom Range Boundary</th>
-            <th>Calculated Watts</th>
-          </tr>
-        </thead>
-        <tbody id="custom-table-body"></tbody>
-      </table>
+    <div id="default-power-zones-table" class="card card-pad-8" role="tabpanel" aria-labelledby="sub-btn-default-power">
+      <div class="table-scroll-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Zone / Label</th>
+              <th class="text-center">Blue Line Target %</th>
+              <th class="text-center">Blue Line Target Watts</th>
+              <th class="text-right pr-10">Anchor PCT Range</th>
+              <th class="text-right">Target Range Watts</th>
+            </tr>
+          </thead>
+          <tbody id="default-power-table-body"></tbody>
+        </table>
+      </div>
     </div>
-  </div> <!-- This tag safely closes the zones-view panel -->
 
-  <!-- Open up the Heart Rate Panel container cleanly -->
+    <div id="custom-zones-table" class="card card-pad-8" role="tabpanel" aria-labelledby="sub-btn-custom-power" hidden>
+      <div class="controls-row">
+        <button id="reset-custom-zones" class="secondary-btn" type="button">Reset to Default</button>
+      </div>
+      <div class="table-scroll-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Zone / Label</th>
+              <th class="text-center">Custom Anchor %</th>
+              <th class="text-right">Target Range Watts</th>
+            </tr>
+          </thead>
+          <tbody id="custom-table-body"></tbody>
+        </table>
+      </div>
+      <div class="help-text">Custom zones also drive badge classification when the active zones is set to Custom.</div>
+      <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
+    </div>
+  </div>
+
   <div id="hr-view" class="view" role="tabpanel" aria-labelledby="btn-hr" hidden>
     <div class="card">
       <div class="row">
         <label for="hr-max-in">Max Heart Rate (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" value="190" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="0" step="1" autocomplete="off">
       </div>
       <div class="row">
-        <label for="hr-lthr-in">Lactate Threshold HR (LTHR)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" value="170" min="0" step="1" autocomplete="off">
+        <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
+        <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="0" step="1" autocomplete="off">
       </div>
     </div>
 
@@ -1396,15 +1430,10 @@ function applyHrRanges(prefix, maxHr, lthr, cfg) {
   const lthrBpm = bpmRangeTexts(lthrCuts);
 
   for (let i = 0; i < 5; i++) {
-    const maxPctEl = document.getElementById(`${prefix}hr${i + 1}-max-pct-range`);
-    const maxRangeEl = document.getElementById(`${prefix}hr${i + 1}-max-range`);
-    const lthrPctEl = document.getElementById(`${prefix}hr${i + 1}-lthr-pct-range`);
-    const lthrRangeEl = document.getElementById(`${prefix}hr${i + 1}-lthr-range`);
-
-    if (maxPctEl) maxPctEl.textContent = maxPctRanges[i];
-    if (maxRangeEl) maxRangeEl.textContent = maxBpm[i];
-    if (lthrPctEl) lthrPctEl.textContent = lthrPctRanges[i];
-    if (lthrRangeEl) lthrRangeEl.textContent = lthrBpm[i];
+    document.getElementById(`${prefix}hr${i + 1}-max-pct-range`).textContent = maxPctRanges[i];
+    document.getElementById(`${prefix}hr${i + 1}-max-range`).textContent = maxBpm[i];
+    document.getElementById(`${prefix}hr${i + 1}-lthr-pct-range`).textContent = lthrPctRanges[i];
+    document.getElementById(`${prefix}hr${i + 1}-lthr-range`).textContent = lthrBpm[i];
   }
 }
 
@@ -1487,58 +1516,55 @@ function persistOnInput(el, key, decimals = 0) {
 }
 
 function initCache() {
-  // Safe helper to prevent script crashes if an element is missing in the HTML chunks
-  const safeGet = (id) => document.getElementById(id) || document.createElement('div');
-
   Object.assign(els, {
-    appTitle: safeGet('app-title'),
-    btnKj: safeGet('btn-kj'),
-    btnWatts: safeGet('btn-watts'),
-    btnZones: safeGet('btn-zones'),
-    btnHr: safeGet('btn-hr'),
-    kjView: safeGet('kj-view'),
-    wattsView: safeGet('watts-view'),
-    zonesView: safeGet('zones-view'),
-    hrView: safeGet('hr-view'),
-    wattsIn: safeGet('watts-in'),
-    kjMinIn: safeGet('kj-min-in'),
-    newFtpKj: safeGet('proposed-ftp-kj'),
-    kjOut: safeGet('kj-out'),
-    toggleSystemKj: safeGet('toggle-system-kj'),
-    kjCurrentBadge: safeGet('kj-current-badge'),
-    kjNewBadge: safeGet('kj-new-badge'),
-    currentFtpDisplayKj: safeGet('current-ftp-display-kj'),
-    kjIn: safeGet('kj-in'),
-    wattsMinIn: safeGet('watts-min-in'),
-    newFtpWatts: safeGet('proposed-ftp-watts'),
-    wattsOut: safeGet('watts-out'),
-    toggleSystemWatts: safeGet('toggle-system-watts'),
-    wattsCurrentBadge: safeGet('watts-current-badge'),
-    wattsNewBadge: safeGet('watts-new-badge'),
-    currentFtpDisplayWatts: safeGet('current-ftp-display-watts'),
-    ftpIn: safeGet('ftp-in'),
-    weightUnit: safeGet('weight-unit'),
-    weightUnitLbl: safeGet('weight-unit-lbl'),
-    weightIn: safeGet('weight-in'),
-    wkgOut: safeGet('wkg-out'),
-    subBtnDefaultPower: safeGet('sub-btn-default-power'),
-    subBtnCustomPower: safeGet('sub-btn-custom-power'),
-    defaultPowerZonesTable: safeGet('default-power-zones-table'),
-    customZonesTable: safeGet('custom-zones-table'),
-    defaultPowerTableBody: safeGet('default-power-table-body'),
-    customTableBody: safeGet('custom-table-body'),
-    resetCustomZones: safeGet('reset-custom-zones'),
-    customZoneError: safeGet('custom-zone-error'),
-    hrMaxIn: safeGet('hr-max-in'),
-    hrLthrIn: safeGet('hr-lthr-in'),
-    hrSubBtnDefault: safeGet('hr-sub-btn-default'),
-    hrSubBtnCustom: safeGet('hr-sub-btn-custom'),
-    hrDefaultPanel: safeGet('hr-default-panel'),
-    hrCustomPanel: safeGet('hr-custom-panel'),
-    resetCustomHr: safeGet('reset-custom-hr'),
-    customHrError: safeGet('custom-hr-error'),
-    customHrMaxGrid: safeGet('custom-hr-max-grid'),
-    customHrLthrGrid: safeGet('custom-hr-lthr-grid')
+    appTitle: document.getElementById('app-title'),
+    btnKj: document.getElementById('btn-kj'),
+    btnWatts: document.getElementById('btn-watts'),
+    btnZones: document.getElementById('btn-zones'),
+    btnHr: document.getElementById('btn-hr'),
+    kjView: document.getElementById('kj-view'),
+    wattsView: document.getElementById('watts-view'),
+    zonesView: document.getElementById('zones-view'),
+    hrView: document.getElementById('hr-view'),
+    wattsIn: document.getElementById('watts-in'),
+    kjMinIn: document.getElementById('kj-min-in'),
+    newFtpKj: document.getElementById('proposed-ftp-kj'),
+    kjOut: document.getElementById('kj-out'),
+    toggleSystemKj: document.getElementById('toggle-system-kj'),
+    kjCurrentBadge: document.getElementById('kj-current-badge'),
+    kjNewBadge: document.getElementById('kj-new-badge'),
+    currentFtpDisplayKj: document.getElementById('current-ftp-display-kj'),
+    kjIn: document.getElementById('kj-in'),
+    wattsMinIn: document.getElementById('watts-min-in'),
+    newFtpWatts: document.getElementById('proposed-ftp-watts'),
+    wattsOut: document.getElementById('watts-out'),
+    toggleSystemWatts: document.getElementById('toggle-system-watts'),
+    wattsCurrentBadge: document.getElementById('watts-current-badge'),
+    wattsNewBadge: document.getElementById('watts-new-badge'),
+    currentFtpDisplayWatts: document.getElementById('current-ftp-display-watts'),
+    ftpIn: document.getElementById('ftp-in'),
+    weightUnit: document.getElementById('weight-unit'),
+    weightUnitLbl: document.getElementById('weight-unit-lbl'),
+    weightIn: document.getElementById('weight-in'),
+    wkgOut: document.getElementById('wkg-out'),
+    subBtnDefaultPower: document.getElementById('sub-btn-default-power'),
+    subBtnCustomPower: document.getElementById('sub-btn-custom-power'),
+    defaultPowerZonesTable: document.getElementById('default-power-zones-table'),
+    customZonesTable: document.getElementById('custom-zones-table'),
+    defaultPowerTableBody: document.getElementById('default-power-table-body'),
+    customTableBody: document.getElementById('custom-table-body'),
+    resetCustomZones: document.getElementById('reset-custom-zones'),
+    customZoneError: document.getElementById('custom-zone-error'),
+    hrMaxIn: document.getElementById('hr-max-in'),
+    hrLthrIn: document.getElementById('hr-lthr-in'),
+    hrSubBtnDefault: document.getElementById('hr-sub-btn-default'),
+    hrSubBtnCustom: document.getElementById('hr-sub-btn-custom'),
+    hrDefaultPanel: document.getElementById('hr-default-panel'),
+    hrCustomPanel: document.getElementById('hr-custom-panel'),
+    resetCustomHr: document.getElementById('reset-custom-hr'),
+    customHrError: document.getElementById('custom-hr-error'),
+    customHrMaxGrid: document.getElementById('custom-hr-max-grid'),
+    customHrLthrGrid: document.getElementById('custom-hr-lthr-grid')
   });
 }
 
@@ -1606,7 +1632,7 @@ function bindEvents() {
   });
 
   bindTablistKeyboard('[data-tab]', tab => switchTab(tab.dataset.tab));
-  bindTablistKeyboard('[data-zone-subtab]', tab => setZoneSubtab(tab.dataset.zoneSubtab));
+  bindTablistKeyboard('[data-zone-subtab]', tab => setZoneSubtab(sub.dataset.zoneSubtab));
   bindTablistKeyboard('[data-hr-subtab]', tab => setHrSubtab(tab.dataset.hrSubtab));
 
   els.toggleSystemKj.addEventListener('click', toggleActiveSystem);
@@ -1699,92 +1725,50 @@ function loadSavedValues() {
 
   mappings.forEach(([key, el, transform]) => {
     const value = safeStorageGet(key);
-    // FIX: Only apply the saved value if it isn't null, isn't empty, and isn't a zero string for essential entries
-    if (value !== null && value.trim() !== "" && value !== "0") {
-      el.value = transform(value);
-    }
+    if (value !== null) el.value = transform(value);
   });
 
   const unit = safeStorageGet('cycling_unit');
   if (unit === 'lbs' || unit === 'kg') els.weightUnit.value = unit;
 
-  // Safeguard proposed comparison FTP so it defaults cleanly to a real number if storage is blank
-  const savedNewFtp = safeStorageGet('cycling_new_ftp');
-  setNewFTP(savedNewFtp && savedNewFtp !== "0" ? savedNewFtp : '250', false);
-  
+  setNewFTP(safeStorageGet('cycling_new_ftp') || '250', false);
   syncDropdowns();
 
- const system = safeStorageGet('cycling_active_system');
+  const system = safeStorageGet('cycling_active_system');
   setZoneSubtab(['default', 'custom'].includes(system) ? system : 'default');
   setHrSubtab('default');
-} // This cleanly closes your loadSavedValues() function
-
-// --- ROBUST APP INITIALIZATION & FALLBACK ENGINE ---
-function bootstrapApplication() {
-  try {
-    // 1. Establish core target elements cache mapping
-    initCache();
-    
-    // 2. Safely render structural dynamic layouts and inputs to the DOM
-    generateDefaultTables();
-    generateCustomZonesTable();
-    renderCustomHrControls();
-    
-    // 3. Populate recovery parameters from storage safely
-    try {
-      loadSavedValues();
-    } catch (storageError) {
-      console.warn("Storage recovery bypassed, utilizing baseline values:", storageError);
-    }
-
-    // 4. SAFARI MICRO-PATCH: Protect required inputs from lingering at "0" or blank
-    const fallbackRules = [
-      { element: els.wattsIn, defaultValue: "150" },
-      { element: els.kjMinIn, defaultValue: "60" },
-      { element: els.kjIn, defaultValue: "500" },
-      { element: els.wattsMinIn, defaultValue: "60" },
-      { element: els.ftpIn, defaultValue: "250" },
-      { element: els.weightIn, defaultValue: "165" },
-      { element: els.hrMaxIn, defaultValue: "190" },
-      { element: els.hrLthrIn, defaultValue: "170" }
-    ];
-
-    fallbackRules.forEach(({ element, defaultValue }) => {
-      if (!element || element.value.trim() === "" || element.value === "0") {
-        element.value = defaultValue;
-      }
-    });
-    
-    // 5. Attach calculation handlers and routing loops
-    bindEvents();
-    bindCustomZoneInputs();
-    bindCustomHrInputs();
-    
-    // 6. Force recalculate internal zone scales
-    updateZones();
-    updateHRZones();
-    updateCustomHRZones();
-    
-    // 7. Force execution of calculations using validated properties
-    calcKJ();
-    calcWatts();
-    
-    // 8. Enforce total document text selection focus hooks
-    bindSelectOnFocusToAll(document);
-    
-  } catch (fatalError) {
-    console.error("Fatal initialization loop halted. Check HTML node mapping:", fatalError);
-  }
 }
 
-// Mobile WebKit Safeguard Module: Ensures execution doesn't run "too early" on iPhone
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  setTimeout(bootstrapApplication, 50);
-} else {
-  window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(bootstrapApplication, 50);
-  });
-}
+window.addEventListener('DOMContentLoaded', () => {
+  // 1. Establish core target elements references
+  initCache();
+  
+  // 2. Load and recover any persisted physical fields prior to rendering tables
+  loadSavedValues();
+  
+  // 3. Programmatically generate visual layout tables
+  generateDefaultTables();
+  generateCustomZonesTable();
+  renderCustomHrControls();
+  
+  // 4. Attach functional listeners and user execution events
+  bindEvents();
+  bindCustomZoneInputs();
+  bindCustomHrInputs();
+  
+  // 5. Explicitly force an update to all numeric calculations and dashboard displays
+  updateZones();
+  updateHRZones();
+  updateCustomHRZones();
+  
+  // 6. Execute operational math logic formulas using cleanly loaded elements
+  calcKJ();
+  calcWatts();
+  
+  // 7. Inject auto-select-on-focus listeners to the programmatically rendered tables
+  bindSelectOnFocusToAll(els.customZonesTable);
+  bindSelectOnFocusToAll(els.hrCustomPanel);
+});
 </script>
 </body>
 </html>
