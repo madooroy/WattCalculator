@@ -651,99 +651,63 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div class="card result-box">
-      <div class="result-val" id="watts-out" aria-live="polite">0</div>
-      <div class="result-lbl">Average Watts</div>
-      <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
-      <div class="badge-container">
-        <div class="calc-badge" id="watts-current-badge">Current FTP: --</div>
-        <div class="calc-badge" id="watts-new-badge">New FTP: --</div>
-      </div>
-    </div>
-  </div>
-
-  <div id="zones-view" class="view" role="tabpanel" aria-labelledby="btn-zones" hidden>
-    <div class="card">
-      <div class="row">
-        <label for="ftp-in">Enter Your FTP (Watts)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="ftp-in" placeholder="250" value="250" min="0" step="1" autocomplete="off">
-      </div>
-      <div class="row">
-        <label for="weight-unit">Weight Unit</label>
-        <div class="select-wrapper">
-          <span class="select-display" id="weight-unit-lbl" aria-hidden="true">lbs</span>
-          <select id="weight-unit" aria-label="Weight unit">
-            <option value="lbs">lbs</option>
-            <option value="kg">kg</option>
-          </select>
-        </div>
-      </div>
-      <div class="row">
-        <label for="weight-in">Enter Your Weight</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="weight-in" placeholder="165" value="165" min="0" step="1" autocomplete="off">
-      </div>
-    </div>
-
-    <div class="card result-box">
       <div class="result-val" id="wkg-out" aria-live="polite">0.00</div>
       <div class="result-lbl">Power to Weight Ratio (W/kg)</div>
     </div>
 
-    <div class="sub-tabs" role="tablist" aria-label="Power zone systems">
-      <button id="sub-btn-default-power" class="sub-tab active" role="tab" aria-selected="true" aria-controls="default-power-zones-table" data-zone-subtab="default" type="button" tabindex="0">Default Power Zones</button>
-      <button id="sub-btn-custom-power" class="sub-tab" role="tab" aria-selected="false" aria-controls="custom-zones-table" data-zone-subtab="custom" type="button" tabindex="-1">Custom Power Zones</button>
+    <!-- Clean, Unified Power Zone Navigation Systems -->
+    <div class="sub-tabs" role="tablist" aria-label="Power systems">
+      <button id="sub-btn-default-power" class="sub-tab active" role="tab" aria-selected="true" aria-controls="default-power-zones-table" data-zone-subtab="default" type="button" tabindex="0">Default</button>
+      <button id="sub-btn-custom-power" class="sub-tab" role="tab" aria-selected="false" aria-controls="custom-zones-table" data-zone-subtab="custom" type="button" tabindex="-1">Custom</button>
+    </div>
+    <div class="controls-row">
+      <button id="reset-custom-zones" class="secondary-btn" type="button">Reset to Default</button>
+    </div>
+    <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
+
+    <!-- Default Table Body Container matches JavaScript query anchors perfectly -->
+    <div class="table-scroll-wrapper" id="default-power-zones-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Zone / Label</th>
+            <th class="text-center">Target %</th>
+            <th class="text-center">Target W</th>
+            <th class="text-right pr-10">Range %</th>
+            <th>Range W</th>
+          </tr>
+        </thead>
+        <tbody id="default-power-table-body"></tbody>
+      </table>
     </div>
 
-    <div id="default-power-zones-table" class="card card-pad-8" role="tabpanel" aria-labelledby="sub-btn-default-power">
-      <div class="table-scroll-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Zone / Label</th>
-              <th class="text-center">Blue Line Target %</th>
-              <th class="text-center">Blue Line Target Watts</th>
-              <th class="text-right pr-10">Anchor PCT Range</th>
-              <th class="text-right">Target Range Watts</th>
-            </tr>
-          </thead>
-          <tbody id="default-power-table-body"></tbody>
-        </table>
-      </div>
+    <!-- Custom Table Panel handles user boundaries safely -->
+    <div class="table-scroll-wrapper" id="custom-zones-table" hidden>
+      <table>
+        <thead>
+          <tr>
+            <th>Zone / Label</th>
+            <th class="text-center">Custom Range Boundary</th>
+            <th>Calculated Watts</th>
+          </tr>
+        </thead>
+        <tbody id="custom-table-body"></tbody>
+      </table>
     </div>
+  </div> <!-- This tag safely closes the zones-view panel -->
 
-    <div id="custom-zones-table" class="card card-pad-8" role="tabpanel" aria-labelledby="sub-btn-custom-power" hidden>
-      <div class="controls-row">
-        <button id="reset-custom-zones" class="secondary-btn" type="button">Reset to Default</button>
-      </div>
-      <div class="table-scroll-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Zone / Label</th>
-              <th class="text-center">Custom Anchor %</th>
-              <th class="text-right">Target Range Watts</th>
-            </tr>
-          </thead>
-          <tbody id="custom-table-body"></tbody>
-        </table>
-      </div>
-      <div class="help-text">Custom zones also drive badge classification when the active zones is set to Custom.</div>
-      <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
-    </div>
-  </div>
-
+  <!-- Open up the Heart Rate Panel container cleanly -->
   <div id="hr-view" class="view" role="tabpanel" aria-labelledby="btn-hr" hidden>
-  <div class="card">
-    <div class="row">
-      <label for="hr-max-in">Max Heart Rate (BPM)</label>
-      <!-- FIX: Added explicitly mapped id="hr-max-in" attribute -->
-      <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="0" step="1" autocomplete="off">
+    <div class="card">
+      <div class="row">
+        <label for="hr-max-in">Max Heart Rate (BPM)</label>
+        <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" value="190" min="0" step="1" autocomplete="off">
+      </div>
+      <div class="row">
+        <label for="hr-lthr-in">Lactate Threshold HR (LTHR)</label>
+        <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" value="170" min="0" step="1" autocomplete="off">
+      </div>
     </div>
-    <div class="row">
-      <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
-      <!-- FIX: Added explicitly mapped id="hr-lthr-in" attribute -->
-      <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="0" step="1" autocomplete="off">
-    </div>
-  </div>
 
     <div class="sub-tabs" role="tablist" aria-label="Heart rate systems">
       <button id="hr-sub-btn-default" class="sub-tab active" role="tab" aria-selected="true" aria-controls="hr-default-panel" data-hr-subtab="default" type="button" tabindex="0">Default</button>
@@ -1432,10 +1396,15 @@ function applyHrRanges(prefix, maxHr, lthr, cfg) {
   const lthrBpm = bpmRangeTexts(lthrCuts);
 
   for (let i = 0; i < 5; i++) {
-    document.getElementById(`${prefix}hr${i + 1}-max-pct-range`).textContent = maxPctRanges[i];
-    document.getElementById(`${prefix}hr${i + 1}-max-range`).textContent = maxBpm[i];
-    document.getElementById(`${prefix}hr${i + 1}-lthr-pct-range`).textContent = lthrPctRanges[i];
-    document.getElementById(`${prefix}hr${i + 1}-lthr-range`).textContent = lthrBpm[i];
+    const maxPctEl = document.getElementById(`${prefix}hr${i + 1}-max-pct-range`);
+    const maxRangeEl = document.getElementById(`${prefix}hr${i + 1}-max-range`);
+    const lthrPctEl = document.getElementById(`${prefix}hr${i + 1}-lthr-pct-range`);
+    const lthrRangeEl = document.getElementById(`${prefix}hr${i + 1}-lthr-range`);
+
+    if (maxPctEl) maxPctEl.textContent = maxPctRanges[i];
+    if (maxRangeEl) maxRangeEl.textContent = maxBpm[i];
+    if (lthrPctEl) lthrPctEl.textContent = lthrPctRanges[i];
+    if (lthrRangeEl) lthrRangeEl.textContent = lthrBpm[i];
   }
 }
 
@@ -1634,7 +1603,7 @@ function bindEvents() {
   });
 
   bindTablistKeyboard('[data-tab]', tab => switchTab(tab.dataset.tab));
-  bindTablistKeyboard('[data-zone-subtab]', tab => setZoneSubtab(sub.dataset.zoneSubtab));
+  bindTablistKeyboard('[data-zone-subtab]', tab => setZoneSubtab(tab.dataset.zoneSubtab));
   bindTablistKeyboard('[data-hr-subtab]', tab => setHrSubtab(tab.dataset.hrSubtab));
 
   els.toggleSystemKj.addEventListener('click', toggleActiveSystem);
