@@ -290,24 +290,6 @@ input[type="number"] {
   font-family: inherit;
 }
 
-@media (max-width: 768px) {
-  .input-small,
-  .numeric-input {
-    font-size: 16px;
-  }
-
-  .input-small {
-    width: 76px;
-    min-height: 40px;
-    padding: 4px 3px;
-  }
-
-  .table-scroll-wrapper .input-small,
-  .hr-edit-grid .input-small {
-    font-size: 16px;
-  }
-}
-  
   .range-col {
   text-align: right;
   font-family: monospace;
@@ -641,11 +623,11 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="row">
         <label for="watts-in">Average Watts</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="watts-in" value="150" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="watts-in" value="150" min="0" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="kj-min-in">Time (Minutes)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="kj-min-in" value="60" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="kj-min-in" value="60" min="0" step="1" autocomplete="off">
       </div>
       <div class="row row-stack">
         <div class="row-split">
@@ -657,17 +639,17 @@ tr:last-child td { border-bottom: none; }
 
       <div class="row">
         <label for="proposed-ftp-kj">New FTP for Comparison</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="proposed-ftp-kj" value="250" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="proposed-ftp-kj" value="250" min="0" step="1" autocomplete="off">
       </div>
     </div>
 
     <div class="card result-box">
-      <div class="result-val" id="kj-out" aria-live="polite">—</div>
+      <div class="result-val" id="kj-out" aria-live="polite">0</div>
       <div class="result-lbl">Total Kilojoules</div>
       <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
       <div class="badge-container">
-        <div class="calc-badge" id="kj-current-badge">Current FTP: —</div>
-        <div class="calc-badge" id="kj-new-badge">New FTP: —</div>
+        <div class="calc-badge" id="kj-current-badge">Current FTP: --</div>
+        <div class="calc-badge" id="kj-new-badge">New FTP: --</div>
       </div>
     </div>
   </div>
@@ -676,7 +658,7 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="row">
         <label for="kj-in">Total Kilojoules</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="watts-min-in" value="60" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="kj-in" value="500" min="0" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="watts-min-in">Time (Minutes)</label>
@@ -692,17 +674,17 @@ tr:last-child td { border-bottom: none; }
 
       <div class="row">
         <label for="proposed-ftp-watts">New FTP for Comparison</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="ftp-in" placeholder="250" value="250" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="proposed-ftp-watts" value="250" min="0" step="1" autocomplete="off">
       </div>
     </div>
 
     <div class="card result-box">
-      <div class="result-val" id="watts-out" aria-live="polite">—</div>
+      <div class="result-val" id="watts-out" aria-live="polite">0</div>
       <div class="result-lbl">Average Watts</div>
       <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
       <div class="badge-container">
-        <div class="calc-badge" id="watts-current-badge">Current FTP: —</div>
-        <div class="calc-badge" id="watts-new-badge">New FTP: —</div>
+        <div class="calc-badge" id="watts-current-badge">Current FTP: --</div>
+        <div class="calc-badge" id="watts-new-badge">New FTP: --</div>
       </div>
     </div>
   </div>
@@ -725,12 +707,12 @@ tr:last-child td { border-bottom: none; }
       </div>
       <div class="row">
         <label for="weight-in">Enter Your Weight</label>
-        <input class="input-boxed" type="number" inputmode="decimal" id="weight-in" placeholder="165" value="165" min="1" step="0.1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="weight-in" placeholder="165" value="165" min="0" step="1" autocomplete="off">
       </div>
     </div>
 
     <div class="card result-box">
-      <div class="result-val" id="wkg-out" aria-live="polite">—</div>
+      <div class="result-val" id="wkg-out" aria-live="polite">0.00</div>
       <div class="result-lbl">Power to Weight Ratio (W/kg)</div>
     </div>
 
@@ -745,10 +727,10 @@ tr:last-child td { border-bottom: none; }
           <thead>
             <tr>
               <th>Zone / Label</th>
-              <th class="text-center">Reference Target %</th>
-              <th class="text-center">Reference Target Watts</th>
-              <th class="text-right pr-10">Zone Cap / Range %</th>
-              <th class="text-right">Zone Cap / Range Watts</th>
+              <th class="text-center">Blue Line Target %</th>
+              <th class="text-center">Blue Line Target Watts</th>
+              <th class="text-right pr-10">Anchor PCT Range</th>
+              <th class="text-right">Target Range Watts</th>
             </tr>
           </thead>
           <tbody id="default-power-table-body"></tbody>
@@ -765,14 +747,14 @@ tr:last-child td { border-bottom: none; }
           <thead>
             <tr>
               <th>Zone / Label</th>
-              <th class="text-center">Custom Cap / Range %</th>
-              <th class="text-right">Zone Cap / Range Watts</th>
+              <th class="text-center">Custom Anchor %</th>
+              <th class="text-right">Target Range Watts</th>
             </tr>
           </thead>
           <tbody id="custom-table-body"></tbody>
         </table>
       </div>
-      <div class="help-text">Custom caps and ranges drive badge classification when the active zones is set to Custom. Reference targets remain fixed.</div>
+      <div class="help-text">Custom zones also drive badge classification when the active zones is set to Custom.</div>
       <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
     </div>
   </div>
@@ -781,11 +763,11 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="row">
         <label for="hr-max-in">Max Heart Rate (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="60" max="240" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="0" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="60" max="230" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="0" step="1" autocomplete="off">
       </div>
     </div>
 
@@ -805,7 +787,13 @@ tr:last-child td { border-bottom: none; }
               <th class="text-right">BPM Range</th>
             </tr>
           </thead>
-          <tbody id="hr-default-max-body"></tbody>
+          <tbody>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-max-pct-range">0%</td><td class="range-col" id="hr1-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-max-pct-range">0%</td><td class="range-col" id="hr2-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-max-pct-range">0%</td><td class="range-col" id="hr3-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-max-pct-range">0%</td><td class="range-col" id="hr4-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-max-pct-range">0%</td><td class="range-col" id="hr5-max-range">0 BPM</td></tr>
+          </tbody>
         </table>
       </div>
 
@@ -819,7 +807,13 @@ tr:last-child td { border-bottom: none; }
               <th class="text-right">BPM Range</th>
             </tr>
           </thead>
-          <tbody id="hr-default-lthr-body"></tbody>
+          <tbody>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-lthr-pct-range">0%</td><td class="range-col" id="hr1-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-lthr-pct-range">0%</td><td class="range-col" id="hr2-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-lthr-pct-range">0%</td><td class="range-col" id="hr3-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-lthr-pct-range">0%</td><td class="range-col" id="hr4-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-lthr-pct-range">0%</td><td class="range-col" id="hr5-lthr-range">0 BPM</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -848,7 +842,13 @@ tr:last-child td { border-bottom: none; }
               <th class="text-right">BPM Range</th>
             </tr>
           </thead>
-          <tbody id="hr-custom-max-body"></tbody>
+          <tbody>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-max-pct-range">0%</td><td class="range-col" id="c-hr1-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-max-pct-range">0%</td><td class="range-col" id="c-hr2-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-max-pct-range">0%</td><td class="range-col" id="c-hr3-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-max-pct-range">0%</td><td class="range-col" id="c-hr4-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-max-pct-range">0%</td><td class="range-col" id="c-hr5-max-range">0 BPM</td></tr>
+          </tbody>
         </table>
       </div>
 
@@ -862,7 +862,13 @@ tr:last-child td { border-bottom: none; }
               <th class="text-right">BPM Range</th>
             </tr>
           </thead>
-          <tbody id="hr-custom-lthr-body"></tbody>
+          <tbody>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-lthr-pct-range">0%</td><td class="range-col" id="c-hr1-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-lthr-pct-range">0%</td><td class="range-col" id="c-hr2-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-lthr-pct-range">0%</td><td class="range-col" id="c-hr3-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-lthr-pct-range">0%</td><td class="range-col" id="c-hr4-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-lthr-pct-range">0%</td><td class="range-col" id="c-hr5-lthr-range">0 BPM</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -886,21 +892,8 @@ const defaultHrPercentConfig = {
   lthr: [68, 83, 94, 105]
 };
 
-const hrZoneDefs = [
-  { num: 1, label: 'Zone 1', desc: 'Active Recovery', colorVar: 'hr-z1' },
-  { num: 2, label: 'Zone 2', desc: 'Aerobic Capacity', colorVar: 'hr-z2' },
-  { num: 3, label: 'Zone 3', desc: 'Tempo', colorVar: 'hr-z3' },
-  { num: 4, label: 'Zone 4', desc: 'Threshold', colorVar: 'hr-z4' },
-  { num: 5, label: 'Zone 5', desc: 'VO2 Max', colorVar: 'hr-z5' }
-];
-  
 const els = {};
-const powerCellCache = {
-  default: {},
-  custom: {}
-};
 let activeZoneSystem = 'default';
-let activeZoneSubtab = 'default';
 let activeHrSubtab = 'default';
 
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -919,14 +912,6 @@ function safeStorageRemove(key) {
   try { localStorage.removeItem(key); } catch {}
 }
 
-function queryAll(selector, root = document) {
-  return [...root.querySelectorAll(selector)];
-}
-
-function queryOne(selector, root = document) {
-  return root.querySelector(selector);
-}
-  
 function saveField(key, value) { safeStorageSet(key, JSON.stringify(value)); }
 function savePrimitive(key, value) { safeStorageSet(key, String(value)); }
 
@@ -1081,31 +1066,6 @@ function getPowerColor(zone) {
   return `var(--p-${zone.colorVar})`;
 }
 
-function getPowerRowTint(zone) {
-  const map = {
-    z1: 'rgba(179, 89, 206, 0.12)',
-    z2: 'rgba(78, 164, 227, 0.12)',
-    z3: 'rgba(114, 191, 68, 0.12)',
-    ss: 'rgba(63, 185, 216, 0.12)',
-    z4: 'rgba(248, 200, 34, 0.12)',
-    z5: 'rgba(243, 112, 33, 0.12)',
-    z6: 'rgba(237, 33, 40, 0.12)',
-    z7: 'rgba(166, 26, 34, 0.12)'
-  };
-  return map[zone.id] || 'transparent';
-}
-
-function getHrRowTint(zoneNum) {
-  const map = {
-    1: 'rgba(142, 142, 147, 0.12)',
-    2: 'rgba(52, 199, 89, 0.12)',
-    3: 'rgba(0, 122, 255, 0.12)',
-    4: 'rgba(255, 149, 0, 0.12)',
-    5: 'rgba(255, 59, 48, 0.12)'
-  };
-  return map[zoneNum] || 'transparent';
-}
-  
 function getZoneForRatio(ratio, system = activeZoneSystem) {
   if (!(ratio > 0)) return null;
   const config = getZonesConfigForSystem(system);
@@ -1152,35 +1112,6 @@ function getZoneRangeInfo(zone, ftp) {
   };
 }
 
-  return {
-    pctText,
-    wattsText,
-    targetText: `${wholeNumber(ftp * zone.target)}`
-  };
-}
-
-function cacheDefaultPowerCells() {
-  powerCellCache.default = {};
-
-  defaultZonesConfig.forEach(z => {
-    powerCellCache.default[z.id] = {
-      pct: document.getElementById(`p-${z.id}-pct-range`),
-      range: document.getElementById(`p-${z.id}-range`),
-      target: document.getElementById(`p-${z.id}-target`)
-    };
-  });
-}
-
-function cacheCustomPowerCells() {
-  powerCellCache.custom = {};
-
-  customZonesConfig.forEach(z => {
-    powerCellCache.custom[z.id] = {
-      range: document.getElementById(`c-${z.id}-range`)
-    };
-  });
-}
-  
 function sanitizeInput(el, decimals = 0) {
   const value = clampNonNegative(el.value);
   el.value = decimals > 0
@@ -1231,12 +1162,12 @@ function switchTab(type) {
 }
 
 function toggleActiveSystem() {
-  setActiveZoneSystem(activeZoneSystem === 'default' ? 'custom' : 'default');
+  setZoneSubtab(activeZoneSystem === 'default' ? 'custom' : 'default');
 }
 
-function setActiveZoneSystem(val, persist = true) {
+function setSystemState(val) {
   activeZoneSystem = val;
-  if (persist) savePrimitive('cycling_active_system', val);
+  savePrimitive('cycling_active_system', val);
 
   const labelMap = {
     default: 'Zones: Default Power Zones',
@@ -1253,7 +1184,7 @@ function setActiveZoneSystem(val, persist = true) {
 }
 
 function setZoneSubtab(val) {
-  activeZoneSubtab = val;
+  setSystemState(val);
 
   const isDefault = val === 'default';
   const isCustom = val === 'custom';
@@ -1342,13 +1273,11 @@ function generateDefaultTables() {
   let html = '';
 
   defaultZonesConfig.forEach(z => {
-    html += `<tr style="background:${getPowerRowTint(z)}"><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center font-bold">${Math.round(z.target * 100)}%</td><td class="text-center font-bold" id="p-${z.id}-target">—</td><td class="text-right font-bold pr-10" id="p-${z.id}-pct-range">—</td><td class="range-col" id="p-${z.id}-range">—</td></tr>`;
+    html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center font-bold">${Math.round(z.target * 100)}%</td><td class="text-center font-bold" id="p-${z.id}-target">0 W</td><td class="text-right font-bold pr-10" id="p-${z.id}-pct-range">0%</td><td class="range-col" id="p-${z.id}-range">0 W</td></tr>`;
   });
 
   els.defaultPowerTableBody.innerHTML = html;
-  cacheDefaultPowerCells();
 }
-
 
 function generateCustomZonesTable() {
   let html = '';
@@ -1358,24 +1287,23 @@ function generateCustomZonesTable() {
     let inputHtml = '';
 
     if (z.id === 'ss') {
-      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.ssMin}" aria-label="Sweet Spot minimum percentage"><span>to</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.ssMax}" aria-label="Sweet Spot maximum percentage"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMin}" aria-label="Sweet Spot minimum percentage"><span>to</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMax}" aria-label="Sweet Spot maximum percentage"><span>%</span></div>`;
     } else if (z.id === 'z1') {
-      inputHtml = `<div class="inline-fields"><span>≤</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.z1}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><span>&lt;</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z1}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
     } else if (z.id === 'z7') {
-      inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.z6}" aria-label="${z.label} lower percentage"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z6}" aria-label="${z.label} lower percentage"><span>%</span></div>`;
     } else {
-      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors[z.id]}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors[z.id]}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
     }
 
-    html += `<tr style="background:${getPowerRowTint(z)}"><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">—</td></tr>`;
+    html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">0 W</td></tr>`;
   });
 
   els.customTableBody.innerHTML = html;
-  cacheCustomPowerCells();
 }
 
 function syncPowerAnchorInputs(anchor, value) {
-  queryAll(`.custom-zone-input[data-anchor="${anchor}"]`).forEach(input => {
+  document.querySelectorAll(`.custom-zone-input[data-anchor="${anchor}"]`).forEach(input => {
     if (document.activeElement !== input && input.value !== String(value)) {
       input.value = String(value);
     }
@@ -1385,7 +1313,7 @@ function syncPowerAnchorInputs(anchor, value) {
 function validateAndApplyCustomZones() {
   const nextAnchors = { ...customPowerAnchors };
 
-  queryAll('.custom-zone-input').forEach(input => {
+  document.querySelectorAll('.custom-zone-input').forEach(input => {
     nextAnchors[input.dataset.anchor] = wholeNumber(clampNonNegative(input.value));
   });
 
@@ -1399,50 +1327,36 @@ function validateAndApplyCustomZones() {
   updateZones();
 }
 
-function updateFtpDisplays(ftp) {
-  els.currentFtpDisplayKj.textContent = `${wholeNumber(ftp)}W`;
-  els.currentFtpDisplayWatts.textContent = `${wholeNumber(ftp)}W`;
-}
-
-function updateWkg(ftp, weight, unit) {
-  const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
-  els.wkgOut.textContent = (weightKg > 0 && ftp > 0) ? (ftp / weightKg).toFixed(2) : '—';
-}
-
-function updateDefaultPowerZoneTable(ftp) {
-  defaultZonesConfig.forEach(z => {
-    const info = getZoneRangeInfo(z, ftp);
-    const cellSet = powerCellCache.default[z.id];
-
-    if (!cellSet) return;
-    if (cellSet.pct) cellSet.pct.textContent = info.pctText;
-    if (cellSet.range) cellSet.range.textContent = info.wattsText;
-    if (cellSet.target) cellSet.target.textContent = info.targetText;
-  });
-}
-
-function updateCustomPowerZoneTable(ftp) {
-  customZonesConfig.forEach(z => {
-    const info = getZoneRangeInfo(z, ftp);
-    const cellSet = powerCellCache.custom[z.id];
-
-    if (!cellSet) return;
-    if (cellSet.range) cellSet.range.textContent = info.wattsText;
-  });
-}
-  
 function updateZones() {
   const ftp = clampNonNegative(els.ftpIn.value);
   const weight = clampNonNegative(els.weightIn.value);
   const unit = els.weightUnit.value;
 
-  updateFtpDisplays(ftp);
-  updateWkg(ftp, weight, unit);
-  updateDefaultPowerZoneTable(ftp);
-  updateCustomPowerZoneTable(ftp);
+  els.currentFtpDisplayKj.textContent = `${wholeNumber(ftp)}W`;
+  els.currentFtpDisplayWatts.textContent = `${wholeNumber(ftp)}W`;
+
+  const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
+  els.wkgOut.textContent = (weightKg > 0 && ftp > 0) ? (ftp / weightKg).toFixed(2) : '0.00';
+
+  defaultZonesConfig.forEach(z => {
+    const info = getZoneRangeInfo(z, ftp);
+    const pctEl = document.getElementById(`p-${z.id}-pct-range`);
+    const rangeEl = document.getElementById(`p-${z.id}-range`);
+    const targetEl = document.getElementById(`p-${z.id}-target`);
+
+    if (pctEl) pctEl.textContent = info.pctText;
+    if (rangeEl) rangeEl.textContent = info.wattsText;
+    if (targetEl) targetEl.textContent = info.targetText;
+  });
+
+  customZonesConfig.forEach(z => {
+    const info = getZoneRangeInfo(z, ftp);
+    const rangeEl = document.getElementById(`c-${z.id}-range`);
+    if (rangeEl) rangeEl.textContent = info.wattsText;
+  });
+
   recalculateAllBadges();
 }
-
 
 function updateHRZones() {
   const maxHr = clampNonNegative(els.hrMaxIn.value);
@@ -1457,56 +1371,29 @@ function renderCustomHrControls() {
   ['Zone 1 upper', 'Zone 2 upper', 'Zone 3 upper', 'Zone 4 upper'].forEach((label, i) => {
     els.customHrMaxGrid.insertAdjacentHTML(
       'beforeend',
-      `<label for="custom-max-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" inputmode="numeric" min="1" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`
+      `<label for="custom-max-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`
     );
     els.customHrLthrGrid.insertAdjacentHTML(
       'beforeend',
-            `<label for="custom-lthr-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" inputmode="numeric" min="1" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`
+      `<label for="custom-lthr-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`
     );
   });
 }
 
-function buildHrRows(prefix, metric) {
-  return hrZoneDefs.map(zone => `
-    <tr style="background:${getHrRowTint(zone.num)}">
-      <td>
-        <div class="zone-cell">
-          <span class="zone-badge" style="background: var(--${zone.colorVar});">${zone.label}</span>
-          <span class="zone-desc">${zone.desc}</span>
-        </div>
-      </td>
-      <td class="range-col" id="${prefix}hr${zone.num}-${metric}-pct-range">—</td>
-      <td class="range-col" id="${prefix}hr${zone.num}-${metric}-range">—</td>
-    </tr>
-  `).join('');
-}
-
-function renderHrTables() {
-  const defaultMaxBody = document.getElementById('hr-default-max-body');
-  const defaultLthrBody = document.getElementById('hr-default-lthr-body');
-  const customMaxBody = document.getElementById('hr-custom-max-body');
-  const customLthrBody = document.getElementById('hr-custom-lthr-body');
-
-  if (defaultMaxBody) defaultMaxBody.innerHTML = buildHrRows('', 'max');
-  if (defaultLthrBody) defaultLthrBody.innerHTML = buildHrRows('', 'lthr');
-  if (customMaxBody) customMaxBody.innerHTML = buildHrRows('c-', 'max');
-  if (customLthrBody) customLthrBody.innerHTML = buildHrRows('c-', 'lthr');
-}
-  
 function readHrAnchorsFromInputs() {
   return {
-    max: queryAll('.custom-hr-max').map(el => wholeNumber(Math.min(clampNonNegative(el.value), 100))),
-    lthr: queryAll('.custom-hr-lthr').map(el => wholeNumber(clampNonNegative(el.value)))
+    max: [...document.querySelectorAll('.custom-hr-max')].map(el => wholeNumber(Math.min(clampNonNegative(el.value), 100))),
+    lthr: [...document.querySelectorAll('.custom-hr-lthr')].map(el => wholeNumber(clampNonNegative(el.value)))
   };
 }
 
 function writeHrAnchorInputs(values) {
-  queryAll('.custom-hr-max').forEach((el, i) => {
+  document.querySelectorAll('.custom-hr-max').forEach((el, i) => {
     const next = String(values.max[i]);
     if (document.activeElement !== el && el.value !== next) el.value = next;
   });
 
-  queryAll('.custom-hr-lthr').forEach((el, i) => {
+  document.querySelectorAll('.custom-hr-lthr').forEach((el, i) => {
     const next = String(values.lthr[i]);
     if (document.activeElement !== el && el.value !== next) el.value = next;
   });
@@ -1533,20 +1420,20 @@ function validateAndApplyCustomHR() {
 function formatHrPctRanges(values) {
   return [
     `≤ ${values[0]}%`,
-    `≤ ${values[1]}%`,
-    `≤ ${values[2]}%`,
-    `≤ ${values[3]}%`,
-    `> ${values[3]}%`
+    `${values[0]}% to ${values[1]}%`,
+    `${values[1]}% to ${values[2]}%`,
+    `${values[2]}% to ${values[3]}%`,
+    `≥ ${values[3]}%`
   ];
 }
 
 function bpmRangeTexts(cuts) {
   return [
-    `≤ ${cuts[0]}`,
-    `≤ ${cuts[1]}`,
-    `≤ ${cuts[2]}`,
-    `≤ ${cuts[3]}`,
-    `> ${cuts[3]}`
+    `≤ ${cuts[0]} BPM`,
+    `${cuts[0]} to ${cuts[1]}`,
+    `${cuts[1]} to ${cuts[2]}`,
+    `${cuts[2]} to ${cuts[3]}`,
+    `≥ ${cuts[3]} BPM`
   ];
 }
 
@@ -1559,15 +1446,10 @@ function applyHrRanges(prefix, maxHr, lthr, cfg) {
   const lthrBpm = bpmRangeTexts(lthrCuts);
 
   for (let i = 0; i < 5; i++) {
-    const maxPctEl = document.getElementById(`${prefix}hr${i + 1}-max-pct-range`);
-    const maxRangeEl = document.getElementById(`${prefix}hr${i + 1}-max-range`);
-    const lthrPctEl = document.getElementById(`${prefix}hr${i + 1}-lthr-pct-range`);
-    const lthrRangeEl = document.getElementById(`${prefix}hr${i + 1}-lthr-range`);
-
-    if (maxPctEl) maxPctEl.textContent = maxPctRanges[i];
-    if (maxRangeEl) maxRangeEl.textContent = maxBpm[i];
-    if (lthrPctEl) lthrPctEl.textContent = lthrPctRanges[i];
-    if (lthrRangeEl) lthrRangeEl.textContent = lthrBpm[i];
+    document.getElementById(`${prefix}hr${i + 1}-max-pct-range`).textContent = maxPctRanges[i];
+    document.getElementById(`${prefix}hr${i + 1}-max-range`).textContent = maxBpm[i];
+    document.getElementById(`${prefix}hr${i + 1}-lthr-pct-range`).textContent = lthrPctRanges[i];
+    document.getElementById(`${prefix}hr${i + 1}-lthr-range`).textContent = lthrBpm[i];
   }
 }
 
@@ -1615,10 +1497,11 @@ function bindSelectOnFocus(el) {
 
   el.addEventListener('focus', selectAll);
   el.addEventListener('click', selectAll);
+  el.addEventListener('touchend', selectAll);
 }
 
 function bindSelectOnFocusToAll(root = document) {
-  queryAll('input', root).forEach(bindSelectOnFocus);
+  root.querySelectorAll('input').forEach(bindSelectOnFocus);
 }
 
 function persistOnCommit(el, key, decimals = 0, afterSave) {
@@ -1629,6 +1512,7 @@ function persistOnCommit(el, key, decimals = 0, afterSave) {
   };
 
   el.addEventListener('change', handler);
+  el.addEventListener('blur', handler);
 }
 
 function persistOnInput(el, key, decimals = 0) {
@@ -1701,7 +1585,7 @@ function initCache() {
 }
 
 function bindCustomZoneInputs() {
-  queryAll('.custom-zone-input').forEach(el => {
+  document.querySelectorAll('.custom-zone-input').forEach(el => {
     const commit = () => {
       sanitizeInput(el, 0);
       const value = wholeNumber(clampNonNegative(el.value));
@@ -1715,7 +1599,7 @@ function bindCustomZoneInputs() {
 }
 
 function bindCustomHrInputs() {
-  queryAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
+  document.querySelectorAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
     const commit = () => {
       sanitizeInput(el, 0);
       validateAndApplyCustomHR();
@@ -1727,7 +1611,7 @@ function bindCustomHrInputs() {
 }
 
 function bindTablistKeyboard(selector, activate) {
-  const tabs = queryAll(selector);
+  const tabs = [...document.querySelectorAll(selector)];
 
   tabs.forEach((tab, index) => {
     tab.addEventListener('keydown', (e) => {
@@ -1750,15 +1634,15 @@ function bindTablistKeyboard(selector, activate) {
 function bindEvents() {
   bindSelectOnFocusToAll();
 
-  queryAll('[data-tab]').forEach(btn => {
+  document.querySelectorAll('[data-tab]').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  queryAll('[data-zone-subtab]').forEach(btn => {
+  document.querySelectorAll('[data-zone-subtab]').forEach(btn => {
     btn.addEventListener('click', () => setZoneSubtab(btn.dataset.zoneSubtab));
   });
 
-  queryAll('[data-hr-subtab]').forEach(btn => {
+  document.querySelectorAll('[data-hr-subtab]').forEach(btn => {
     btn.addEventListener('click', () => setHrSubtab(btn.dataset.hrSubtab));
   });
 
@@ -1842,8 +1726,7 @@ function loadSavedValues() {
   syncDropdowns();
 
   const system = safeStorageGet('cycling_active_system');
-  setActiveZoneSystem(['default', 'custom'].includes(system) ? system : 'default', false);
-  setZoneSubtab('default');
+  setZoneSubtab(['default', 'custom'].includes(system) ? system : 'default');
   setHrSubtab('default');
 }
 
@@ -1851,7 +1734,6 @@ window.addEventListener('DOMContentLoaded', () => {
   initCache();
   generateDefaultTables();
   generateCustomZonesTable();
-  renderHrTables();
   renderCustomHrControls();
   bindEvents();
   bindCustomZoneInputs();
