@@ -1290,7 +1290,7 @@ function generateCustomZonesTable() {
     if (z.id === 'ss') {
       inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMin}" aria-label="Sweet Spot minimum percentage"><span>to</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMax}" aria-label="Sweet Spot maximum percentage"><span>%</span></div>`;
     } else if (z.id === 'z1') {
-      inputHtml = `<div class="inline-fields"><span>&lt;</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z1}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><span>≤</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z1}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
     } else if (z.id === 'z7') {
       inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z6}" aria-label="${z.label} lower percentage"><span>%</span></div>`;
     } else {
@@ -1430,11 +1430,11 @@ function formatHrPctRanges(values) {
 
 function bpmRangeTexts(cuts) {
   return [
-    `≤ ${cuts[0]} BPM`,
+    `≤ ${cuts[0]}`,
     `${cuts[0]} to ${cuts[1]}`,
     `${cuts[1]} to ${cuts[2]}`,
     `${cuts[2]} to ${cuts[3]}`,
-    `≥ ${cuts[3]} BPM`
+    `≥ ${cuts[3]}`
   ];
 }
 
