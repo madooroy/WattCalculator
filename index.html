@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cycling Calculator</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -167,7 +167,7 @@ input {
   color: var(--text);
 }
 
-.input-boxed {
+  .input-boxed {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 10px;
@@ -216,19 +216,51 @@ input {
   line-height: 1.2;
 }
 
-.card-pad-8 { padding: 8px; }
-.card-pad-12 { padding: 12px; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.font-bold { font-weight: bold; }
-.pr-10 { padding-right: 10px; }
-.mt-16 { margin-top: 16px; }
-.mt-4 { margin-top: 4px; }
-.mb-8 { margin-bottom: 8px; }
-.my-16-8 { margin: 16px 0 8px; }
-.w-auto { width: auto; }
+.card-pad-8 {
+  padding: 8px;
+}
 
-  input[type="number"]::-webkit-outer-spin-button,
+.card-pad-12 {
+  padding: 12px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.pr-10 {
+  padding-right: 10px;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mt-4 {
+  margin-top: 4px;
+}
+
+.mb-8 {
+  margin-bottom: 8px;
+}
+
+.my-16-8 {
+  margin: 16px 0 8px;
+}
+
+.w-auto {
+  width: auto;
+}
+  
+input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
@@ -238,59 +270,37 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
-tr[data-zone] { transition: background-color 0.2s ease; }
-tr[data-zone="z1"] { background-color: color-mix(in srgb, var(--p-z1) 12%, var(--card)); }
-tr[data-zone="z2"] { background-color: color-mix(in srgb, var(--p-z2) 12%, var(--card)); }
-tr[data-zone="z3"] { background-color: color-mix(in srgb, var(--p-z3) 12%, var(--card)); }
-tr[data-zone="ss"] { background-color: color-mix(in srgb, var(--p-ss) 12%, var(--card)); }
-tr[data-zone="z4"] { background-color: color-mix(in srgb, var(--p-z4) 12%, var(--card)); }
-tr[data-zone="z5"] { background-color: color-mix(in srgb, var(--p-z5) 12%, var(--card)); }
-tr[data-zone="z6"] { background-color: color-mix(in srgb, var(--p-z6) 12%, var(--card)); }
-tr[data-zone="z7"] { background-color: color-mix(in srgb, var(--p-z7) 12%, var(--card)); }
 
-tr[data-hr-zone] { transition: background-color 0.2s ease; }
-tr[data-hr-zone="z1"] { background-color: color-mix(in srgb, var(--hr-z1) 12%, var(--card)); }
-tr[data-hr-zone="z2"] { background-color: color-mix(in srgb, var(--hr-z2) 12%, var(--card)); }
-tr[data-hr-zone="z3"] { background-color: color-mix(in srgb, var(--hr-z3) 12%, var(--card)); }
-tr[data-hr-zone="z4"] { background-color: color-mix(in srgb, var(--hr-z4) 12%, var(--card)); }
-tr[data-hr-zone="z5"] { background-color: color-mix(in srgb, var(--hr-z5) 12%, var(--card)); }
-
-td { border-bottom: 1px solid var(--border); }
-
-/* ANTI-ZOOM & TRANSFORM PATCH START */
 .input-small {
-  width: 98px;                    /* Wider baseline size to hold 16px font without wrapping */
-  min-height: 44px;               /* Accessible touch footprint target */
+  width: 84px;
+  min-height: 40px;
   text-align: center;
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 4px;
-  font-size: 16px;                /* Blocks mobile browser auto-zoom completely */
+  padding: 6px 4px;
+  font-size: 13px;
   font-weight: bold;
   background: transparent;
   color: var(--text);
-  transform: scale(0.8125);       /* Graphically downscales 16px to look identically like 13px */
-  transform-origin: right center; /* Retains crisp alignment edge within table setups */
-  margin-left: -18px;             /* Overcomes empty layout gap produced by shrink mapping */
 }
 
-.numeric-input {
+  .numeric-input {
   font-weight: bold;
-  font-size: 16px;                /* Blocks mobile browser auto-zoom completely */
+  font-size: 13px;
   font-family: inherit;
 }
 
-.range-col {
+  .range-col {
   text-align: right;
   font-family: monospace;
   font-size: 13px;
   font-weight: bold;
 }
 
-  #default-power-zones-table td:last-child,
-  #custom-zones-table td:last-child,
-  #hr-default-panel td:last-child,
-  #hr-custom-panel td:last-child {
+#default-power-zones-table td:last-child,
+#custom-zones-table td:last-child,
+#hr-default-panel td:last-child,
+#hr-custom-panel td:last-child {
   text-align: right;
   font-family: monospace;
 }
@@ -304,21 +314,11 @@ td { border-bottom: 1px solid var(--border); }
   font-weight: bold;
 }
 
-.table-scroll-wrapper .input-small {
-  font-size: 16px;                /* Blocks mobile browser auto-zoom completely */
-  font-weight: bold;
-}
-
+.table-scroll-wrapper .input-small,
 .hr-edit-grid .input-small {
-  font-size: 16px;                /* Blocks mobile browser auto-zoom completely */
+  font-size: 13px;
   font-weight: bold;
-  transform: scale(0.8125);
-  transform-origin: center center;/* Center origin alignment matches structural grid boxes */
-  margin-left: 0;                 /* Cancels layout shifting margin within grid components */
-  width: 84px;                    /* Binds the structural box footprint size */
 }
-/* ANTI-ZOOM & TRANSFORM PATCH END */
-
 .select-wrapper {
   position: relative;
   width: 40%;
@@ -482,9 +482,14 @@ tr:last-child td { border-bottom: none; }
   white-space: normal;
 }
 
+#custom-zones-table .input-small {
+  font-size: 13px;
+  font-weight: bold;
+}
+
 .controls-row {
   display: flex;
-  justify-flex-end;
+  justify-content: flex-end;
   gap: 8px;
   margin-bottom: 10px;
 }
@@ -538,8 +543,13 @@ tr:last-child td { border-bottom: none; }
   white-space: nowrap;
 }
 
-#hr-view table { table-layout: fixed; }
-#hr-view .hr-split-table { margin-top: 0; }
+#hr-view table {
+  table-layout: fixed;
+}
+
+#hr-view .hr-split-table {
+  margin-top: 0;
+}
 
 [hidden] { display: none !important; }
 
@@ -560,9 +570,17 @@ tr:last-child td { border-bottom: none; }
     text-align: left;
   }
 
-  .controls-row { justify-content: stretch; }
-  .controls-row .secondary-btn { width: 100%; }
-  .hr-edit-grid { grid-template-columns: 1fr; }
+  .controls-row {
+    justify-content: stretch;
+  }
+
+  .controls-row .secondary-btn {
+    width: 100%;
+  }
+
+  .hr-edit-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
@@ -574,9 +592,19 @@ tr:last-child td { border-bottom: none; }
       calc(12px + env(safe-area-inset-left));
   }
 
-  .container { max-width: 760px; }
-  h1 { font-size: 20px; margin-bottom: 10px; }
-  .card { padding: 12px; margin-bottom: 12px; }
+  .container {
+    max-width: 760px;
+  }
+
+  h1 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
 }
 </style>
 </head>
@@ -760,11 +788,11 @@ tr:last-child td { border-bottom: none; }
             </tr>
           </thead>
           <tbody>
-            <tr data-hr-zone="z1"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-max-pct-range">0%</td><td class="range-col" id="hr1-max-range">0 BPM</td></tr>
-            <tr data-hr-zone="z2"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-max-pct-range">0%</td><td class="range-col" id="hr2-max-range">0 BPM</td></tr>
-            <tr data-hr-zone="z3"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-max-pct-range">0%</td><td class="range-col" id="hr3-max-range">0 BPM</td></tr>
-            <tr data-hr-zone="z4"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-max-pct-range">0%</td><td class="range-col" id="hr4-max-range">0 BPM</td></tr>
-            <tr data-hr-zone="z5"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-max-pct-range">0%</td><td class="range-col" id="hr5-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-max-pct-range">0%</td><td class="range-col" id="hr1-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-max-pct-range">0%</td><td class="range-col" id="hr2-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-max-pct-range">0%</td><td class="range-col" id="hr3-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-max-pct-range">0%</td><td class="range-col" id="hr4-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-max-pct-range">0%</td><td class="range-col" id="hr5-max-range">0 BPM</td></tr>
           </tbody>
         </table>
       </div>
@@ -780,11 +808,11 @@ tr:last-child td { border-bottom: none; }
             </tr>
           </thead>
           <tbody>
-            <tr data-hr-zone="z1"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-lthr-pct-range">0%</td><td class="range-col" id="hr1-lthr-range">0 BPM</td></tr>
-            <tr data-hr-zone="z2"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-lthr-pct-range">0%</td><td class="range-col" id="hr2-lthr-range">0 BPM</td></tr>
-            <tr data-hr-zone="z3"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-lthr-pct-range">0%</td><td class="range-col" id="hr3-lthr-range">0 BPM</td></tr>
-            <tr data-hr-zone="z4"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-lthr-pct-range">0%</td><td class="range-col" id="hr4-lthr-range">0 BPM</td></tr>
-            <tr data-hr-zone="z5"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-lthr-pct-range">0%</td><td class="range-col" id="hr5-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-lthr-pct-range">0%</td><td class="range-col" id="hr1-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-lthr-pct-range">0%</td><td class="range-col" id="hr2-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-lthr-pct-range">0%</td><td class="range-col" id="hr3-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-lthr-pct-range">0%</td><td class="range-col" id="hr4-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-lthr-pct-range">0%</td><td class="range-col" id="hr5-lthr-range">0 BPM</td></tr>
           </tbody>
         </table>
       </div>
@@ -815,11 +843,11 @@ tr:last-child td { border-bottom: none; }
             </tr>
           </thead>
           <tbody>
-           <tr data-hr-zone="z1"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-max-pct-range">0%</td><td class="range-col" id="hr1-max-range">0 BPM</td></tr>
-           <tr data-hr-zone="z2"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-max-pct-range">0%</td><td class="range-col" id="hr2-max-range">0 BPM</td></tr>
-           <tr data-hr-zone="z3"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-max-pct-range">0%</td><td class="range-col" id="hr3-max-range">0 BPM</td></tr>
-           <tr data-hr-zone="z4"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-max-pct-range">0%</td><td class="range-col" id="hr4-max-range">0 BPM</td></tr>
-           <tr data-hr-zone="z5"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-max-pct-range">0%</td><td class="range-col" id="hr5-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-max-pct-range">0%</td><td class="range-col" id="c-hr1-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-max-pct-range">0%</td><td class="range-col" id="c-hr2-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-max-pct-range">0%</td><td class="range-col" id="c-hr3-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-max-pct-range">0%</td><td class="range-col" id="c-hr4-max-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-max-pct-range">0%</td><td class="range-col" id="c-hr5-max-range">0 BPM</td></tr>
           </tbody>
         </table>
       </div>
@@ -835,11 +863,11 @@ tr:last-child td { border-bottom: none; }
             </tr>
           </thead>
           <tbody>
-            <tr data-hr-zone="z1"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="hr1-lthr-pct-range">0%</td><td class="range-col" id="hr1-lthr-range">0 BPM</td></tr>
-            <tr data-hr-zone="z2"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="hr2-lthr-pct-range">0%</td><td class="range-col" id="hr2-lthr-range">0 BPM</td></tr>
-            <tr data-hr-zone="z3"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="hr3-lthr-pct-range">0%</td><td class="range-col" id="hr3-lthr-range">0 BPM</td></tr>
-            <tr data-hr-zone="z4"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="hr4-lthr-pct-range">0%</td><td class="range-col" id="hr4-lthr-range">0 BPM</td></tr>
-            <tr data-hr-zone="z5"><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="hr5-lthr-pct-range">0%</td><td class="range-col" id="hr5-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z1);">Zone 1</span><span class="zone-desc">Active Recovery</span></div></td><td class="range-col" id="c-hr1-lthr-pct-range">0%</td><td class="range-col" id="c-hr1-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z2);">Zone 2</span><span class="zone-desc">Aerobic Capacity</span></div></td><td class="range-col" id="c-hr2-lthr-pct-range">0%</td><td class="range-col" id="c-hr2-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z3);">Zone 3</span><span class="zone-desc">Tempo</span></div></td><td class="range-col" id="c-hr3-lthr-pct-range">0%</td><td class="range-col" id="c-hr3-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z4);">Zone 4</span><span class="zone-desc">Threshold</span></div></td><td class="range-col" id="c-hr4-lthr-pct-range">0%</td><td class="range-col" id="c-hr4-lthr-range">0 BPM</td></tr>
+            <tr><td><div class="zone-cell"><span class="zone-badge" style="background: var(--hr-z5);">Zone 5</span><span class="zone-desc">VO2 Max</span></div></td><td class="range-col" id="c-hr5-lthr-pct-range">0%</td><td class="range-col" id="c-hr5-lthr-range">0 BPM</td></tr>
           </tbody>
         </table>
       </div>
@@ -1244,15 +1272,8 @@ function calcWatts() {
 function generateDefaultTables() {
   let html = '';
 
-   defaultZonesConfig.forEach(z => {
-    // FIX: Add data-zone attribute to the row to pass color context into CSS selectors
-    html += `<tr data-zone="${z.colorVar}">
-      <td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
-      <td class="text-center font-bold">${Math.round(z.target * 100)}%</td>
-      <td class="text-center font-bold" id="p-${z.id}-target">0 W</td>
-      <td class="text-right font-bold pr-10" id="p-${z.id}-pct-range">0%</td>
-      <td class="range-col" id="p-${z.id}-range">0 W</td>
-    </tr>`;
+  defaultZonesConfig.forEach(z => {
+    html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center font-bold">${Math.round(z.target * 100)}%</td><td class="text-center font-bold" id="p-${z.id}-target">0 W</td><td class="text-right font-bold pr-10" id="p-${z.id}-pct-range">0%</td><td class="range-col" id="p-${z.id}-range">0 W</td></tr>`;
   });
 
   els.defaultPowerTableBody.innerHTML = html;
@@ -1275,12 +1296,7 @@ function generateCustomZonesTable() {
       inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors[z.id]}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
     }
 
-    // FIX: Add data-zone attribute to custom rows as well
-    html += `<tr data-zone="${z.colorVar}">
-      <td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td>
-      <td class="text-center">${inputHtml}</td>
-      <td class="range-col" id="c-${z.id}-range">0 W</td>
-    </tr>`;
+    html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">0 W</td></tr>`;
   });
 
   els.customTableBody.innerHTML = html;
@@ -1618,7 +1634,6 @@ function bindTablistKeyboard(selector, activate) {
 function bindEvents() {
   bindSelectOnFocusToAll();
 
- // Unified Tab Switching Routing Configurations
   document.querySelectorAll('[data-tab]').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
@@ -1632,28 +1647,21 @@ function bindEvents() {
   });
 
   bindTablistKeyboard('[data-tab]', tab => switchTab(tab.dataset.tab));
-  bindTablistKeyboard('[data-zone-subtab]', tab => setZoneSubtab(sub.dataset.zoneSubtab));
+  bindTablistKeyboard('[data-zone-subtab]', tab => setZoneSubtab(tab.dataset.zoneSubtab));
   bindTablistKeyboard('[data-hr-subtab]', tab => setHrSubtab(tab.dataset.hrSubtab));
 
   els.toggleSystemKj.addEventListener('click', toggleActiveSystem);
   els.toggleSystemWatts.addEventListener('click', toggleActiveSystem);
+
   els.resetCustomZones.addEventListener('click', resetCustomZones);
   els.resetCustomHr.addEventListener('click', resetCustomHR);
 
-  // Core Math Calculation Listeners
   els.wattsIn.addEventListener('input', calcKJ);
   els.kjMinIn.addEventListener('input', calcKJ);
   els.kjIn.addEventListener('input', calcWatts);
   els.wattsMinIn.addEventListener('input', calcWatts);
-
-  // Core Physical Profile Configurations (Sanitized to avoid validation lockups)
-  els.ftpIn.addEventListener('input', () => {
-    if (els.ftpIn.value !== "") updateZones();
-  });
-  
-  els.weightIn.addEventListener('input', () => {
-    if (els.weightIn.value !== "") updateZones();
-  });
+  els.ftpIn.addEventListener('input', updateZones);
+  els.weightIn.addEventListener('input', updateZones);
 
   els.weightUnit.addEventListener('change', () => {
     syncDropdowns();
@@ -1661,29 +1669,20 @@ function bindEvents() {
     savePrimitive('cycling_unit', els.weightUnit.value);
   });
 
-  // Balanced Synchronization for Comparable FTP Changes
-  const syncProposed = (e) => {
-    if (e.target.value !== "") setNewFTP(e.target.value, false);
-  };
+  const syncProposed = (e) => setNewFTP(e.target.value, false);
   els.newFtpKj.addEventListener('input', syncProposed);
   els.newFtpWatts.addEventListener('input', syncProposed);
 
-  // Safe Heart Rate Listeners (Protects calculations when field is temporarily cleared)
   els.hrMaxIn.addEventListener('input', () => {
-    if (els.hrMaxIn.value > 0 && els.hrLthrIn.value > 0) {
-      updateHRZones();
-      validateAndApplyCustomHR();
-    }
+    updateHRZones();
+    validateAndApplyCustomHR();
   });
 
   els.hrLthrIn.addEventListener('input', () => {
-    if (els.hrMaxIn.value > 0 && els.hrLthrIn.value > 0) {
-      updateHRZones();
-      validateAndApplyCustomHR();
-    }
+    updateHRZones();
+    validateAndApplyCustomHR();
   });
 
-  // Secure Local Storage State Commitments
   persistOnCommit(els.ftpIn, 'cycling_ftp', 0, updateZones);
   persistOnCommit(els.weightIn, 'cycling_weight', 1, updateZones);
   persistOnCommit(els.hrMaxIn, 'cycling_hr_max_val', 0, () => {
@@ -1697,18 +1696,10 @@ function bindEvents() {
   persistOnCommit(els.newFtpKj, 'cycling_new_ftp', 0, clean => setNewFTP(clean, false));
   persistOnCommit(els.newFtpWatts, 'cycling_new_ftp', 0, clean => setNewFTP(clean, false));
 
-  // Optimized Storage Engine Writing Loop (Prevents unneeded disk writes)
-  const debounceStorage = (el, key) => {
-    el.addEventListener('blur', () => {
-      const clean = String(wholeNumber(clampNonNegative(el.value)));
-      if (clean !== "0") savePrimitive(key, clean);
-    });
-  };
-  
-  debounceStorage(els.wattsIn, 'cycling_find_kj_avg_watts');
-  debounceStorage(els.kjMinIn, 'cycling_find_kj_minutes');
-  debounceStorage(els.kjIn, 'cycling_find_watts_total_kj');
-  debounceStorage(els.wattsMinIn, 'cycling_find_watts_minutes');
+  persistOnInput(els.wattsIn, 'cycling_find_kj_avg_watts');
+  persistOnInput(els.kjMinIn, 'cycling_find_kj_minutes');
+  persistOnInput(els.kjIn, 'cycling_find_watts_total_kj');
+  persistOnInput(els.wattsMinIn, 'cycling_find_watts_minutes');
 }
 
 function loadSavedValues() {
@@ -1740,34 +1731,19 @@ function loadSavedValues() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  // 1. Establish core target elements references
   initCache();
-  
-  // 2. Load and recover any persisted physical fields prior to rendering tables
-  loadSavedValues();
-  
-  // 3. Programmatically generate visual layout tables
   generateDefaultTables();
   generateCustomZonesTable();
   renderCustomHrControls();
-  
-  // 4. Attach functional listeners and user execution events
   bindEvents();
   bindCustomZoneInputs();
   bindCustomHrInputs();
-  
-  // 5. Explicitly force an update to all numeric calculations and dashboard displays
+  loadSavedValues();
   updateZones();
   updateHRZones();
   updateCustomHRZones();
-  
-  // 6. Execute operational math logic formulas using cleanly loaded elements
   calcKJ();
   calcWatts();
-  
-  // 7. Inject auto-select-on-focus listeners to the programmatically rendered tables
-  bindSelectOnFocusToAll(els.customZonesTable);
-  bindSelectOnFocusToAll(els.hrCustomPanel);
 });
 </script>
 </body>
