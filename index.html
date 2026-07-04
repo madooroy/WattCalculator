@@ -45,6 +45,21 @@
     --table-border: #1c1c1e;
     --focus: #64a8ff;
   }
+
+  .zone-row-tint.power-z1 { background: rgba(179, 89, 206, 0.08); }
+  .zone-row-tint.power-z2 { background: rgba(78, 164, 227, 0.08); }
+  .zone-row-tint.power-z3 { background: rgba(114, 191, 68, 0.08); }
+  .zone-row-tint.power-ss { background: rgba(63, 185, 216, 0.08); }
+  .zone-row-tint.power-z4 { background: rgba(248, 200, 34, 0.08); }
+  .zone-row-tint.power-z5 { background: rgba(243, 112, 33, 0.08); }
+  .zone-row-tint.power-z6 { background: rgba(237, 33, 40, 0.08); }
+  .zone-row-tint.power-z7 { background: rgba(166, 26, 34, 0.08); }
+
+  .zone-row-tint.hr-z1 { background: rgba(142, 142, 147, 0.08); }
+  .zone-row-tint.hr-z2 { background: rgba(52, 199, 89, 0.08); }
+  .zone-row-tint.hr-z3 { background: rgba(0, 122, 255, 0.08); }
+  .zone-row-tint.hr-z4 { background: rgba(255, 149, 0, 0.08); }
+  .zone-row-tint.hr-z5 { background: rgba(255, 59, 48, 0.08); }
 }
 
 * { box-sizing: border-box; }
@@ -501,6 +516,25 @@ tr:last-child td { border-bottom: none; }
   white-space: normal;
 }
 
+.zone-row-tint {
+  background: transparent;
+}
+
+.zone-row-tint.power-z1 { background: rgba(179, 89, 206, 0.12); }
+.zone-row-tint.power-z2 { background: rgba(78, 164, 227, 0.12); }
+.zone-row-tint.power-z3 { background: rgba(114, 191, 68, 0.12); }
+.zone-row-tint.power-ss { background: rgba(63, 185, 216, 0.12); }
+.zone-row-tint.power-z4 { background: rgba(248, 200, 34, 0.12); }
+.zone-row-tint.power-z5 { background: rgba(243, 112, 33, 0.12); }
+.zone-row-tint.power-z6 { background: rgba(237, 33, 40, 0.12); }
+.zone-row-tint.power-z7 { background: rgba(166, 26, 34, 0.12); }
+
+.zone-row-tint.hr-z1 { background: rgba(142, 142, 147, 0.12); }
+.zone-row-tint.hr-z2 { background: rgba(52, 199, 89, 0.12); }
+.zone-row-tint.hr-z3 { background: rgba(0, 122, 255, 0.12); }
+.zone-row-tint.hr-z4 { background: rgba(255, 149, 0, 0.12); }
+.zone-row-tint.hr-z5 { background: rgba(255, 59, 48, 0.12); }
+  
 #custom-zones-table .input-small {
   font-size: 13px;
   font-weight: bold;
@@ -1074,20 +1108,6 @@ function getPowerColor(zone) {
   return `var(--p-${zone.colorVar})`;
 }
 
-function getPowerRowTint(zone) {
-  const map = {
-    z1: 'rgba(179, 89, 206, 0.12)',
-    z2: 'rgba(78, 164, 227, 0.12)',
-    z3: 'rgba(114, 191, 68, 0.12)',
-    ss: 'rgba(63, 185, 216, 0.12)',
-    z4: 'rgba(248, 200, 34, 0.12)',
-    z5: 'rgba(243, 112, 33, 0.12)',
-    z6: 'rgba(237, 33, 40, 0.12)',
-    z7: 'rgba(166, 26, 34, 0.12)'
-  };
-  return map[zone.id] || 'transparent';
-}
-
 function getHrRowTint(zoneNum) {
   const map = {
     1: 'rgba(142, 142, 147, 0.12)',
@@ -1328,7 +1348,7 @@ function generateDefaultTables() {
   let html = '';
 
   defaultZonesConfig.forEach(z => {
-    html += `<tr style="background:${getPowerRowTint(z)}"><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center font-bold">${Math.round(z.target * 100)}%</td><td class="text-center font-bold" id="p-${z.id}-target">—</td><td class="text-right font-bold pr-10" id="p-${z.id}-pct-range">—</td><td class="range-col" id="p-${z.id}-range">—</td></tr>`;
+    html += `<tr class="zone-row-tint power-${z.id}"><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center font-bold">${Math.round(z.target * 100)}%</td><td class="text-center font-bold" id="p-${z.id}-target">—</td><td class="text-right font-bold pr-10" id="p-${z.id}-pct-range">—</td><td class="range-col" id="p-${z.id}-range">—</td></tr>`;
   });
 
   els.defaultPowerTableBody.innerHTML = html;
@@ -1352,7 +1372,7 @@ function generateCustomZonesTable() {
       inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors[z.id]}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
     }
 
-    html += `<tr style="background:${getPowerRowTint(z)}"><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">—</td></tr>`;
+    html += `<tr class="zone-row-tint power-${z.id}"><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">—</td></tr>`;
   });
 
   els.customTableBody.innerHTML = html;
@@ -1452,7 +1472,7 @@ function renderCustomHrControls() {
 
 function buildHrRows(prefix, metric) {
   return hrZoneDefs.map(zone => `
-    <tr style="background:${getHrRowTint(zone.num)}">
+    <tr class="zone-row-tint hr-z${zone.num}">
       <td>
         <div class="zone-cell">
           <span class="zone-badge" style="background: var(--${zone.colorVar});">${zone.label}</span>
