@@ -886,7 +886,7 @@ let activeZoneSystem = 'default';
 let activeZoneSubtab = 'default';
 let activeHrSubtab = 'default';
 
-function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
+function cloneJson(obj) { return JSON.parse(JSON.stringify(obj)); }
 function clampNonNegative(value) { const n = parseFloat(value); return Number.isFinite(n) && n >= 0 ? n : 0; }
 function wholeNumber(value) { return Math.round(value); }
 function kjFromWattsMinutes(watts, minutes) { return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0; }
@@ -902,6 +902,14 @@ function safeStorageRemove(key) {
   try { localStorage.removeItem(key); } catch {}
 }
 
+function queryAll(selector, root = document) {
+  return [...root.querySelectorAll(selector)];
+}
+
+function queryOne(selector, root = document) {
+  return root.querySelector(selector);
+}
+  
 function saveField(key, value) { safeStorageSet(key, JSON.stringify(value)); }
 function savePrimitive(key, value) { safeStorageSet(key, String(value)); }
 
@@ -1027,16 +1035,16 @@ function saveCustomPowerAnchors() {
 function loadCustomHrAnchors() {
   try {
     const raw = safeStorageGet('cycling_custom_hr');
-    if (!raw) return deepClone(defaultHrPercentConfig);
+    if (!raw) return cloneJson(defaultHrPercentConfig);
 
     const parsed = JSON.parse(raw);
     const candidate = parsed && parsed.version === 2 && parsed.anchors
       ? normalizeHrAnchors(parsed.anchors)
       : normalizeHrAnchors(parsed);
 
-    return validateHrAnchorSet(candidate, 0, 0) ? deepClone(defaultHrPercentConfig) : candidate;
+    return validateHrAnchorSet(candidate, 0, 0) ? cloneJson(defaultHrPercentConfig) : candidate;
   } catch {
-    return deepClone(defaultHrPercentConfig);
+    return cloneJson(defaultHrPercentConfig);
   }
 }
 
@@ -1317,7 +1325,7 @@ function generateCustomZonesTable() {
 }
 
 function syncPowerAnchorInputs(anchor, value) {
-  document.querySelectorAll(`.custom-zone-input[data-anchor="${anchor}"]`).forEach(input => {
+  queryAll(`.custom-zone-input[data-anchor="${anchor}"]`).forEach(input => {
     if (document.activeElement !== input && input.value !== String(value)) {
       input.value = String(value);
     }
@@ -1327,7 +1335,7 @@ function syncPowerAnchorInputs(anchor, value) {
 function validateAndApplyCustomZones() {
   const nextAnchors = { ...customPowerAnchors };
 
-  document.querySelectorAll('.custom-zone-input').forEach(input => {
+  queryAll('.custom-zone-input').forEach(input => {
     nextAnchors[input.dataset.anchor] = wholeNumber(clampNonNegative(input.value));
   });
 
@@ -1436,18 +1444,18 @@ function renderHrTables() {
 
 function readHrAnchorsFromInputs() {
   return {
-    max: [...document.querySelectorAll('.custom-hr-max')].map(el => wholeNumber(Math.min(clampNonNegative(el.value), 100))),
-    lthr: [...document.querySelectorAll('.custom-hr-lthr')].map(el => wholeNumber(clampNonNegative(el.value)))
+    max: queryAll('.custom-hr-max').map(el => wholeNumber(Math.min(clampNonNegative(el.value), 100))),
+    lthr: queryAll('.custom-hr-lthr').map(el => wholeNumber(clampNonNegative(el.value)))
   };
 }
 
 function writeHrAnchorInputs(values) {
-  document.querySelectorAll('.custom-hr-max').forEach((el, i) => {
+  queryAll('.custom-hr-max').forEach((el, i) => {
     const next = String(values.max[i]);
     if (document.activeElement !== el && el.value !== next) el.value = next;
   });
 
-  document.querySelectorAll('.custom-hr-lthr').forEach((el, i) => {
+  queryAll('.custom-hr-lthr').forEach((el, i) => {
     const next = String(values.lthr[i]);
     if (document.activeElement !== el && el.value !== next) el.value = next;
   });
@@ -1530,7 +1538,7 @@ function resetCustomZones() {
 }
 
 function resetCustomHR() {
-  customHrAnchors = deepClone(defaultHrPercentConfig);
+  customHrAnchors = cloneJson(defaultHrPercentConfig);
   saveCustomHrAnchors();
   renderCustomHrControls();
   bindCustomHrInputs();
@@ -1559,7 +1567,7 @@ function bindSelectOnFocus(el) {
 }
 
 function bindSelectOnFocusToAll(root = document) {
-  root.querySelectorAll('input').forEach(bindSelectOnFocus);
+  queryAll('input', root).forEach(bindSelectOnFocus);
 }
 
 function persistOnCommit(el, key, decimals = 0, afterSave) {
@@ -1642,7 +1650,7 @@ function initCache() {
 }
 
 function bindCustomZoneInputs() {
-  document.querySelectorAll('.custom-zone-input').forEach(el => {
+  queryAll('.custom-zone-input').forEach(el => {
     const commit = () => {
       sanitizeInput(el, 0);
       const value = wholeNumber(clampNonNegative(el.value));
@@ -1656,7 +1664,7 @@ function bindCustomZoneInputs() {
 }
 
 function bindCustomHrInputs() {
-  document.querySelectorAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
+  queryAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
     const commit = () => {
       sanitizeInput(el, 0);
       validateAndApplyCustomHR();
@@ -1668,7 +1676,7 @@ function bindCustomHrInputs() {
 }
 
 function bindTablistKeyboard(selector, activate) {
-  const tabs = [...document.querySelectorAll(selector)];
+  const tabs = queryAll(selector);
 
   tabs.forEach((tab, index) => {
     tab.addEventListener('keydown', (e) => {
@@ -1691,15 +1699,15 @@ function bindTablistKeyboard(selector, activate) {
 function bindEvents() {
   bindSelectOnFocusToAll();
 
-  document.querySelectorAll('[data-tab]').forEach(btn => {
+  queryAll('[data-tab]').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  document.querySelectorAll('[data-zone-subtab]').forEach(btn => {
+  queryAll('[data-zone-subtab]').forEach(btn => {
     btn.addEventListener('click', () => setZoneSubtab(btn.dataset.zoneSubtab));
   });
 
-  document.querySelectorAll('[data-hr-subtab]').forEach(btn => {
+  queryAll('[data-hr-subtab]').forEach(btn => {
     btn.addEventListener('click', () => setHrSubtab(btn.dataset.hrSubtab));
   });
 
