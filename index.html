@@ -291,24 +291,6 @@ input[type="number"] {
   font-family: inherit;
 }
 
-@media (max-width: 768px) {
-  .input-small,
-  .numeric-input {
-    font-size: 16px;
-  }
-
-  .input-small {
-    width: 76px;
-    min-height: 40px;
-    padding: 4px 3px;
-  }
-
-  .table-scroll-wrapper .input-small,
-  .hr-edit-grid .input-small {
-    font-size: 16px;
-  }
-}
- 
   .range-col {
   text-align: right;
   font-family: monospace;
@@ -904,7 +886,7 @@ let activeZoneSystem = 'default';
 let activeZoneSubtab = 'default';
 let activeHrSubtab = 'default';
 
-function cloneJson(obj) { return JSON.parse(JSON.stringify(obj)); }
+function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 function clampNonNegative(value) { const n = parseFloat(value); return Number.isFinite(n) && n >= 0 ? n : 0; }
 function wholeNumber(value) { return Math.round(value); }
 function kjFromWattsMinutes(watts, minutes) { return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0; }
@@ -920,14 +902,6 @@ function safeStorageRemove(key) {
   try { localStorage.removeItem(key); } catch {}
 }
 
-function queryAll(selector, root = document) {
-  return [...root.querySelectorAll(selector)];
-}
-
-function queryOne(selector, root = document) {
-  return root.querySelector(selector);
-}
-  
 function saveField(key, value) { safeStorageSet(key, JSON.stringify(value)); }
 function savePrimitive(key, value) { safeStorageSet(key, String(value)); }
 
@@ -1053,16 +1027,16 @@ function saveCustomPowerAnchors() {
 function loadCustomHrAnchors() {
   try {
     const raw = safeStorageGet('cycling_custom_hr');
-    if (!raw) return cloneJson(defaultHrPercentConfig);
+    if (!raw) return deepClone(defaultHrPercentConfig);
 
     const parsed = JSON.parse(raw);
     const candidate = parsed && parsed.version === 2 && parsed.anchors
       ? normalizeHrAnchors(parsed.anchors)
       : normalizeHrAnchors(parsed);
 
-    return validateHrAnchorSet(candidate, 0, 0) ? cloneJson(defaultHrPercentConfig) : candidate;
+    return validateHrAnchorSet(candidate, 0, 0) ? deepClone(defaultHrPercentConfig) : candidate;
   } catch {
-    return cloneJson(defaultHrPercentConfig);
+    return deepClone(defaultHrPercentConfig);
   }
 }
 
@@ -1343,7 +1317,7 @@ function generateCustomZonesTable() {
 }
 
 function syncPowerAnchorInputs(anchor, value) {
-  queryAll(`.custom-zone-input[data-anchor="${anchor}"]`).forEach(input => {
+  document.querySelectorAll(`.custom-zone-input[data-anchor="${anchor}"]`).forEach(input => {
     if (document.activeElement !== input && input.value !== String(value)) {
       input.value = String(value);
     }
@@ -1353,7 +1327,7 @@ function syncPowerAnchorInputs(anchor, value) {
 function validateAndApplyCustomZones() {
   const nextAnchors = { ...customPowerAnchors };
 
-  queryAll('.custom-zone-input').forEach(input => {
+  document.querySelectorAll('.custom-zone-input').forEach(input => {
     nextAnchors[input.dataset.anchor] = wholeNumber(clampNonNegative(input.value));
   });
 
@@ -1462,18 +1436,18 @@ function renderHrTables() {
 
 function readHrAnchorsFromInputs() {
   return {
-    max: queryAll('.custom-hr-max').map(el => wholeNumber(Math.min(clampNonNegative(el.value), 100))),
-    lthr: queryAll('.custom-hr-lthr').map(el => wholeNumber(clampNonNegative(el.value)))
+    max: [...document.querySelectorAll('.custom-hr-max')].map(el => wholeNumber(Math.min(clampNonNegative(el.value), 100))),
+    lthr: [...document.querySelectorAll('.custom-hr-lthr')].map(el => wholeNumber(clampNonNegative(el.value)))
   };
 }
 
 function writeHrAnchorInputs(values) {
-  queryAll('.custom-hr-max').forEach((el, i) => {
+  document.querySelectorAll('.custom-hr-max').forEach((el, i) => {
     const next = String(values.max[i]);
     if (document.activeElement !== el && el.value !== next) el.value = next;
   });
 
-  queryAll('.custom-hr-lthr').forEach((el, i) => {
+  document.querySelectorAll('.custom-hr-lthr').forEach((el, i) => {
     const next = String(values.lthr[i]);
     if (document.activeElement !== el && el.value !== next) el.value = next;
   });
@@ -1556,7 +1530,7 @@ function resetCustomZones() {
 }
 
 function resetCustomHR() {
-  customHrAnchors = cloneJson(defaultHrPercentConfig);
+  customHrAnchors = deepClone(defaultHrPercentConfig);
   saveCustomHrAnchors();
   renderCustomHrControls();
   bindCustomHrInputs();
@@ -1585,7 +1559,7 @@ function bindSelectOnFocus(el) {
 }
 
 function bindSelectOnFocusToAll(root = document) {
-  queryAll('input', root).forEach(bindSelectOnFocus);
+  root.querySelectorAll('input').forEach(bindSelectOnFocus);
 }
 
 function persistOnCommit(el, key, decimals = 0, afterSave) {
@@ -1668,7 +1642,7 @@ function initCache() {
 }
 
 function bindCustomZoneInputs() {
-  queryAll('.custom-zone-input').forEach(el => {
+  document.querySelectorAll('.custom-zone-input').forEach(el => {
     const commit = () => {
       sanitizeInput(el, 0);
       const value = wholeNumber(clampNonNegative(el.value));
@@ -1682,7 +1656,7 @@ function bindCustomZoneInputs() {
 }
 
 function bindCustomHrInputs() {
-  queryAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
+  document.querySelectorAll('.custom-hr-max, .custom-hr-lthr').forEach(el => {
     const commit = () => {
       sanitizeInput(el, 0);
       validateAndApplyCustomHR();
@@ -1694,7 +1668,7 @@ function bindCustomHrInputs() {
 }
 
 function bindTablistKeyboard(selector, activate) {
-  const tabs = queryAll(selector);
+  const tabs = [...document.querySelectorAll(selector)];
 
   tabs.forEach((tab, index) => {
     tab.addEventListener('keydown', (e) => {
@@ -1717,15 +1691,15 @@ function bindTablistKeyboard(selector, activate) {
 function bindEvents() {
   bindSelectOnFocusToAll();
 
-  queryAll('[data-tab]').forEach(btn => {
+  document.querySelectorAll('[data-tab]').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  queryAll('[data-zone-subtab]').forEach(btn => {
+  document.querySelectorAll('[data-zone-subtab]').forEach(btn => {
     btn.addEventListener('click', () => setZoneSubtab(btn.dataset.zoneSubtab));
   });
 
-  queryAll('[data-hr-subtab]').forEach(btn => {
+  document.querySelectorAll('[data-hr-subtab]').forEach(btn => {
     btn.addEventListener('click', () => setHrSubtab(btn.dataset.hrSubtab));
   });
 
