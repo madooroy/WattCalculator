@@ -306,6 +306,17 @@ input[type="number"] {
   font-family: inherit;
 }
 
+.input-small,
+.custom-zone-input,
+.custom-hr-max,
+.custom-hr-lthr,
+.table-scroll-wrapper .input-small,
+.hr-edit-grid .input-small,
+.power-matrix .input-small {
+  font-size: 16px;
+  font-weight: bold;
+}
+  
 @media (max-width: 768px) {
   .input-small,
   .numeric-input {
@@ -350,9 +361,10 @@ input[type="number"] {
 
 .table-scroll-wrapper .input-small,
 .hr-edit-grid .input-small {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: bold;
 }
+  
 .select-wrapper {
   position: relative;
   width: 40%;
@@ -481,143 +493,7 @@ th {
   text-transform: uppercase;
   white-space: nowrap;
 }
-
-.power-matrix-scroll {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-  scrollbar-width: thin;
-}
-
-.power-matrix {
-  width: max-content;
-  min-width: 760px;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin-top: 0;
-  table-layout: fixed;
-}
-
-.power-matrix th,
-.power-matrix td {
-  min-width: 74px;
-  padding: 8px 6px;
-  border: 1px solid var(--border);
-  text-align: center;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-.power-matrix .row-label {
-  min-width: 108px;
-  text-align: left;
-  font-weight: 700;
-  color: var(--text);
-  background: var(--card);
-  position: sticky;
-  left: 0;
-  z-index: 2;
-}
-
-.power-matrix .zone-cell-matrix {
-  font-weight: 700;
-  color: #111;
-}
-
-.power-matrix .zone-top {
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.power-matrix .zone-top.ss {
-  font-size: 17px;
-  letter-spacing: 0.2px;
-}
-
-.power-matrix .zone-sub {
-  display: block;
-  margin-top: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  white-space: normal;
-  line-height: 1.2;
-  color: rgba(0,0,0,0.78);
-}
-
-.power-matrix .zone-value {
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.power-matrix .zone-value-large {
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.power-matrix .matrix-input-wrap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  flex-wrap: nowrap;
-}
-
-.power-matrix .matrix-input-wrap .input-small {
-  width: 54px;
-  min-height: 36px;
-  padding: 4px 3px;
-  background: rgba(255,255,255,0.88);
-  color: #111;
-  border: 1px solid rgba(0,0,0,0.18);
-}
-
-.power-matrix .matrix-input-dual .input-small {
-  width: 50px;
-}
-
-@media (min-width: 481px) and (orientation: landscape) {
-  .power-matrix {
-    min-width: 900px;
-  }
-
-  .power-matrix th,
-  .power-matrix td {
-    min-width: 88px;
-    padding: 10px 8px;
-  }
-
-  .power-matrix .row-label {
-    min-width: 124px;
-  }
-
-  .power-matrix .zone-top {
-    font-size: 28px;
-  }
-
-  .power-matrix .zone-top.ss {
-    font-size: 20px;
-  }
-
-  .power-matrix .zone-value {
-    font-size: 15px;
-  }
-
-  .power-matrix .zone-value-large {
-    font-size: 18px;
-  }
-
-  .power-matrix .matrix-input-wrap .input-small {
-    width: 62px;
-    min-height: 38px;
-  }
-
-  .power-matrix .matrix-input-dual .input-small {
-    width: 58px;
-  }
-}
-  
+ 
 .power-matrix-scroll {
   overflow-x: auto;
   overflow-y: hidden;
@@ -809,11 +685,6 @@ tr:last-child td { border-bottom: none; }
 .zone-row-tint.hr-z4 { background: rgba(255, 149, 0, 0.12); }
 .zone-row-tint.hr-z5 { background: rgba(255, 59, 48, 0.12); }
   
-#custom-zones-table .input-small {
-  font-size: 13px;
-  font-weight: bold;
-}
-
 .controls-row {
   display: flex;
   justify-content: flex-end;
