@@ -482,6 +482,144 @@ th {
   white-space: nowrap;
 }
 
+.power-matrix-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  scrollbar-width: thin;
+}
+
+.power-matrix {
+  width: max-content;
+  min-width: 760px;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 0;
+  table-layout: fixed;
+}
+
+.power-matrix th,
+.power-matrix td {
+  min-width: 74px;
+  padding: 8px 6px;
+  border: 1px solid var(--border);
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.power-matrix .row-label {
+  min-width: 108px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--card);
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.power-matrix .zone-cell-matrix {
+  font-weight: 700;
+}
+
+.power-matrix .zone-top {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.power-matrix .zone-top.ss {
+  font-size: 17px;
+  letter-spacing: 0.2px;
+}
+
+.power-matrix .zone-sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: normal;
+  line-height: 1.2;
+  color: rgba(0,0,0,0.72);
+}
+
+@media (prefers-color-scheme: dark) {
+  .power-matrix .zone-sub {
+    color: rgba(255,255,255,0.8);
+  }
+}
+
+.power-matrix .zone-value {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.power-matrix .zone-value-large {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.power-matrix .matrix-input-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.power-matrix .matrix-input-wrap .input-small {
+  width: 54px;
+  min-height: 36px;
+  padding: 4px 3px;
+}
+
+.power-matrix .matrix-input-dual .input-small {
+  width: 50px;
+}
+
+@media (min-width: 481px) and (orientation: landscape) {
+  .power-matrix {
+    min-width: 900px;
+  }
+
+  .power-matrix th,
+  .power-matrix td {
+    min-width: 88px;
+    padding: 10px 8px;
+  }
+
+  .power-matrix .row-label {
+    min-width: 124px;
+  }
+
+  .power-matrix .zone-top {
+    font-size: 28px;
+  }
+
+  .power-matrix .zone-top.ss {
+    font-size: 20px;
+  }
+
+  .power-matrix .zone-value {
+    font-size: 15px;
+  }
+
+  .power-matrix .zone-value-large {
+    font-size: 18px;
+  }
+
+  .power-matrix .matrix-input-wrap .input-small {
+    width: 62px;
+    min-height: 38px;
+  }
+
+  .power-matrix .matrix-input-dual .input-small {
+    width: 58px;
+  }
+}
+  
 td {
   padding: 8px;
   border-bottom: 1px solid var(--table-border);
@@ -775,39 +913,24 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div id="default-power-zones-table" class="card card-pad-8" role="tabpanel" aria-labelledby="sub-btn-default-power">
-      <div class="table-scroll-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Zone / Label</th>
-              <th class="text-center">Reference Target %</th>
-              <th class="text-center">Reference Target Watts</th>
-              <th class="text-right pr-10">Zone Cap / Range %</th>
-              <th class="text-right">Zone Cap / Range Watts</th>
-            </tr>
-          </thead>
+      <div class="table-scroll-wrapper power-matrix-scroll">
+        <table class="power-matrix">
           <tbody id="default-power-table-body"></tbody>
         </table>
       </div>
+      <div class="help-text">Sweet Spot is shown as an independent reference band in the table and does not override primary zone classification.</div>
     </div>
 
     <div id="custom-zones-table" class="card card-pad-8" role="tabpanel" aria-labelledby="sub-btn-custom-power" hidden>
       <div class="controls-row">
         <button id="reset-custom-zones" class="secondary-btn" type="button">Reset to Default</button>
       </div>
-      <div class="table-scroll-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Zone / Label</th>
-              <th class="text-center">Custom Cap / Range %</th>
-              <th class="text-right">Zone Cap / Range Watts</th>
-            </tr>
-          </thead>
+      <div class="table-scroll-wrapper power-matrix-scroll">
+        <table class="power-matrix">
           <tbody id="custom-table-body"></tbody>
         </table>
       </div>
-      <div class="help-text">Custom caps and ranges drive badge classification when the active zones is set to Custom. Reference targets remain fixed.</div>
+      <div class="help-text">Custom zone caps and ranges drive badge classification when the active zones setting is Custom. Sweet Spot is shown as an independent reference band in the table and does not override primary zone classification.</div>
       <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
     </div>
   </div>
@@ -1014,10 +1137,6 @@ function validatePowerAnchors(anchors) {
     return 'Sweet Spot min must be lower than max.';
   }
 
-  if (!(anchors.ssMin >= anchors.z2 && anchors.ssMax <= anchors.z4)) {
-    return 'Sweet Spot bounds must stay within the surrounding Zone 2 to Zone 4 structure.';
-  }
-
   return '';
 }
 
@@ -1172,6 +1291,7 @@ function cacheDefaultPowerCells() {
     powerCellCache.default[z.id] = {
       pct: document.getElementById(`p-${z.id}-pct-range`),
       range: document.getElementById(`p-${z.id}-range`),
+      targetPct: document.getElementById(`p-${z.id}-target-pct`),
       target: document.getElementById(`p-${z.id}-target`)
     };
   });
@@ -1182,7 +1302,10 @@ function cacheCustomPowerCells() {
 
   customZonesConfig.forEach(z => {
     powerCellCache.custom[z.id] = {
-      range: document.getElementById(`c-${z.id}-range`)
+      pct: document.getElementById(`c-${z.id}-pct-range`),
+      range: document.getElementById(`c-${z.id}-range`),
+      targetPct: document.getElementById(`c-${z.id}-target-pct`),
+      target: document.getElementById(`c-${z.id}-target`)
     };
   });
 }
@@ -1345,37 +1468,170 @@ function calcWatts() {
 }
 
 function generateDefaultTables() {
-  let html = '';
+  const zoneHeaderCells = defaultZonesConfig.map(z => {
+    const shortLabel = z.id === 'ss' ? 'SS' : z.label.replace('Zone ', '');
+    return `
+      <td class="zone-row-tint power-${z.id} zone-cell-matrix">
+        <div class="zone-top ${z.id === 'ss' ? 'ss' : ''}">${shortLabel}</div>
+        <span class="zone-sub">${z.desc}</span>
+      </td>
+    `;
+  }).join('');
 
-  defaultZonesConfig.forEach(z => {
-    html += `<tr class="zone-row-tint power-${z.id}"><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center font-bold">${Math.round(z.target * 100)}%</td><td class="text-center font-bold" id="p-${z.id}-target">—</td><td class="text-right font-bold pr-10" id="p-${z.id}-pct-range">—</td><td class="range-col" id="p-${z.id}-range">—</td></tr>`;
-  });
+  const rangePctCells = defaultZonesConfig.map(z => `
+    <td class="zone-row-tint power-${z.id} zone-cell-matrix">
+      <div class="zone-value" id="p-${z.id}-pct-range">—</div>
+    </td>
+  `).join('');
 
-  els.defaultPowerTableBody.innerHTML = html;
+  const rangeWattCells = defaultZonesConfig.map(z => `
+    <td class="zone-row-tint power-${z.id} zone-cell-matrix">
+      <div class="zone-value" id="p-${z.id}-range">—</div>
+    </td>
+  `).join('');
+
+  const targetPctCells = defaultZonesConfig.map(z => `
+    <td class="zone-row-tint power-${z.id} zone-cell-matrix">
+      <div class="zone-value" id="p-${z.id}-target-pct">${Math.round(z.target * 100)}%</div>
+    </td>
+  `).join('');
+
+  const targetWattCells = defaultZonesConfig.map(z => `
+    <td class="zone-row-tint power-${z.id} zone-cell-matrix">
+      <div class="zone-value-large" id="p-${z.id}-target">—</div>
+    </td>
+  `).join('');
+
+  els.defaultPowerTableBody.innerHTML = `
+    <tr>
+      <th class="row-label">Zone</th>
+      ${zoneHeaderCells}
+    </tr>
+    <tr>
+      <th class="row-label">Range (%)</th>
+      ${rangePctCells}
+    </tr>
+    <tr>
+      <th class="row-label">Range (W)</th>
+      ${rangeWattCells}
+    </tr>
+    <tr>
+      <th class="row-label">Target (%)</th>
+      ${targetPctCells}
+    </tr>
+    <tr>
+      <th class="row-label">Target (W)</th>
+      ${targetWattCells}
+    </tr>
+  `;
+
   cacheDefaultPowerCells();
 }
 
 function generateCustomZonesTable() {
-  let html = '';
+  const zoneHeaderCells = customZonesConfig.map(z => {
+    const shortLabel = z.id === 'ss' ? 'SS' : z.label.replace('Zone ', '');
+    return `
+      <td class="zone-row-tint power-${z.id} zone-cell-matrix">
+        <div class="zone-top ${z.id === 'ss' ? 'ss' : ''}">${shortLabel}</div>
+        <span class="zone-sub">${z.desc}</span>
+      </td>
+    `;
+  }).join('');
 
-  customZonesConfig.forEach((z, i) => {
+  const editCells = customZonesConfig.map((z, i) => {
     const prefix = `custom-zone-${z.id}`;
     let inputHtml = '';
 
     if (z.id === 'ss') {
-      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.ssMin}" aria-label="Sweet Spot minimum percentage"><span>to</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.ssMax}" aria-label="Sweet Spot maximum percentage"><span>%</span></div>`;
+      inputHtml = `
+        <div class="matrix-input-wrap matrix-input-dual">
+          <input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.ssMin}" aria-label="Sweet Spot minimum percentage">
+          <span>to</span>
+          <input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.ssMax}" aria-label="Sweet Spot maximum percentage">
+          <span>%</span>
+        </div>
+      `;
     } else if (z.id === 'z1') {
-      inputHtml = `<div class="inline-fields"><span>≤</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.z1}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
+      inputHtml = `
+        <div class="matrix-input-wrap">
+          <span>≤</span>
+          <input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.z1}" aria-label="${z.label} upper percentage">
+          <span>%</span>
+        </div>
+      `;
     } else if (z.id === 'z7') {
-      inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.z6}" aria-label="${z.label} lower percentage"><span>%</span></div>`;
+      inputHtml = `
+        <div class="matrix-input-wrap">
+          <span>≥</span>
+          <input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.z6}" aria-label="${z.label} lower percentage">
+          <span>%</span>
+        </div>
+      `;
     } else {
-      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors[z.id]}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
+      inputHtml = `
+        <div class="matrix-input-wrap">
+          <span>≤</span>
+          <input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors[z.id]}" aria-label="${z.label} upper percentage">
+          <span>%</span>
+        </div>
+      `;
     }
 
-    html += `<tr class="zone-row-tint power-${z.id}"><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">—</td></tr>`;
-  });
+    return `<td class="zone-row-tint power-${z.id} zone-cell-matrix">${inputHtml}</td>`;
+  }).join('');
 
-  els.customTableBody.innerHTML = html;
+  const rangePctCells = customZonesConfig.map(z => `
+    <td class="zone-row-tint power-${z.id} zone-cell-matrix">
+      <div class="zone-value" id="c-${z.id}-pct-range">—</div>
+    </td>
+  `).join('');
+
+  const rangeWattCells = customZonesConfig.map(z => `
+    <td class="zone-row-tint power-${z.id} zone-cell-matrix">
+      <div class="zone-value" id="c-${z.id}-range">—</div>
+    </td>
+  `).join('');
+
+  const targetPctCells = customZonesConfig.map(z => `
+    <td class="zone-row-tint power-${z.id} zone-cell-matrix">
+      <div class="zone-value" id="c-${z.id}-target-pct">${Math.round(z.target * 100)}%</div>
+    </td>
+  `).join('');
+
+  const targetWattCells = customZonesConfig.map(z => `
+    <td class="zone-row-tint power-${z.id} zone-cell-matrix">
+      <div class="zone-value-large" id="c-${z.id}-target">—</div>
+    </td>
+  `).join('');
+
+  els.customTableBody.innerHTML = `
+    <tr>
+      <th class="row-label">Zone</th>
+      ${zoneHeaderCells}
+    </tr>
+    <tr>
+      <th class="row-label">Custom Range (%)</th>
+      ${editCells}
+    </tr>
+    <tr>
+      <th class="row-label">Resolved Range (%)</th>
+      ${rangePctCells}
+    </tr>
+    <tr>
+      <th class="row-label">Range (W)</th>
+      ${rangeWattCells}
+    </tr>
+    <tr>
+      <th class="row-label">Target (%)</th>
+      ${targetPctCells}
+    </tr>
+    <tr>
+      <th class="row-label">Target (W)</th>
+      ${targetWattCells}
+    </tr>
+  `;
+
   cacheCustomPowerCells();
 }
 
@@ -1422,6 +1678,7 @@ function updateDefaultPowerZoneTable(ftp) {
     if (!cellSet) return;
     if (cellSet.pct) cellSet.pct.textContent = info.pctText;
     if (cellSet.range) cellSet.range.textContent = info.wattsText;
+    if (cellSet.targetPct) cellSet.targetPct.textContent = `${Math.round(z.target * 100)}%`;
     if (cellSet.target) cellSet.target.textContent = info.targetText;
   });
 }
@@ -1432,7 +1689,10 @@ function updateCustomPowerZoneTable(ftp) {
     const cellSet = powerCellCache.custom[z.id];
 
     if (!cellSet) return;
+    if (cellSet.pct) cellSet.pct.textContent = info.pctText;
     if (cellSet.range) cellSet.range.textContent = info.wattsText;
+    if (cellSet.targetPct) cellSet.targetPct.textContent = `${Math.round(z.target * 100)}%`;
+    if (cellSet.target) cellSet.target.textContent = info.targetText;
   });
 }
 
