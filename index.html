@@ -894,6 +894,10 @@ const defaultHrPercentConfig = {
 };
 
 const els = {};
+const powerCellCache = {
+  default: {},
+  custom: {}
+};
 let activeZoneSystem = 'default';
 let activeZoneSubtab = 'default';
 let activeHrSubtab = 'default';
@@ -1114,6 +1118,28 @@ function getZoneRangeInfo(zone, ftp) {
   };
 }
 
+function cacheDefaultPowerCells() {
+  powerCellCache.default = {};
+
+  defaultZonesConfig.forEach(z => {
+    powerCellCache.default[z.id] = {
+      pct: document.getElementById(`p-${z.id}-pct-range`),
+      range: document.getElementById(`p-${z.id}-range`),
+      target: document.getElementById(`p-${z.id}-target`)
+    };
+  });
+}
+
+function cacheCustomPowerCells() {
+  powerCellCache.custom = {};
+
+  customZonesConfig.forEach(z => {
+    powerCellCache.custom[z.id] = {
+      range: document.getElementById(`c-${z.id}-range`)
+    };
+  });
+}
+
 function sanitizeInput(el, decimals = 0) {
   const value = clampNonNegative(el.value);
   el.value = decimals > 0
@@ -1279,6 +1305,7 @@ function generateDefaultTables() {
   });
 
   els.defaultPowerTableBody.innerHTML = html;
+  cacheDefaultPowerCells();
 }
 
 function generateCustomZonesTable() {
@@ -1302,6 +1329,7 @@ function generateCustomZonesTable() {
   });
 
   els.customTableBody.innerHTML = html;
+  cacheCustomPowerCells();
 }
 
 function syncPowerAnchorInputs(anchor, value) {
@@ -1329,34 +1357,47 @@ function validateAndApplyCustomZones() {
   updateZones();
 }
 
+function updateFtpDisplays(ftp) {
+  els.currentFtpDisplayKj.textContent = `${wholeNumber(ftp)}W`;
+  els.currentFtpDisplayWatts.textContent = `${wholeNumber(ftp)}W`;
+}
+
+function updateWkg(ftp, weight, unit) {
+  const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
+  els.wkgOut.textContent = (weightKg > 0 && ftp > 0) ? (ftp / weightKg).toFixed(2) : '—';
+}
+
+function updateDefaultPowerZoneTable(ftp) {
+  defaultZonesConfig.forEach(z => {
+    const info = getZoneRangeInfo(z, ftp);
+    const cellSet = powerCellCache.default[z.id];
+
+    if (!cellSet) return;
+    if (cellSet.pct) cellSet.pct.textContent = info.pctText;
+    if (cellSet.range) cellSet.range.textContent = info.wattsText;
+    if (cellSet.target) cellSet.target.textContent = info.targetText;
+  });
+}
+
+function updateCustomPowerZoneTable(ftp) {
+  customZonesConfig.forEach(z => {
+    const info = getZoneRangeInfo(z, ftp);
+    const cellSet = powerCellCache.custom[z.id];
+
+    if (!cellSet) return;
+    if (cellSet.range) cellSet.range.textContent = info.wattsText;
+  });
+}
+
 function updateZones() {
   const ftp = clampNonNegative(els.ftpIn.value);
   const weight = clampNonNegative(els.weightIn.value);
   const unit = els.weightUnit.value;
 
-  els.currentFtpDisplayKj.textContent = `${wholeNumber(ftp)}W`;
-  els.currentFtpDisplayWatts.textContent = `${wholeNumber(ftp)}W`;
-
-  const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
-  els.wkgOut.textContent = (weightKg > 0 && ftp > 0) ? (ftp / weightKg).toFixed(2) : '—';
-
-  defaultZonesConfig.forEach(z => {
-    const info = getZoneRangeInfo(z, ftp);
-    const pctEl = document.getElementById(`p-${z.id}-pct-range`);
-    const rangeEl = document.getElementById(`p-${z.id}-range`);
-    const targetEl = document.getElementById(`p-${z.id}-target`);
-
-    if (pctEl) pctEl.textContent = info.pctText;
-    if (rangeEl) rangeEl.textContent = info.wattsText;
-    if (targetEl) targetEl.textContent = info.targetText;
-  });
-
-  customZonesConfig.forEach(z => {
-    const info = getZoneRangeInfo(z, ftp);
-    const rangeEl = document.getElementById(`c-${z.id}-range`);
-    if (rangeEl) rangeEl.textContent = info.wattsText;
-  });
-
+  updateFtpDisplays(ftp);
+  updateWkg(ftp, weight, unit);
+  updateDefaultPowerZoneTable(ftp);
+  updateCustomPowerZoneTable(ftp);
   recalculateAllBadges();
 }
 
