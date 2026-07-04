@@ -895,6 +895,7 @@ const defaultHrPercentConfig = {
 
 const els = {};
 let activeZoneSystem = 'default';
+let activeZoneSubtab = 'default';
 let activeHrSubtab = 'default';
 
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -1163,12 +1164,12 @@ function switchTab(type) {
 }
 
 function toggleActiveSystem() {
-  setZoneSubtab(activeZoneSystem === 'default' ? 'custom' : 'default');
+  setActiveZoneSystem(activeZoneSystem === 'default' ? 'custom' : 'default');
 }
 
-function setSystemState(val) {
+function setActiveZoneSystem(val, persist = true) {
   activeZoneSystem = val;
-  savePrimitive('cycling_active_system', val);
+  if (persist) savePrimitive('cycling_active_system', val);
 
   const labelMap = {
     default: 'Zones: Default Power Zones',
@@ -1185,7 +1186,7 @@ function setSystemState(val) {
 }
 
 function setZoneSubtab(val) {
-  setSystemState(val);
+  activeZoneSubtab = val;
 
   const isDefault = val === 'default';
   const isCustom = val === 'custom';
@@ -1513,7 +1514,6 @@ function persistOnCommit(el, key, decimals = 0, afterSave) {
   };
 
   el.addEventListener('change', handler);
-  el.addEventListener('blur', handler);
 }
 
 function persistOnInput(el, key, decimals = 0) {
@@ -1727,7 +1727,8 @@ function loadSavedValues() {
   syncDropdowns();
 
   const system = safeStorageGet('cycling_active_system');
-  setZoneSubtab(['default', 'custom'].includes(system) ? system : 'default');
+  setActiveZoneSystem(['default', 'custom'].includes(system) ? system : 'default', false);
+  setZoneSubtab('default');
   setHrSubtab('default');
 }
 
