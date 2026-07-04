@@ -343,6 +343,8 @@ input[type="number"] {
   font-weight: bold;
 }
 
+#default-power-zones-table td:last-child,
+#custom-zones-table td:last-child,
 #hr-default-panel td:last-child,
 #hr-custom-panel td:last-child {
   text-align: right;
@@ -529,6 +531,10 @@ th {
   white-space: nowrap;
 }
 
+.power-matrix td {
+  font-family: inherit;
+}
+  
 .power-matrix .row-label {
   min-width: 108px;
   text-align: left;
@@ -1383,6 +1389,10 @@ function getPowerColor(zone) {
   return `var(--p-${zone.colorVar})`;
 }
 
+function zoneCellBg(zone, alpha = 0.5) {
+  return `linear-gradient(rgba(255,255,255,${alpha}), rgba(255,255,255,${alpha})), var(--p-${zone.colorVar})`;
+}
+
 function getHrRowTint(zoneNum) {
   const map = {
     1: 'rgba(142, 142, 147, 0.12)',
@@ -1633,7 +1643,7 @@ function generateDefaultTables() {
   const zoneHeaderCells = defaultZonesConfig.map(z => {
     const shortLabel = z.id === 'ss' ? 'SS' : z.label.replace('Zone ', '');
     return `
-      <td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">
+      <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
         <div class="zone-top ${z.id === 'ss' ? 'ss' : ''}">${shortLabel}</div>
         <span class="zone-sub">${z.desc}</span>
       </td>
@@ -1641,25 +1651,25 @@ function generateDefaultTables() {
   }).join('');
 
   const rangePctCells = defaultZonesConfig.map(z => `
-    <td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
       <div class="zone-value" id="p-${z.id}-pct-range">—</div>
     </td>
   `).join('');
 
   const rangeWattCells = defaultZonesConfig.map(z => `
-    <td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
       <div class="zone-value" id="p-${z.id}-range">—</div>
     </td>
   `).join('');
 
   const targetPctCells = defaultZonesConfig.map(z => `
-    <td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
       <div class="zone-value" id="p-${z.id}-target-pct">${Math.round(z.target * 100)}%</div>
     </td>
   `).join('');
 
   const targetWattCells = defaultZonesConfig.map(z => `
-    <td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
       <div class="zone-value-large" id="p-${z.id}-target">—</div>
     </td>
   `).join('');
@@ -1694,7 +1704,7 @@ function generateCustomZonesTable() {
   const zoneHeaderCells = customZonesConfig.map(z => {
     const shortLabel = z.id === 'ss' ? 'SS' : z.label.replace('Zone ', '');
     return `
-      <td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">
+      <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
         <div class="zone-top ${z.id === 'ss' ? 'ss' : ''}">${shortLabel}</div>
         <span class="zone-sub">${z.desc}</span>
       </td>
@@ -1740,29 +1750,29 @@ function generateCustomZonesTable() {
       `;
     }
 
-    return `<td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">${inputHtml}</td>`;
+    return `<td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">${inputHtml}</td>`;
   }).join('');
 
   const rangePctCells = customZonesConfig.map(z => `
-    <td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
       <div class="zone-value" id="c-${z.id}-pct-range">—</div>
     </td>
   `).join('');
 
   const rangeWattCells = customZonesConfig.map(z => `
-    <td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
       <div class="zone-value" id="c-${z.id}-range">—</div>
     </td>
   `).join('');
 
   const targetPctCells = customZonesConfig.map(z => `
-    <td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
       <div class="zone-value" id="c-${z.id}-target-pct">${Math.round(z.target * 100)}%</div>
     </td>
   `).join('');
 
   const targetWattCells = customZonesConfig.map(z => `
-    <td class="zone-cell-matrix" style="background: var(--p-${z.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
       <div class="zone-value-large" id="c-${z.id}-target">—</div>
     </td>
   `).join('');
