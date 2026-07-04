@@ -343,8 +343,6 @@ input[type="number"] {
   font-weight: bold;
 }
 
-#default-power-zones-table td:last-child,
-#custom-zones-table td:last-child,
 #hr-default-panel td:last-child,
 #hr-custom-panel td:last-child {
   text-align: right;
@@ -531,10 +529,16 @@ th {
   white-space: nowrap;
 }
 
-.power-matrix td {
-  font-family: inherit;
+.power-matrix td,
+.power-matrix td:last-child,
+.power-matrix .zone-cell-matrix,
+.power-matrix .zone-value,
+.power-matrix .zone-value-large {
+  font-family: inherit !important;
+  font-weight: 800 !important;
+  text-align: center !important;
 }
-  
+
 .power-matrix .row-label {
   min-width: 108px;
   text-align: left;
