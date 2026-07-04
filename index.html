@@ -1274,6 +1274,94 @@ function normalizePowerAnchors(value) {
   };
 }
 
+function displayRangesFromAnchors(anchors) {
+  const a = normalizePowerAnchors(anchors);
+  return {
+    z1: { min: null, max: a.z1 },
+    z2: { min: a.z1 + 1, max: a.z2 },
+    z3: { min: a.z2 + 1, max: a.z3 },
+    ss: { min: a.ssMin, max: a.ssMax },
+    z4: { min: a.z3 + 1, max: a.z4 },
+    z5: { min: a.z4 + 1, max: a.z5 },
+    z6: { min: a.z5 + 1, max: a.z6 },
+    z7: { min: a.z6 + 1, max: null }
+  };
+}
+
+function mainZoneOrder() {
+  return ['z1', 'z2', 'z3', 'z4', 'z5', 'z6', 'z7'];
+}
+
+function syncMainZoneDisplayRanges(ranges) {
+  const out = JSON.parse(JSON.stringify(ranges));
+  const order = mainZoneOrder();
+
+  for (let i = 1; i < order.length; i++) {
+    const prev = order[i - 1];
+    const curr = order[i];
+
+    if (out[prev].max != null && out[curr].min != null) {
+      out[curr].min = out[prev].max + 1;
+    }
+  }
+
+  return out;
+}
+
+function applyMainZoneBoundaryEdit(ranges, zoneId, side, rawValue) {
+  const out = JSON.parse(JSON.stringify(ranges));
+  const value = wholeNumber(clampNonNegative(rawValue));
+  const order = mainZoneOrder();
+  const index = order.indexOf(zoneId);
+
+  if (index === -1) return out;
+
+  if (side === 'max') {
+    out[zoneId].max = value;
+
+    if (index < order.length - 1) {
+      const nextZone = order[index + 1];
+      if (out[nextZone].min != null) out[nextZone].min = value + 1;
+    }
+  }
+
+  if (side === 'min') {
+    out[zoneId].min = value;
+
+    if (index > 0) {
+      const prevZone = order[index - 1];
+      if (out[prevZone].max != null) out[prevZone].max = value - 1;
+    }
+  }
+
+  return syncMainZoneDisplayRanges(out);
+}
+
+function anchorsFromSyncedDisplayRanges(ranges, fallbackAnchors = defaultPowerAnchors()) {
+  return normalizePowerAnchors({
+    z1: clampNonNegative(ranges.z1.max) || fallbackAnchors.z1,
+    z2: clampNonNegative(ranges.z2.max) || fallbackAnchors.z2,
+    z3: clampNonNegative(ranges.z3.max) || fallbackAnchors.z3,
+    ssMin: clampNonNegative(ranges.ss.min) || fallbackAnchors.ssMin,
+    ssMax: clampNonNegative(ranges.ss.max) || fallbackAnchors.ssMax,
+    z4: clampNonNegative(ranges.z4.max) || fallbackAnchors.z4,
+    z5: clampNonNegative(ranges.z5.max) || fallbackAnchors.z5,
+    z6: clampNonNegative(ranges.z6.max) || fallbackAnchors.z6
+  });
+}
+
+function writeCustomZoneRangeInputs(ranges) {
+  document.querySelectorAll('.custom-zone-range-input').forEach(input => {
+    const zone = input.dataset.zone;
+    const side = input.dataset.side;
+    const next = String(ranges[zone][side]);
+
+    if (document.activeElement !== input && input.value !== next) {
+      input.value = next;
+    }
+  });
+}
+  
 function zonesFromPowerAnchors(anchors) {
   const a = normalizePowerAnchors(anchors);
   return defaultZonesConfig.map(z => {
@@ -1705,6 +1793,8 @@ function generateDefaultTables() {
 }
 
 function generateCustomZonesTable() {
+  const displayRanges = displayRangesFromAnchors(customPowerAnchors);
+
   const zoneHeaderCells = customZonesConfig.map(z => {
     const shortLabel = z.id === 'ss' ? 'SS' : z.label.replace('Zone ', '');
     return `
@@ -1715,24 +1805,15 @@ function generateCustomZonesTable() {
     `;
   }).join('');
 
-  const editCells = customZonesConfig.map((z, i) => {
-    const prefix = `custom-zone-${z.id}`;
+  const editCells = customZonesConfig.map(z => {
+    const r = displayRanges[z.id];
     let inputHtml = '';
 
-    if (z.id === 'ss') {
-      inputHtml = `
-        <div class="matrix-input-wrap matrix-input-dual">
-          <input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.ssMin}" aria-label="Sweet Spot minimum percentage">
-          <span>to</span>
-          <input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.ssMax}" aria-label="Sweet Spot maximum percentage">
-          <span>%</span>
-        </div>
-      `;
-    } else if (z.id === 'z1') {
+    if (z.id === 'z1') {
       inputHtml = `
         <div class="matrix-input-wrap">
           <span>≤</span>
-          <input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.z1}" aria-label="${z.label} upper percentage">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${r.max}" aria-label="${z.label} maximum percentage">
           <span>%</span>
         </div>
       `;
@@ -1740,15 +1821,16 @@ function generateCustomZonesTable() {
       inputHtml = `
         <div class="matrix-input-wrap">
           <span>≥</span>
-          <input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.z6}" aria-label="${z.label} lower percentage">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${r.min}" aria-label="${z.label} minimum percentage">
           <span>%</span>
         </div>
       `;
     } else {
       inputHtml = `
-        <div class="matrix-input-wrap">
-          <span>≤</span>
-          <input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors[z.id]}" aria-label="${z.label} upper percentage">
+        <div class="matrix-input-wrap matrix-input-dual">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${r.min}" aria-label="${z.label} minimum percentage">
+          <span>to</span>
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${r.max}" aria-label="${z.label} maximum percentage">
           <span>%</span>
         </div>
       `;
@@ -1819,18 +1901,39 @@ function syncPowerAnchorInputs(anchor, value) {
   });
 }
 
-function validateAndApplyCustomZones() {
-  const nextAnchors = { ...customPowerAnchors };
+function validateAndApplyCustomZones(changedInput = null) {
+  let nextRanges = displayRangesFromAnchors(customPowerAnchors);
 
-  document.querySelectorAll('.custom-zone-input').forEach(input => {
-    nextAnchors[input.dataset.anchor] = wholeNumber(clampNonNegative(input.value));
-  });
+  if (changedInput) {
+    const zone = changedInput.dataset.zone;
+    const side = changedInput.dataset.side;
+    const value = wholeNumber(clampNonNegative(changedInput.value));
 
-  const error = validatePowerAnchors(nextAnchors);
+    if (zone === 'ss') {
+      nextRanges.ss[side] = value;
+    } else {
+      nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
+    }
+  } else {
+    document.querySelectorAll('.custom-zone-range-input').forEach(input => {
+      const zone = input.dataset.zone;
+      const side = input.dataset.side;
+      const value = wholeNumber(clampNonNegative(input.value));
+
+      if (zone === 'ss') nextRanges.ss[side] = value;
+      else nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
+    });
+  }
+
+  writeCustomZoneRangeInputs(nextRanges);
+
+  const candidateAnchors = anchorsFromSyncedDisplayRanges(nextRanges, customPowerAnchors);
+  const error = validatePowerAnchors(candidateAnchors);
+
   els.customZoneError.textContent = error;
   if (error) return;
 
-  customPowerAnchors = normalizePowerAnchors(nextAnchors);
+  customPowerAnchors = candidateAnchors;
   customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
   saveCustomPowerAnchors();
   updateZones();
@@ -2141,12 +2244,10 @@ function initCache() {
 }
 
 function bindCustomZoneInputs() {
-  document.querySelectorAll('.custom-zone-input').forEach(el => {
+  document.querySelectorAll('.custom-zone-range-input').forEach(el => {
     const commit = () => {
       sanitizeInput(el, 0);
-      const value = wholeNumber(clampNonNegative(el.value));
-      syncPowerAnchorInputs(el.dataset.anchor, value);
-      validateAndApplyCustomZones();
+      validateAndApplyCustomZones(el);
     };
 
     el.addEventListener('change', commit);
