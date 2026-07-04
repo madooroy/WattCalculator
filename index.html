@@ -624,11 +624,11 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="row">
         <label for="watts-in">Average Watts</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="watts-in" value="150" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="watts-in" value="150" min="1" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="kj-min-in">Time (Minutes)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="kj-min-in" value="60" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="kj-min-in" value="60" min="1" step="1" autocomplete="off">
       </div>
       <div class="row row-stack">
         <div class="row-split">
@@ -640,17 +640,17 @@ tr:last-child td { border-bottom: none; }
 
       <div class="row">
         <label for="proposed-ftp-kj">New FTP for Comparison</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="proposed-ftp-kj" value="250" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="proposed-ftp-kj" value="250" min="1" step="1" autocomplete="off">
       </div>
     </div>
 
     <div class="card result-box">
-      <div class="result-val" id="kj-out" aria-live="polite">0</div>
+      <div class="result-val" id="kj-out" aria-live="polite">—</div>
       <div class="result-lbl">Total Kilojoules</div>
       <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
       <div class="badge-container">
-        <div class="calc-badge" id="kj-current-badge">Current FTP: --</div>
-        <div class="calc-badge" id="kj-new-badge">New FTP: --</div>
+        <div class="calc-badge" id="kj-current-badge">Current FTP: —</div>
+        <div class="calc-badge" id="kj-new-badge">New FTP: —</div>
       </div>
     </div>
   </div>
@@ -659,11 +659,11 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="row">
         <label for="kj-in">Total Kilojoules</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="kj-in" value="500" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="kj-in" value="500" min="1" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="watts-min-in">Time (Minutes)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="watts-min-in" value="60" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="watts-min-in" value="60" min="1" step="1" autocomplete="off">
       </div>
       <div class="row row-stack">
         <div class="row-split">
@@ -675,17 +675,17 @@ tr:last-child td { border-bottom: none; }
 
       <div class="row">
         <label for="proposed-ftp-watts">New FTP for Comparison</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="proposed-ftp-watts" value="250" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="proposed-ftp-watts" value="250" min="1" step="1" autocomplete="off">
       </div>
     </div>
 
     <div class="card result-box">
-      <div class="result-val" id="watts-out" aria-live="polite">0</div>
+      <div class="result-val" id="watts-out" aria-live="polite">—</div>
       <div class="result-lbl">Average Watts</div>
       <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
       <div class="badge-container">
-        <div class="calc-badge" id="watts-current-badge">Current FTP: --</div>
-        <div class="calc-badge" id="watts-new-badge">New FTP: --</div>
+        <div class="calc-badge" id="watts-current-badge">Current FTP: —</div>
+        <div class="calc-badge" id="watts-new-badge">New FTP: —</div>
       </div>
     </div>
   </div>
@@ -694,7 +694,7 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="row">
         <label for="ftp-in">Enter Your FTP (Watts)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="ftp-in" placeholder="250" value="250" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="ftp-in" placeholder="250" value="250" min="1" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="weight-unit">Weight Unit</label>
@@ -708,12 +708,12 @@ tr:last-child td { border-bottom: none; }
       </div>
       <div class="row">
         <label for="weight-in">Enter Your Weight</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="weight-in" placeholder="165" value="165" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="weight-in" placeholder="165" value="165" min="1" step="1" autocomplete="off">
       </div>
     </div>
 
     <div class="card result-box">
-      <div class="result-val" id="wkg-out" aria-live="polite">0.00</div>
+      <div class="result-val" id="wkg-out" aria-live="polite">—</div>
       <div class="result-lbl">Power to Weight Ratio (W/kg)</div>
     </div>
 
@@ -728,10 +728,10 @@ tr:last-child td { border-bottom: none; }
           <thead>
             <tr>
               <th>Zone / Label</th>
-              <th class="text-center">Blue Line Target %</th>
-              <th class="text-center">Blue Line Target Watts</th>
-              <th class="text-right pr-10">Anchor PCT Range</th>
-              <th class="text-right">Target Range Watts</th>
+              <th class="text-center">Reference Target %</th>
+              <th class="text-center">Reference Target Watts</th>
+              <th class="text-right pr-10">Zone Cap / Range %</th>
+              <th class="text-right">Zone Cap / Range Watts</th>
             </tr>
           </thead>
           <tbody id="default-power-table-body"></tbody>
@@ -748,14 +748,14 @@ tr:last-child td { border-bottom: none; }
           <thead>
             <tr>
               <th>Zone / Label</th>
-              <th class="text-center">Custom Anchor %</th>
-              <th class="text-right">Target Range Watts</th>
+              <th class="text-center">Custom Cap / Range %</th>
+              <th class="text-right">Zone Cap / Range Watts</th>
             </tr>
           </thead>
           <tbody id="custom-table-body"></tbody>
         </table>
       </div>
-      <div class="help-text">Custom zones also drive badge classification when the active zones is set to Custom.</div>
+      <div class="help-text">Custom caps and ranges drive badge classification when the active zones is set to Custom. Reference targets remain fixed.</div>
       <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
     </div>
   </div>
@@ -764,11 +764,11 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="row">
         <label for="hr-max-in">Max Heart Rate (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="60" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="0" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="60" step="1" autocomplete="off">
       </div>
     </div>
 
@@ -1275,7 +1275,7 @@ function generateDefaultTables() {
   let html = '';
 
   defaultZonesConfig.forEach(z => {
-    html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center font-bold">${Math.round(z.target * 100)}%</td><td class="text-center font-bold" id="p-${z.id}-target">0 W</td><td class="text-right font-bold pr-10" id="p-${z.id}-pct-range">0%</td><td class="range-col" id="p-${z.id}-range">0 W</td></tr>`;
+    html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center font-bold">${Math.round(z.target * 100)}%</td><td class="text-center font-bold" id="p-${z.id}-target">—</td><td class="text-right font-bold pr-10" id="p-${z.id}-pct-range">—</td><td class="range-col" id="p-${z.id}-range">—</td></tr>`;
   });
 
   els.defaultPowerTableBody.innerHTML = html;
@@ -1289,16 +1289,16 @@ function generateCustomZonesTable() {
     let inputHtml = '';
 
     if (z.id === 'ss') {
-      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMin}" aria-label="Sweet Spot minimum percentage"><span>to</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.ssMax}" aria-label="Sweet Spot maximum percentage"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="ssMin" id="${prefix}-min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.ssMin}" aria-label="Sweet Spot minimum percentage"><span>to</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="ssMax" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.ssMax}" aria-label="Sweet Spot maximum percentage"><span>%</span></div>`;
     } else if (z.id === 'z1') {
-      inputHtml = `<div class="inline-fields"><span>≤</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z1}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><span>≤</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="z1" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.z1}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
     } else if (z.id === 'z7') {
-      inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors.z6}" aria-label="${z.label} lower percentage"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><span>≥</span><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="min" data-anchor="z6" id="${prefix}-min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors.z6}" aria-label="${z.label} lower percentage"><span>%</span></div>`;
     } else {
-      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="0" max="300" step="1" value="${customPowerAnchors[z.id]}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
+      inputHtml = `<div class="inline-fields"><input class="input-small numeric-input custom-zone-input" data-zone-index="${i}" data-bound="max" data-anchor="${z.id}" id="${prefix}-max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${customPowerAnchors[z.id]}" aria-label="${z.label} upper percentage"><span>%</span></div>`;
     }
 
-    html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">0 W</td></tr>`;
+    html += `<tr><td><div class="zone-cell"><span class="zone-badge" style="background:var(--p-${z.colorVar})">${z.label}</span><span class="zone-desc">${z.desc}</span></div></td><td class="text-center">${inputHtml}</td><td class="range-col" id="c-${z.id}-range">—</td></tr>`;
   });
 
   els.customTableBody.innerHTML = html;
@@ -1338,7 +1338,7 @@ function updateZones() {
   els.currentFtpDisplayWatts.textContent = `${wholeNumber(ftp)}W`;
 
   const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
-  els.wkgOut.textContent = (weightKg > 0 && ftp > 0) ? (ftp / weightKg).toFixed(2) : '0.00';
+  els.wkgOut.textContent = (weightKg > 0 && ftp > 0) ? (ftp / weightKg).toFixed(2) : '—';
 
   defaultZonesConfig.forEach(z => {
     const info = getZoneRangeInfo(z, ftp);
@@ -1373,11 +1373,11 @@ function renderCustomHrControls() {
   ['Zone 1 upper', 'Zone 2 upper', 'Zone 3 upper', 'Zone 4 upper'].forEach((label, i) => {
     els.customHrMaxGrid.insertAdjacentHTML(
       'beforeend',
-      `<label for="custom-max-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`
+      `<label for="custom-max-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" inputmode="numeric" min="1" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`
     );
     els.customHrLthrGrid.insertAdjacentHTML(
       'beforeend',
-      `<label for="custom-lthr-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`
+      `<label for="custom-lthr-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" inputmode="numeric" min="1" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`
     );
   });
 }
@@ -1448,10 +1448,15 @@ function applyHrRanges(prefix, maxHr, lthr, cfg) {
   const lthrBpm = bpmRangeTexts(lthrCuts);
 
   for (let i = 0; i < 5; i++) {
-    document.getElementById(`${prefix}hr${i + 1}-max-pct-range`).textContent = maxPctRanges[i];
-    document.getElementById(`${prefix}hr${i + 1}-max-range`).textContent = maxBpm[i];
-    document.getElementById(`${prefix}hr${i + 1}-lthr-pct-range`).textContent = lthrPctRanges[i];
-    document.getElementById(`${prefix}hr${i + 1}-lthr-range`).textContent = lthrBpm[i];
+    const maxPctEl = document.getElementById(`${prefix}hr${i + 1}-max-pct-range`);
+    const maxRangeEl = document.getElementById(`${prefix}hr${i + 1}-max-range`);
+    const lthrPctEl = document.getElementById(`${prefix}hr${i + 1}-lthr-pct-range`);
+    const lthrRangeEl = document.getElementById(`${prefix}hr${i + 1}-lthr-range`);
+
+    if (maxPctEl) maxPctEl.textContent = maxPctRanges[i];
+    if (maxRangeEl) maxRangeEl.textContent = maxBpm[i];
+    if (lthrPctEl) lthrPctEl.textContent = lthrPctRanges[i];
+    if (lthrRangeEl) lthrRangeEl.textContent = lthrBpm[i];
   }
 }
 
@@ -1499,7 +1504,6 @@ function bindSelectOnFocus(el) {
 
   el.addEventListener('focus', selectAll);
   el.addEventListener('click', selectAll);
-  el.addEventListener('touchend', selectAll);
 }
 
 function bindSelectOnFocusToAll(root = document) {
