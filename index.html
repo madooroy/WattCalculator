@@ -1847,14 +1847,7 @@ function updateHRZones() {
 function buildHrMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
   const pctValues = metric === 'max' ? cfg.max : cfg.lthr;
   const anchorLabel = metric === 'max' ? 'Max HR' : 'LTHR';
-
-  const pctRanges = [
-    `≤ ${pctValues[0]}%`,
-    `${pctValues[0] + 1}%–${pctValues[1]}%`,
-    `${pctValues[1] + 1}%–${pctValues[2]}%`,
-    `${pctValues[2] + 1}%–${pctValues[3]}%`,
-    `≥ ${pctValues[3] + 1}%`
-  ];
+  const pctRanges = formatHrPctRanges(pctValues);
 
   const zoneHeaderCells = hrZoneDefs.map(zone => `
     <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
@@ -1894,14 +1887,7 @@ function buildHrMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
 function buildHrDisplayMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
   const pctValues = metric === 'max' ? cfg.max : cfg.lthr;
   const anchorLabel = metric === 'max' ? 'Max HR' : 'LTHR';
-
-  const pctRanges = [
-    `≤ ${pctValues[0]}%`,
-    `${pctValues[0] + 1}%–${pctValues[1]}%`,
-    `${pctValues[1] + 1}%–${pctValues[2]}%`,
-    `${pctValues[2] + 1}%–${pctValues[3]}%`,
-    `≥ ${pctValues[3] + 1}%`
-  ];
+  const pctRanges = formatHrPctRanges(pctValues);
 
   const zoneHeaderCells = hrZoneDefs.map(zone => `
     <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
