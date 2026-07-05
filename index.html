@@ -2111,6 +2111,7 @@ function resetCustomHR() {
   customHrAnchors = deepClone(defaultHrPercentConfig);
   saveCustomHrAnchors();
   renderHrTables();
+  resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
   bindCustomHrInlineInputs();
   bindSelectOnFocusToAll(els.hrCustomPanel);
   updateCustomHRZones();
@@ -2276,6 +2277,11 @@ function syncHorizontalScroll(elA, elB) {
   elA.addEventListener('scroll', syncFromA, { passive: true });
   elB.addEventListener('scroll', syncFromB, { passive: true });
 }
+
+function resetPairedHorizontalScroll(elA, elB) {
+  if (elA) elA.scrollLeft = 0;
+  if (elB) elB.scrollLeft = 0;
+}
   
 function bindEvents() {
   bindSelectOnFocusToAll();
@@ -2385,6 +2391,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   syncHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
   syncHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
+  resetPairedHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
+  resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
 
   bindEvents();
   bindCustomZoneInputs();
