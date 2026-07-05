@@ -637,50 +637,72 @@ th {
   width: 50px;
 }
 
-@media (min-width: 481px) and (orientation: landscape) {
+@media (min-width: 900px) {
+  .container {
+    max-width: 1200px;
+  }
+
+  .table-scroll-wrapper.power-matrix-scroll {
+    overflow-x: hidden;
+  }
+
   .power-matrix {
-    min-width: 900px;
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
   }
 
   .power-matrix th,
   .power-matrix td {
-    min-width: 88px;
-    padding: 10px 8px;
+    min-width: 0;
+    width: auto;
+    padding: 10px 6px;
   }
 
   .power-matrix .row-label {
-    min-width: 124px;
+    min-width: 120px;
+    width: 120px;
   }
 
   .hr-matrix .row-label {
-    width: 170px;
-    min-width: 170px;
-    max-width: 170px;
+    min-width: 150px;
+    width: 150px;
+    max-width: 150px;
   }
 
   .power-matrix .zone-top {
-    font-size: 28px;
+    font-size: 22px;
   }
 
   .power-matrix .zone-top.ss {
-    font-size: 20px;
+    font-size: 16px;
+  }
+
+  .power-matrix .zone-sub {
+    font-size: 9px;
   }
 
   .power-matrix .zone-value {
-    font-size: 15px;
+    font-size: 12px;
   }
 
   .power-matrix .zone-value-large {
-    font-size: 18px;
+    font-size: 14px;
+  }
+
+  .power-matrix .matrix-input-wrap {
+    gap: 3px;
   }
 
   .power-matrix .matrix-input-wrap .input-small {
-    width: 62px;
-    min-height: 38px;
+    width: 48px;
+    min-height: 34px;
+    font-size: 15px;
+    padding: 4px 2px;
   }
 
   .power-matrix .matrix-input-dual .input-small {
-    width: 58px;
+    width: 46px;
   }
 }
 
