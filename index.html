@@ -911,16 +911,16 @@ tr:last-child td { border-bottom: none; }
 </head>
 <body>
 <div class="container">
-  <h1 id="app-title">Calculate kJ</h1>
+  <h1 id="app-title">Calculate Watts</h1>
 
-  <div class="tabs" role="tablist" aria-label="Calculator sections">
-    <button id="btn-kj" class="tab active" role="tab" aria-selected="true" aria-controls="kj-view" data-tab="kj" type="button" tabindex="0">Find kJ</button>
-    <button id="btn-watts" class="tab" role="tab" aria-selected="false" aria-controls="watts-view" data-tab="watts" type="button" tabindex="-1">Find Watts</button>
-    <button id="btn-zones" class="tab" role="tab" aria-selected="false" aria-controls="zones-view" data-tab="zones" type="button" tabindex="-1">Power Zones</button>
-    <button id="btn-hr" class="tab" role="tab" aria-selected="false" aria-controls="hr-view" data-tab="hr" type="button" tabindex="-1">HR Zones</button>
+   <div class="tabs" role="tablist" aria-label="Calculator sections">
+     <button id="btn-watts" class="tab active" role="tab" aria-selected="true" aria-controls="watts-view" data-tab="watts" type="button" tabindex="0">Find Watts</button>
+     <button id="btn-kj" class="tab" role="tab" aria-selected="false" aria-controls="kj-view" data-tab="kj" type="button" tabindex="-1">Find kJ</button>
+     <button id="btn-zones" class="tab" role="tab" aria-selected="false" aria-controls="zones-view" data-tab="zones" type="button" tabindex="-1">Power Zones</button>
+     <button id="btn-hr" class="tab" role="tab" aria-selected="false" aria-controls="hr-view" data-tab="hr" type="button" tabindex="-1">HR Zones</button>
   </div>
-
-  <div id="kj-view" class="view" role="tabpanel" aria-labelledby="btn-kj">
+  
+  <div id="kj-view" class="view" role="tabpanel" aria-labelledby="btn-kj" hidden>
     <div class="card">
       <div class="row">
         <label for="watts-in">Average Watts</label>
@@ -955,7 +955,7 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
 
-  <div id="watts-view" class="view" role="tabpanel" aria-labelledby="btn-watts" hidden>
+  <div id="watts-view" class="view" role="tabpanel" aria-labelledby="btn-watts">
     <div class="card">
       <div class="row">
         <label for="kj-in">Total Kilojoules</label>
