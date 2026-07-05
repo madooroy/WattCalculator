@@ -1019,19 +1019,19 @@ tr:last-child td { border-bottom: none; }
     <div id="hr-default-panel" class="card card-pad-8" role="tabpanel" aria-labelledby="hr-sub-btn-default">
       <div class="help-text">Swipe sideways to view all zones.</div>
 
-      <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
-      <div class="table-scroll-wrapper power-matrix-scroll">
-        <table class="power-matrix hr-matrix">
-          <tbody id="hr-default-max-body"></tbody>
+     <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
+     <div class="table-scroll-wrapper power-matrix-scroll">
+       <table class="power-matrix hr-matrix">
+         <tbody id="hr-default-max-body"></tbody>
         </table>
       </div>
 
       <div class="hr-group-title my-16-8">Lactate Threshold Heart Rate Zones</div>
       <div class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix hr-matrix">
-          <tbody id="hr-default-lthr-body"></tbody>
-        </table>
-      </div>
+         <tbody id="hr-default-lthr-body"></tbody>
+         </table>
+     </div>
     </div>
 
     <div id="hr-custom-panel" class="card card-pad-12" role="tabpanel" aria-labelledby="hr-sub-btn-custom" hidden>
@@ -1964,20 +1964,20 @@ function validateAndApplyCustomHR() {
 function formatHrPctRanges(values) {
   return [
     `≤ ${values[0]}%`,
-    `≤ ${values[1]}%`,
-    `≤ ${values[2]}%`,
-    `≤ ${values[3]}%`,
-    `> ${values[3]}%`
+    `${values[0] + 1}%–${values[1]}%`,
+    `${values[1] + 1}%–${values[2]}%`,
+    `${values[2] + 1}%–${values[3]}%`,
+    `≥ ${values[3] + 1}%`
   ];
 }
 
 function bpmRangeTexts(cuts) {
   return [
     `≤ ${cuts[0]}`,
-    `≤ ${cuts[1]}`,
-    `≤ ${cuts[2]}`,
-    `≤ ${cuts[3]}`,
-    `> ${cuts[3]}`
+    `${cuts[0] + 1}–${cuts[1]}`,
+    `${cuts[1] + 1}–${cuts[2]}`,
+    `${cuts[2] + 1}–${cuts[3]}`,
+    `≥ ${cuts[3] + 1}`
   ];
 }
 
