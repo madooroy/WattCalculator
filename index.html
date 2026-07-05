@@ -717,6 +717,20 @@ th {
   }
 }
 
+.hr-matrix .zone-cell-matrix {
+  color: #111;
+}
+
+.hr-matrix .zone-sub {
+  color: rgba(0,0,0,0.78);
+}
+
+@media (prefers-color-scheme: dark) {
+  .hr-matrix .zone-sub {
+    color: rgba(255,255,255,0.8);
+  }
+}
+  
 .power-matrix .zone-value {
   font-size: 13px;
   font-weight: 800;
@@ -1120,29 +1134,15 @@ tr:last-child td { border-bottom: none; }
 
     <div id="hr-default-panel" class="card card-pad-8" role="tabpanel" aria-labelledby="hr-sub-btn-default">
       <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
-      <div class="table-scroll-wrapper">
-        <table class="hr-split-table">
-          <thead>
-            <tr>
-              <th>Zone / Label</th>
-              <th class="text-right">Anchor PCT Range</th>
-              <th class="text-right">BPM Range</th>
-            </tr>
-          </thead>
+      <div class="table-scroll-wrapper power-matrix-scroll">
+        <table class="power-matrix hr-matrix">
           <tbody id="hr-default-max-body"></tbody>
         </table>
       </div>
 
       <div class="hr-group-title my-16-8">Lactate Threshold Heart Rate Zones</div>
-      <div class="table-scroll-wrapper">
-        <table class="hr-split-table">
-          <thead>
-            <tr>
-              <th>Zone / Label</th>
-              <th class="text-right">Anchor PCT Range</th>
-              <th class="text-right">BPM Range</th>
-            </tr>
-          </thead>
+      <div class="table-scroll-wrapper power-matrix-scroll">
+        <table class="power-matrix hr-matrix">
           <tbody id="hr-default-lthr-body"></tbody>
         </table>
       </div>
@@ -1163,29 +1163,15 @@ tr:last-child td { border-bottom: none; }
       <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
 
       <div class="hr-group-title my-16-8">Custom Max Heart Rate Zones</div>
-      <div class="table-scroll-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Zone / Label</th>
-              <th class="text-right">Anchor PCT Range</th>
-              <th class="text-right">BPM Range</th>
-            </tr>
-          </thead>
+      <div class="table-scroll-wrapper power-matrix-scroll">
+        <table class="power-matrix hr-matrix">
           <tbody id="hr-custom-max-body"></tbody>
         </table>
       </div>
 
       <div class="hr-group-title my-16-8">Custom Lactate Threshold Heart Rate Zones</div>
-      <div class="table-scroll-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Zone / Label</th>
-              <th class="text-right">Anchor PCT Range</th>
-              <th class="text-right">BPM Range</th>
-            </tr>
-          </thead>
+      <div class="table-scroll-wrapper power-matrix-scroll">
+        <table class="power-matrix hr-matrix">
           <tbody id="hr-custom-lthr-body"></tbody>
         </table>
       </div>
@@ -2009,19 +1995,51 @@ function renderCustomHrControls() {
   });
 }
 
-function buildHrRows(prefix, metric) {
-  return hrZoneDefs.map(zone => `
-    <tr class="zone-row-tint hr-z${zone.num}">
-      <td>
-        <div class="zone-cell">
-          <span class="zone-badge" style="background: var(--${zone.colorVar});">${zone.label}</span>
-          <span class="zone-desc">${zone.desc}</span>
-        </div>
-      </td>
-      <td class="range-col" id="${prefix}hr${zone.num}-${metric}-pct-range">—</td>
-      <td class="range-col" id="${prefix}hr${zone.num}-${metric}-range">—</td>
-    </tr>
+function buildHrMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
+  const pctValues = metric === 'max' ? cfg.max : cfg.lthr;
+  const anchorLabel = metric === 'max' ? 'Max HR' : 'LTHR';
+
+  const pctRanges = [
+    `≤ ${pctValues[0]}%`,
+    `${pctValues[0] + 1}%–${pctValues[1]}%`,
+    `${pctValues[1] + 1}%–${pctValues[2]}%`,
+    `${pctValues[2] + 1}%–${pctValues[3]}%`,
+    `≥ ${pctValues[3] + 1}%`
+  ];
+
+  const zoneHeaderCells = hrZoneDefs.map(zone => `
+    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
+      <div class="zone-top">${zone.num}</div>
+      <span class="zone-sub">${zone.desc}</span>
+    </td>
   `).join('');
+
+  const pctCells = hrZoneDefs.map((zone, i) => `
+    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
+      <div class="zone-value" id="${prefix}hr${zone.num}-${metric}-pct-range">${pctRanges[i]}</div>
+    </td>
+  `).join('');
+
+  const bpmCells = hrZoneDefs.map(zone => `
+    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
+      <div class="zone-value-large" id="${prefix}hr${zone.num}-${metric}-range">—</div>
+    </td>
+  `).join('');
+
+  return `
+    <tr>
+      <th class="row-label">Zone</th>
+      ${zoneHeaderCells}
+    </tr>
+    <tr>
+      <th class="row-label">${anchorLabel} Range (%)</th>
+      ${pctCells}
+    </tr>
+    <tr>
+      <th class="row-label">BPM Range</th>
+      ${bpmCells}
+    </tr>
+  `;
 }
 
 function renderHrTables() {
@@ -2030,10 +2048,10 @@ function renderHrTables() {
   const customMaxBody = document.getElementById('hr-custom-max-body');
   const customLthrBody = document.getElementById('hr-custom-lthr-body');
 
-  if (defaultMaxBody) defaultMaxBody.innerHTML = buildHrRows('', 'max');
-  if (defaultLthrBody) defaultLthrBody.innerHTML = buildHrRows('', 'lthr');
-  if (customMaxBody) customMaxBody.innerHTML = buildHrRows('c-', 'max');
-  if (customLthrBody) customLthrBody.innerHTML = buildHrRows('c-', 'lthr');
+  if (defaultMaxBody) defaultMaxBody.innerHTML = buildHrMatrix('max', '', defaultHrPercentConfig);
+  if (defaultLthrBody) defaultLthrBody.innerHTML = buildHrMatrix('lthr', '', defaultHrPercentConfig);
+  if (customMaxBody) customMaxBody.innerHTML = buildHrMatrix('max', 'c-', customHrAnchors);
+  if (customLthrBody) customLthrBody.innerHTML = buildHrMatrix('lthr', 'c-', customHrAnchors);
 }
 
 function readHrAnchorsFromInputs() {
@@ -2070,6 +2088,7 @@ function validateAndApplyCustomHR() {
 
   customHrAnchors = normalizeHrAnchors(nextAnchors);
   saveCustomHrAnchors();
+  renderHrTables();
   updateCustomHRZones();
 }
 
@@ -2134,6 +2153,7 @@ function resetCustomZones() {
 function resetCustomHR() {
   customHrAnchors = deepClone(defaultHrPercentConfig);
   saveCustomHrAnchors();
+  renderHrTables();
   renderCustomHrControls();
   bindCustomHrInputs();
   bindSelectOnFocusToAll(els.hrCustomPanel);
