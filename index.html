@@ -2382,6 +2382,10 @@ window.addEventListener('DOMContentLoaded', () => {
   generateDefaultTables();
   generateCustomZonesTable();
   renderHrTables();
+
+  syncHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
+  syncHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
+
   bindEvents();
   bindCustomZoneInputs();
   bindCustomHrInlineInputs();
