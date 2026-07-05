@@ -2051,17 +2051,7 @@ function bindSelectOnFocus(el) {
 }
 
 function bindSelectOnFocusToAll(root = document) {
-  root.querySelectorAll('input').forEach(input => {
-    if (
-      input.classList.contains('custom-zone-range-input') ||
-      input.classList.contains('custom-hr-max') ||
-      input.classList.contains('custom-hr-lthr')
-    ) {
-      return;
-    }
-
-    bindSelectOnFocus(input);
-  });
+  root.querySelectorAll('input').forEach(bindSelectOnFocus);
 }
 
 function persistOnCommit(el, key, decimals = 0, afterSave) {
