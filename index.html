@@ -1122,8 +1122,20 @@ const defaultZonesConfig = [
 ];
 
 const defaultHrPercentConfig = {
-  max: [65, 75, 85, 95],
-  lthr: [68, 83, 94, 105]
+  max: {
+    z1: { min: null, max: 65 },
+    z2: { min: 66, max: 75 },
+    z3: { min: 76, max: 85 },
+    z4: { min: 86, max: 95 },
+    z5: { min: 96, max: null }
+  },
+  lthr: {
+    z1: { min: null, max: 68 },
+    z2: { min: 69, max: 83 },
+    z3: { min: 84, max: 94 },
+    z4: { min: 95, max: 105 },
+    z5: { min: 106, max: null }
+  }
 };
 
 const hrZoneDefs = [
@@ -1312,32 +1324,101 @@ function validatePowerAnchors(anchors) {
 
 function normalizeHrAnchors(value) {
   const source = value && typeof value === 'object' ? value : {};
+  const defaults = defaultHrPercentConfig;
+
+  function normalizeMetric(metricName, cap) {
+    const sourceMetric = source[metricName] && typeof source[metricName] === 'object' ? source[metricName] : {};
+    const defaultMetric = defaults[metricName];
+
+    return {
+      z1: {
+        min: null,
+        max: wholeNumber(Math.min(
+          clampNonNegative(sourceMetric.z1 && sourceMetric.z1.max) || defaultMetric.z1.max,
+          cap
+        ))
+      },
+      z2: {
+        min: wholeNumber(Math.min(
+          clampNonNegative(sourceMetric.z2 && sourceMetric.z2.min) || defaultMetric.z2.min,
+          cap
+        )),
+        max: wholeNumber(Math.min(
+          clampNonNegative(sourceMetric.z2 && sourceMetric.z2.max) || defaultMetric.z2.max,
+          cap
+        ))
+      },
+      z3: {
+        min: wholeNumber(Math.min(
+          clampNonNegative(sourceMetric.z3 && sourceMetric.z3.min) || defaultMetric.z3.min,
+          cap
+        )),
+        max: wholeNumber(Math.min(
+          clampNonNegative(sourceMetric.z3 && sourceMetric.z3.max) || defaultMetric.z3.max,
+          cap
+        ))
+      },
+      z4: {
+        min: wholeNumber(Math.min(
+          clampNonNegative(sourceMetric.z4 && sourceMetric.z4.min) || defaultMetric.z4.min,
+          cap
+        )),
+        max: wholeNumber(Math.min(
+          clampNonNegative(sourceMetric.z4 && sourceMetric.z4.max) || defaultMetric.z4.max,
+          cap
+        ))
+      },
+      z5: {
+        min: wholeNumber(Math.min(
+          clampNonNegative(sourceMetric.z5 && sourceMetric.z5.min) || defaultMetric.z5.min,
+          cap
+        )),
+        max: null
+      }
+    };
+  }
+
   return {
-    max: [0, 1, 2, 3].map(i => {
-      const n = clampNonNegative(source.max && source.max[i]);
-      return n > 0 ? wholeNumber(Math.min(n, 100)) : defaultHrPercentConfig.max[i];
-    }),
-    lthr: [0, 1, 2, 3].map(i => {
-      const n = clampNonNegative(source.lthr && source.lthr[i]);
-      return n > 0 ? wholeNumber(n) : defaultHrPercentConfig.lthr[i];
-    })
+    max: normalizeMetric('max', 100),
+    lthr: normalizeMetric('lthr', 150)
   };
 }
 
 function validateHrAnchorSet(values, maxHr, lthr) {
-  for (let i = 1; i < values.max.length; i++) {
-    if (values.max[i] <= values.max[i - 1]) return 'Custom Max HR thresholds must be strictly increasing.';
+  function validateMetric(metric, label, cap) {
+    const z1 = metric.z1;
+    const z2 = metric.z2;
+    const z3 = metric.z3;
+    const z4 = metric.z4;
+    const z5 = metric.z5;
+
+    if (!(z1.max > 0 && z1.max <= cap)) return `${label} Zone 1 max must be between 1 and ${cap}.`;
+    if (!(z2.min > 0 && z2.max > 0 && z2.min <= cap && z2.max <= cap && z2.min < z2.max)) return `${label} Zone 2 min must be lower than max.`;
+    if (!(z3.min > 0 && z3.max > 0 && z3.min <= cap && z3.max <= cap && z3.min < z3.max)) return `${label} Zone 3 min must be lower than max.`;
+    if (!(z4.min > 0 && z4.max > 0 && z4.min <= cap && z4.max <= cap && z4.min < z4.max)) return `${label} Zone 4 min must be lower than max.`;
+    if (!(z5.min > 0 && z5.min <= cap)) return `${label} Zone 5 min must be between 1 and ${cap}.`;
+
+    if (z2.min !== z1.max + 1) return `${label} Zone 2 min must equal Zone 1 max + 1.`;
+    if (z3.min !== z2.max + 1) return `${label} Zone 3 min must equal Zone 2 max + 1.`;
+    if (z4.min !== z3.max + 1) return `${label} Zone 4 min must equal Zone 3 max + 1.`;
+    if (z5.min !== z4.max + 1) return `${label} Zone 5 min must equal Zone 4 max + 1.`;
+
+    return '';
   }
 
-  for (let i = 1; i < values.lthr.length; i++) {
-    if (values.lthr[i] <= values.lthr[i - 1]) return 'Custom LTHR thresholds must be strictly increasing.';
-  }
+  const maxError = validateMetric(values.max, 'Custom Max HR', 100);
+  if (maxError) return maxError;
+
+  const lthrError = validateMetric(values.lthr, 'Custom LTHR', 150);
+  if (lthrError) return lthrError;
 
   if (maxHr > 0 && lthr > 0) {
     const maxAllowedPct = Math.floor((maxHr / lthr) * 100);
-    if (values.lthr.some(value => value > maxAllowedPct)) {
-      return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
-    }
+    if (values.lthr.z1.max > maxAllowedPct) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
+    if (values.lthr.z2.min > maxAllowedPct || values.lthr.z2.max > maxAllowedPct) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
+    if (values.lthr.z3.min > maxAllowedPct || values.lthr.z3.max > maxAllowedPct) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
+    if (values.lthr.z4.min > maxAllowedPct || values.lthr.z4.max > maxAllowedPct) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
+    if (values.lthr.z5.min > maxAllowedPct) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
   }
 
   return '';
@@ -1371,9 +1452,9 @@ function loadCustomHrAnchors() {
     if (!raw) return deepClone(defaultHrPercentConfig);
 
     const parsed = JSON.parse(raw);
-    const candidate = parsed && parsed.version === 2 && parsed.anchors
+    const candidate = parsed && parsed.version === 3 && parsed.anchors
       ? normalizeHrAnchors(parsed.anchors)
-      : normalizeHrAnchors(parsed);
+      : normalizeHrAnchors(null);
 
     return validateHrAnchorSet(candidate, 0, 0) ? deepClone(defaultHrPercentConfig) : candidate;
   } catch {
@@ -1382,7 +1463,7 @@ function loadCustomHrAnchors() {
 }
 
 function saveCustomHrAnchors() {
-  saveField('cycling_custom_hr', { version: 2, anchors: customHrAnchors });
+  saveField('cycling_custom_hr', { version: 3, anchors: customHrAnchors });
 }
 
 let customPowerAnchors = loadCustomPowerAnchors();
@@ -1931,9 +2012,16 @@ function buildHrMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
 }
 
 function buildHrDisplayMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
-  const pctValues = metric === 'max' ? cfg.max : cfg.lthr;
+  const metricCfg = cfg[metric];
   const anchorLabel = metric === 'max' ? 'Max HR' : 'LTHR';
-  const pctRanges = formatHrPctRanges(pctValues);
+
+  const pctRanges = [
+    `≤ ${metricCfg.z1.max}%`,
+    `${metricCfg.z2.min}%–${metricCfg.z2.max}%`,
+    `${metricCfg.z3.min}%–${metricCfg.z3.max}%`,
+    `${metricCfg.z4.min}%–${metricCfg.z4.max}%`,
+    `≥ ${metricCfg.z5.min}%`
+  ];
 
   const zoneHeaderCells = hrZoneDefs.map(zone => `
     <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
@@ -1971,9 +2059,18 @@ function buildHrDisplayMatrix(metric, prefix = '', cfg = defaultHrPercentConfig)
 }
 
 function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
-  const pctValues = metric === 'max' ? cfg.max : cfg.lthr;
+  const metricCfg = cfg[metric];
   const anchorLabel = metric === 'max' ? 'Max HR' : 'LTHR';
   const inputClass = metric === 'max' ? 'custom-hr-max-inline' : 'custom-hr-lthr-inline';
+  const maxAttr = metric === 'max' ? '100' : '150';
+
+  const rows = [
+    { zone: 1, key: 'z1' },
+    { zone: 2, key: 'z2' },
+    { zone: 3, key: 'z3' },
+    { zone: 4, key: 'z4' },
+    { zone: 5, key: 'z5' }
+  ];
 
   const zoneHeaderCells = hrZoneDefs.map(zone => `
     <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
@@ -1982,48 +2079,49 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
     </td>
   `).join('');
 
-  const editCells = hrZoneDefs.map((zone, i) => {
-    const maxAttr = metric === 'max' ? '100' : '150';
+  const editCells = rows.map(({ zone, key }) => {
+    const r = metricCfg[key];
 
-    if (i === 0) {
+    if (key === 'z1') {
       return `
-        <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
+        <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--hr-z1);">
           <div class="matrix-input-wrap">
             <span>≤</span>
             <input
               class="input-small numeric-input ${inputClass}"
-              data-index="${i}"
+              data-zone="${key}"
+              data-side="max"
               type="number"
               inputmode="numeric"
               enterkeyhint="done"
               min="1"
               max="${maxAttr}"
               step="1"
-              value="${pctValues[i]}"
-              aria-label="${anchorLabel} Zone ${zone.num} upper percentage">
+              value="${r.max}"
+              aria-label="${anchorLabel} Zone ${zone} upper percentage">
             <span>%</span>
           </div>
         </td>
       `;
     }
 
-    if (i >= 1 && i <= 3) {
+    if (key === 'z5') {
       return `
-        <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
-          <div class="matrix-input-wrap matrix-input-dual">
-            <span>${pctValues[i - 1] + 1}</span>
-            <span>to</span>
+        <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--hr-z5);">
+          <div class="matrix-input-wrap">
+            <span>≥</span>
             <input
               class="input-small numeric-input ${inputClass}"
-              data-index="${i}"
+              data-zone="${key}"
+              data-side="min"
               type="number"
               inputmode="numeric"
               enterkeyhint="done"
               min="1"
               max="${maxAttr}"
               step="1"
-              value="${pctValues[i]}"
-              aria-label="${anchorLabel} Zone ${zone.num} upper percentage">
+              value="${r.min}"
+              aria-label="${anchorLabel} Zone ${zone} lower percentage">
             <span>%</span>
           </div>
         </td>
@@ -2031,13 +2129,40 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
     }
 
     return `
-      <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
-        <div class="zone-value">≥ ${pctValues[3] + 1}%</div>
+      <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--hr-z${zone});">
+        <div class="matrix-input-wrap matrix-input-dual">
+          <input
+            class="input-small numeric-input ${inputClass}"
+            data-zone="${key}"
+            data-side="min"
+            type="number"
+            inputmode="numeric"
+            enterkeyhint="done"
+            min="1"
+            max="${maxAttr}"
+            step="1"
+            value="${r.min}"
+            aria-label="${anchorLabel} Zone ${zone} lower percentage">
+          <span>to</span>
+          <input
+            class="input-small numeric-input ${inputClass}"
+            data-zone="${key}"
+            data-side="max"
+            type="number"
+            inputmode="numeric"
+            enterkeyhint="done"
+            min="1"
+            max="${maxAttr}"
+            step="1"
+            value="${r.max}"
+            aria-label="${anchorLabel} Zone ${zone} upper percentage">
+          <span>%</span>
+        </div>
       </td>
     `;
   }).join('');
 
-  const pctCells = hrZoneDefs.map((zone, i) => `
+  const pctCells = hrZoneDefs.map(zone => `
     <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
       <div class="zone-value" id="${prefix}hr${zone.num}-${metric}-pct-range">—</div>
     </td>
@@ -2082,9 +2207,31 @@ function renderHrTables() {
 }
 
 function readCustomHrAnchorsInline() {
+  function readMetric(selector, cap) {
+    const out = {
+      z1: { min: null, max: 0 },
+      z2: { min: 0, max: 0 },
+      z3: { min: 0, max: 0 },
+      z4: { min: 0, max: 0 },
+      z5: { min: 0, max: null }
+    };
+
+    document.querySelectorAll(selector).forEach(el => {
+      const zone = el.dataset.zone;
+      const side = el.dataset.side;
+      const value = wholeNumber(Math.min(clampNonNegative(el.value), cap));
+
+      if (out[zone] && side in out[zone]) {
+        out[zone][side] = value;
+      }
+    });
+
+    return out;
+  }
+
   return {
-    max: [...document.querySelectorAll('.custom-hr-max-inline')].map(el => wholeNumber(Math.min(clampNonNegative(el.value), 100))),
-    lthr: [...document.querySelectorAll('.custom-hr-lthr-inline')].map(el => wholeNumber(clampNonNegative(el.value)))
+    max: readMetric('.custom-hr-max-inline', 100),
+    lthr: readMetric('.custom-hr-lthr-inline', 150)
   };
 }
 
@@ -2119,33 +2266,40 @@ function validateAndApplyCustomHR() {
   updateCustomHRZones();
 }
 
-function formatHrPctRanges(values) {
+function formatHrPctRanges(metricCfg) {
   return [
-    `≤ ${values[0]}%`,
-    `${values[0] + 1}%–${values[1]}%`,
-    `${values[1] + 1}%–${values[2]}%`,
-    `${values[2] + 1}%–${values[3]}%`,
-    `≥ ${values[3] + 1}%`
+    `≤ ${metricCfg.z1.max}%`,
+    `${metricCfg.z2.min}%–${metricCfg.z2.max}%`,
+    `${metricCfg.z3.min}%–${metricCfg.z3.max}%`,
+    `${metricCfg.z4.min}%–${metricCfg.z4.max}%`,
+    `≥ ${metricCfg.z5.min}%`
   ];
 }
 
-function bpmRangeTexts(cuts) {
+function bpmRangeTexts(metricCfg, base) {
+  const z1Max = wholeNumber(base * (metricCfg.z1.max / 100));
+  const z2Min = wholeNumber(base * (metricCfg.z2.min / 100));
+  const z2Max = wholeNumber(base * (metricCfg.z2.max / 100));
+  const z3Min = wholeNumber(base * (metricCfg.z3.min / 100));
+  const z3Max = wholeNumber(base * (metricCfg.z3.max / 100));
+  const z4Min = wholeNumber(base * (metricCfg.z4.min / 100));
+  const z4Max = wholeNumber(base * (metricCfg.z4.max / 100));
+  const z5Min = wholeNumber(base * (metricCfg.z5.min / 100));
+
   return [
-    `≤ ${cuts[0]}`,
-    `${cuts[0] + 1}–${cuts[1]}`,
-    `${cuts[1] + 1}–${cuts[2]}`,
-    `${cuts[2] + 1}–${cuts[3]}`,
-    `≥ ${cuts[3] + 1}`
+    `≤ ${z1Max}`,
+    `${z2Min}–${z2Max}`,
+    `${z3Min}–${z3Max}`,
+    `${z4Min}–${z4Max}`,
+    `≥ ${z5Min}`
   ];
 }
 
 function applyHrRanges(prefix, maxHr, lthr, cfg) {
   const maxPctRanges = formatHrPctRanges(cfg.max);
   const lthrPctRanges = formatHrPctRanges(cfg.lthr);
-  const maxCuts = cfg.max.map(v => wholeNumber(maxHr * (v / 100)));
-  const lthrCuts = cfg.lthr.map(v => wholeNumber(lthr * (v / 100)));
-  const maxBpm = bpmRangeTexts(maxCuts);
-  const lthrBpm = bpmRangeTexts(lthrCuts);
+  const maxBpm = bpmRangeTexts(cfg.max, maxHr);
+  const lthrBpm = bpmRangeTexts(cfg.lthr, lthr);
 
   for (let i = 0; i < 5; i++) {
     const maxPctEl = document.getElementById(`${prefix}hr${i + 1}-max-pct-range`);
