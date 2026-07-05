@@ -1937,8 +1937,9 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
   `).join('');
 
   const editCells = hrZoneDefs.map((zone, i) => {
-    if (i < 4) {
-      const maxAttr = metric === 'max' ? '100' : '150';
+    const maxAttr = metric === 'max' ? '100' : '150';
+
+    if (i === 0) {
       return `
         <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
           <div class="matrix-input-wrap">
@@ -1960,9 +1961,32 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
       `;
     }
 
+    if (i < 4) {
+      return `
+        <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
+          <div class="matrix-input-wrap matrix-input-dual">
+            <span>${pctValues[i - 1] + 1}</span>
+            <span>to</span>
+            <input
+              class="input-small numeric-input ${inputClass}"
+              data-index="${i}"
+              type="number"
+              inputmode="numeric"
+              enterkeyhint="done"
+              min="1"
+              max="${maxAttr}"
+              step="1"
+              value="${pctValues[i]}"
+              aria-label="${anchorLabel} Zone ${zone.num} upper percentage">
+            <span>%</span>
+          </div>
+        </td>
+      `;
+    }
+
     return `
       <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
-        <div class="zone-value">Auto</div>
+        <div class="zone-value">≥ ${pctValues[3] + 1}%</div>
       </td>
     `;
   }).join('');
@@ -1998,7 +2022,7 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
     </tr>
   `;
 }
-  
+
 function renderHrTables() {
   const defaultMaxBody = document.getElementById('hr-default-max-body');
   const defaultLthrBody = document.getElementById('hr-default-lthr-body');
