@@ -1022,14 +1022,14 @@ tr:last-child td { border-bottom: none; }
       <div class="help-text">Swipe sideways to view all zones.</div>
 
       <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
-      <div class="table-scroll-wrapper power-matrix-scroll">
+      <div id="hr-default-max-scroll" class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix hr-matrix">
           <tbody id="hr-default-max-body"></tbody>
         </table>
       </div>
 
       <div class="hr-group-title my-16-8">Lactate Threshold Heart Rate Zones</div>
-      <div class="table-scroll-wrapper power-matrix-scroll">
+      <div id="hr-default-lthr-scroll" class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix hr-matrix">
           <tbody id="hr-default-lthr-body"></tbody>
         </table>
@@ -1053,14 +1053,14 @@ tr:last-child td { border-bottom: none; }
       <div class="help-text">Swipe sideways to view all zones.</div>
 
       <div class="hr-group-title my-16-8">Custom Max Heart Rate Zones</div>
-      <div class="table-scroll-wrapper power-matrix-scroll">
+      <div id="hr-custom-max-scroll" class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix hr-matrix">
           <tbody id="hr-custom-max-body"></tbody>
         </table>
       </div>
 
       <div class="hr-group-title my-16-8">Custom Lactate Threshold Heart Rate Zones</div>
-      <div class="table-scroll-wrapper power-matrix-scroll">
+      <div id="hr-custom-lthr-scroll" class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix hr-matrix">
           <tbody id="hr-custom-lthr-body"></tbody>
         </table>
@@ -2126,6 +2126,10 @@ function initCache() {
     hrSubBtnCustom: document.getElementById('hr-sub-btn-custom'),
     hrDefaultPanel: document.getElementById('hr-default-panel'),
     hrCustomPanel: document.getElementById('hr-custom-panel'),
+    hrDefaultMaxScroll: document.getElementById('hr-default-max-scroll'),
+    hrDefaultLthrScroll: document.getElementById('hr-default-lthr-scroll'),
+    hrCustomMaxScroll: document.getElementById('hr-custom-max-scroll'),
+    hrCustomLthrScroll: document.getElementById('hr-custom-lthr-scroll'),
     resetCustomHr: document.getElementById('reset-custom-hr'),
     customHrError: document.getElementById('custom-hr-error'),
     customHrMaxGrid: document.getElementById('custom-hr-max-grid'),
@@ -2176,6 +2180,29 @@ function bindTablistKeyboard(selector, activate) {
   });
 }
 
+function syncHorizontalScroll(elA, elB) {
+  if (!elA || !elB) return;
+
+  let syncing = false;
+
+  const syncFromA = () => {
+    if (syncing) return;
+    syncing = true;
+    elB.scrollLeft = elA.scrollLeft;
+    requestAnimationFrame(() => { syncing = false; });
+  };
+
+  const syncFromB = () => {
+    if (syncing) return;
+    syncing = true;
+    elA.scrollLeft = elB.scrollLeft;
+    requestAnimationFrame(() => { syncing = false; });
+  };
+
+  elA.addEventListener('scroll', syncFromA, { passive: true });
+  elB.addEventListener('scroll', syncFromB, { passive: true });
+}
+  
 function bindEvents() {
   bindSelectOnFocusToAll();
 
@@ -2278,6 +2305,8 @@ function loadSavedValues() {
 
 window.addEventListener('DOMContentLoaded', () => {
   initCache();
+  syncHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
+  syncHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
   generateDefaultTables();
   generateCustomZonesTable();
   renderHrTables();
