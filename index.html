@@ -913,49 +913,14 @@ tr:last-child td { border-bottom: none; }
 <div class="container">
   <h1 id="app-title">Calculate kJ</h1>
 
-  <div class="tabs" role="tablist" aria-label="Calculator sections">
-    <button id="btn-kj" class="tab active" role="tab" aria-selected="true" aria-controls="kj-view" data-tab="kj" type="button" tabindex="0">Find kJ</button>
-    <button id="btn-watts" class="tab" role="tab" aria-selected="false" aria-controls="watts-view" data-tab="watts" type="button" tabindex="-1">Find Watts</button>
-    <button id="btn-zones" class="tab" role="tab" aria-selected="false" aria-controls="zones-view" data-tab="zones" type="button" tabindex="-1">Power Zones</button>
-    <button id="btn-hr" class="tab" role="tab" aria-selected="false" aria-controls="hr-view" data-tab="hr" type="button" tabindex="-1">HR Zones</button>
-  </div>
+<div class="tabs" role="tablist" aria-label="Calculator sections">
+  <button id="btn-watts" class="tab active" role="tab" aria-selected="true" aria-controls="watts-view" data-tab="watts" type="button" tabindex="0">Find Watts</button>
+  <button id="btn-kj" class="tab" role="tab" aria-selected="false" aria-controls="kj-view" data-tab="kj" type="button" tabindex="-1">Find kJ</button>
+  <button id="btn-zones" class="tab" role="tab" aria-selected="false" aria-controls="zones-view" data-tab="zones" type="button" tabindex="-1">Power Zones</button>
+  <button id="btn-hr" class="tab" role="tab" aria-selected="false" aria-controls="hr-view" data-tab="hr" type="button" tabindex="-1">HR Zones</button>
+</div>
 
-  <div id="kj-view" class="view" role="tabpanel" aria-labelledby="btn-kj">
-    <div class="card">
-      <div class="row">
-        <label for="watts-in">Average Watts</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="watts-in" value="150" min="1" step="1" autocomplete="off">
-      </div>
-      <div class="row">
-        <label for="kj-min-in">Time (Minutes)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="kj-min-in" value="60" min="1" step="1" autocomplete="off">
-      </div>
-      <div class="row row-stack">
-        <div class="row-split">
-          <span class="muted-label">Current FTP</span>
-          <div id="current-ftp-display-kj" class="value-display">250W</div>
-        </div>
-        <div class="subnote-right">From Power Zones Tab</div>
-      </div>
-
-      <div class="row">
-        <label for="proposed-ftp-kj">New FTP for Comparison</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="proposed-ftp-kj" value="250" min="1" step="1" autocomplete="off">
-      </div>
-    </div>
-
-    <div class="card result-box">
-      <div class="result-val" id="kj-out" aria-live="polite">—</div>
-      <div class="result-lbl">Total Kilojoules</div>
-      <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
-      <div class="badge-container">
-        <div class="calc-badge" id="kj-current-badge">Current FTP: —</div>
-        <div class="calc-badge" id="kj-new-badge">New FTP: —</div>
-      </div>
-    </div>
-  </div>
-
-  <div id="watts-view" class="view" role="tabpanel" aria-labelledby="btn-watts" hidden>
+  <div id="watts-view" class="view" role="tabpanel" aria-labelledby="btn-watts">
     <div class="card">
       <div class="row">
         <label for="kj-in">Total Kilojoules</label>
@@ -986,6 +951,41 @@ tr:last-child td { border-bottom: none; }
       <div class="badge-container">
         <div class="calc-badge" id="watts-current-badge">Current FTP: —</div>
         <div class="calc-badge" id="watts-new-badge">New FTP: —</div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="kj-view" class="view" role="tabpanel" aria-labelledby="btn-kj" hidden>
+    <div class="card">
+      <div class="row">
+        <label for="watts-in">Average Watts</label>
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="watts-in" value="150" min="1" step="1" autocomplete="off">
+      </div>
+      <div class="row">
+        <label for="kj-min-in">Time (Minutes)</label>
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="kj-min-in" value="60" min="1" step="1" autocomplete="off">
+      </div>
+      <div class="row row-stack">
+        <div class="row-split">
+          <span class="muted-label">Current FTP</span>
+          <div id="current-ftp-display-kj" class="value-display">250W</div>
+        </div>
+        <div class="subnote-right">From Power Zones Tab</div>
+      </div>
+
+      <div class="row">
+        <label for="proposed-ftp-kj">New FTP for Comparison</label>
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="proposed-ftp-kj" value="250" min="1" step="1" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="card result-box">
+      <div class="result-val" id="kj-out" aria-live="polite">—</div>
+      <div class="result-lbl">Total Kilojoules</div>
+      <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
+      <div class="badge-container">
+        <div class="calc-badge" id="kj-current-badge">Current FTP: —</div>
+        <div class="calc-badge" id="kj-new-badge">New FTP: —</div>
       </div>
     </div>
   </div>
