@@ -990,6 +990,7 @@ tr:last-child td { border-bottom: none; }
       <div class="controls-row">
         <button id="reset-custom-zones" class="secondary-btn" type="button">Reset to Default</button>
       </div>
+      <div class="help-text">Swipe sideways to view all zones.</div>
       <div class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix">
           <tbody id="custom-table-body"></tbody>
@@ -998,6 +999,7 @@ tr:last-child td { border-bottom: none; }
       <div class="help-text">Custom zone caps and ranges drive badge classification when the active zones setting is Custom. Sweet Spot is shown as an independent reference band in the table and does not override primary zone classification.</div>
       <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
     </div>
+  </div>
 
   <div id="hr-view" class="view" role="tabpanel" aria-labelledby="btn-hr" hidden>
     <div class="card">
@@ -1019,19 +1021,19 @@ tr:last-child td { border-bottom: none; }
     <div id="hr-default-panel" class="card card-pad-8" role="tabpanel" aria-labelledby="hr-sub-btn-default">
       <div class="help-text">Swipe sideways to view all zones.</div>
 
-     <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
-     <div class="table-scroll-wrapper power-matrix-scroll">
-       <table class="power-matrix hr-matrix">
-         <tbody id="hr-default-max-body"></tbody>
+      <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
+      <div class="table-scroll-wrapper power-matrix-scroll">
+        <table class="power-matrix hr-matrix">
+          <tbody id="hr-default-max-body"></tbody>
         </table>
       </div>
 
       <div class="hr-group-title my-16-8">Lactate Threshold Heart Rate Zones</div>
       <div class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix hr-matrix">
-         <tbody id="hr-default-lthr-body"></tbody>
-         </table>
-     </div>
+          <tbody id="hr-default-lthr-body"></tbody>
+        </table>
+      </div>
     </div>
 
     <div id="hr-custom-panel" class="card card-pad-12" role="tabpanel" aria-labelledby="hr-sub-btn-custom" hidden>
@@ -1065,7 +1067,6 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
   </div>
-</div>
 
 <script>
 const defaultZonesConfig = [
