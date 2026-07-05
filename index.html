@@ -268,6 +268,10 @@ input {
   margin-bottom: 8px;
 }
 
+.mb-10 {
+  margin-bottom: 10px;
+}
+
 .my-16-8 {
   margin: 16px 0 8px;
 }
@@ -555,7 +559,7 @@ th {
   min-width: 150px;
   max-width: 150px;
 }
-  
+
 .power-matrix .zone-cell-matrix {
   font-weight: 700;
   color: #111;
@@ -580,6 +584,26 @@ th {
   white-space: normal;
   line-height: 1.2;
   color: rgba(0,0,0,0.78);
+}
+
+@media (prefers-color-scheme: dark) {
+  .power-matrix .zone-sub {
+    color: rgba(255,255,255,0.8);
+  }
+}
+
+.hr-matrix .zone-cell-matrix {
+  color: #111;
+}
+
+.hr-matrix .zone-sub {
+  color: rgba(0,0,0,0.78);
+}
+
+@media (prefers-color-scheme: dark) {
+  .hr-matrix .zone-sub {
+    color: rgba(255,255,255,0.8);
+  }
 }
 
 .power-matrix .zone-value {
@@ -659,159 +683,7 @@ th {
     width: 58px;
   }
 }
-  
-.power-matrix-scroll {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-  scrollbar-width: thin;
-}
 
-.power-matrix {
-  width: max-content;
-  min-width: 760px;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin-top: 0;
-  table-layout: fixed;
-}
-
-.power-matrix th,
-.power-matrix td {
-  min-width: 74px;
-  padding: 8px 6px;
-  border: 1px solid var(--border);
-  text-align: center;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-.power-matrix .row-label {
-  min-width: 108px;
-  text-align: left;
-  font-weight: 700;
-  color: var(--text);
-  background: var(--card);
-  position: sticky;
-  left: 0;
-  z-index: 2;
-}
-
-.power-matrix .zone-cell-matrix {
-  font-weight: 700;
-}
-
-.power-matrix .zone-top {
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.power-matrix .zone-top.ss {
-  font-size: 17px;
-  letter-spacing: 0.2px;
-}
-
-.power-matrix .zone-sub {
-  display: block;
-  margin-top: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  white-space: normal;
-  line-height: 1.2;
-  color: rgba(0,0,0,0.72);
-}
-
-@media (prefers-color-scheme: dark) {
-  .power-matrix .zone-sub {
-    color: rgba(255,255,255,0.8);
-  }
-}
-
-.hr-matrix .zone-cell-matrix {
-  color: #111;
-}
-
-.hr-matrix .zone-sub {
-  color: rgba(0,0,0,0.78);
-}
-
-@media (prefers-color-scheme: dark) {
-  .hr-matrix .zone-sub {
-    color: rgba(255,255,255,0.8);
-  }
-}
-  
-.power-matrix .zone-value {
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.power-matrix .zone-value-large {
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.power-matrix .matrix-input-wrap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  flex-wrap: nowrap;
-}
-
-.power-matrix .matrix-input-wrap .input-small {
-  width: 54px;
-  min-height: 36px;
-  padding: 4px 3px;
-}
-
-.power-matrix .matrix-input-dual .input-small {
-  width: 50px;
-}
-
-@media (min-width: 481px) and (orientation: landscape) {
-  .power-matrix {
-    min-width: 900px;
-  }
-
-  .power-matrix th,
-  .power-matrix td {
-    min-width: 88px;
-    padding: 10px 8px;
-  }
-
-  .power-matrix .row-label {
-    min-width: 124px;
-  }
-
-  .power-matrix .zone-top {
-    font-size: 28px;
-  }
-
-  .power-matrix .zone-top.ss {
-    font-size: 20px;
-  }
-
-  .power-matrix .zone-value {
-    font-size: 15px;
-  }
-
-  .power-matrix .zone-value-large {
-    font-size: 18px;
-  }
-
-  .power-matrix .matrix-input-wrap .input-small {
-    width: 62px;
-    min-height: 38px;
-  }
-
-  .power-matrix .matrix-input-dual .input-small {
-    width: 58px;
-  }
-}
-  
 td {
   padding: 8px;
   border-bottom: 1px solid var(--table-border);
@@ -1006,11 +878,11 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="row">
         <label for="watts-in">Average Watts</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="watts-in" value="150" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="watts-in" value="150" min="1" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="kj-min-in">Time (Minutes)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="kj-min-in" value="60" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="kj-min-in" value="60" min="1" step="1" autocomplete="off">
       </div>
       <div class="row row-stack">
         <div class="row-split">
@@ -1022,7 +894,7 @@ tr:last-child td { border-bottom: none; }
 
       <div class="row">
         <label for="proposed-ftp-kj">New FTP for Comparison</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="proposed-ftp-kj" value="250" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="proposed-ftp-kj" value="250" min="1" step="1" autocomplete="off">
       </div>
     </div>
 
@@ -1041,11 +913,11 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="row">
         <label for="kj-in">Total Kilojoules</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="kj-in" value="500" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="kj-in" value="500" min="1" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="watts-min-in">Time (Minutes)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="watts-min-in" value="60" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="watts-min-in" value="60" min="1" step="1" autocomplete="off">
       </div>
       <div class="row row-stack">
         <div class="row-split">
@@ -1057,7 +929,7 @@ tr:last-child td { border-bottom: none; }
 
       <div class="row">
         <label for="proposed-ftp-watts">New FTP for Comparison</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="proposed-ftp-watts" value="250" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="proposed-ftp-watts" value="250" min="1" step="1" autocomplete="off">
       </div>
     </div>
 
@@ -1076,7 +948,7 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="row">
         <label for="ftp-in">Enter Your FTP (Watts)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="ftp-in" placeholder="250" value="250" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="ftp-in" placeholder="250" value="250" min="1" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="weight-unit">Weight Unit</label>
@@ -1090,11 +962,11 @@ tr:last-child td { border-bottom: none; }
       </div>
       <div class="row">
         <label for="weight-in">Enter Your Weight</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="weight-in" placeholder="165" value="165" min="1" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="weight-in" placeholder="165" value="165" min="1" step="1" autocomplete="off">
       </div>
     </div>
 
-    <div class="card result-box">
+    <div class="card result-box mb-10">
       <div class="result-val" id="wkg-out" aria-live="polite">—</div>
       <div class="result-lbl">Power to Weight Ratio (W/kg)</div>
     </div>
@@ -1105,6 +977,7 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div id="default-power-zones-table" class="card card-pad-8" role="tabpanel" aria-labelledby="sub-btn-default-power">
+      <div class="help-text">Swipe sideways to view all zones.</div>
       <div class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix">
           <tbody id="default-power-table-body"></tbody>
@@ -1125,17 +998,16 @@ tr:last-child td { border-bottom: none; }
       <div class="help-text">Custom zone caps and ranges drive badge classification when the active zones setting is Custom. Sweet Spot is shown as an independent reference band in the table and does not override primary zone classification.</div>
       <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
     </div>
-  </div>
 
   <div id="hr-view" class="view" role="tabpanel" aria-labelledby="btn-hr" hidden>
     <div class="card">
       <div class="row">
         <label for="hr-max-in">Max Heart Rate (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="hr-max-in" placeholder="190" value="190" min="60" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="hr-max-in" placeholder="190" value="190" min="60" step="1" autocomplete="off">
       </div>
       <div class="row">
         <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" id="hr-lthr-in" placeholder="170" value="170" min="60" step="1" autocomplete="off">
+        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="hr-lthr-in" placeholder="170" value="170" min="60" step="1" autocomplete="off">
       </div>
     </div>
 
@@ -1145,6 +1017,8 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div id="hr-default-panel" class="card card-pad-8" role="tabpanel" aria-labelledby="hr-sub-btn-default">
+      <div class="help-text">Swipe sideways to view all zones.</div>
+
       <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
       <div class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix hr-matrix">
@@ -1173,6 +1047,8 @@ tr:last-child td { border-bottom: none; }
 
       <div class="help-text">Max HR thresholds cannot exceed 100%. LTHR thresholds are automatically limited so the resulting BPM does not exceed your entered Max HR.</div>
       <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
+
+      <div class="help-text">Swipe sideways to view all zones.</div>
 
       <div class="hr-group-title my-16-8">Custom Max Heart Rate Zones</div>
       <div class="table-scroll-wrapper power-matrix-scroll">
@@ -1482,18 +1358,7 @@ function getPowerColor(zone) {
 function zoneCellBg(zone, alpha = 0.5) {
   return `linear-gradient(rgba(255,255,255,${alpha}), rgba(255,255,255,${alpha})), var(--p-${zone.colorVar})`;
 }
-
-function getHrRowTint(zoneNum) {
-  const map = {
-    1: 'rgba(142, 142, 147, 0.12)',
-    2: 'rgba(52, 199, 89, 0.12)',
-    3: 'rgba(0, 122, 255, 0.12)',
-    4: 'rgba(255, 149, 0, 0.12)',
-    5: 'rgba(255, 59, 48, 0.12)'
-  };
-  return map[zoneNum] || 'transparent';
-}
-  
+ 
 function getZoneForRatio(ratio, system = activeZoneSystem) {
   if (!(ratio > 0)) return null;
   const config = getZonesConfigForSystem(system);
@@ -1811,7 +1676,7 @@ function generateCustomZonesTable() {
       inputHtml = `
         <div class="matrix-input-wrap">
           <span>≤</span>
-          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${r.max}" aria-label="${z.label} maximum percentage">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="max" type="number" inputmode="numeric" enterkeyhint="done" min="1" max="300" step="1" value="${r.max}" aria-label="${z.label} maximum percentage">
           <span>%</span>
         </div>
       `;
@@ -1819,16 +1684,16 @@ function generateCustomZonesTable() {
       inputHtml = `
         <div class="matrix-input-wrap">
           <span>≥</span>
-          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${r.min}" aria-label="${z.label} minimum percentage">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="min" type="number" inputmode="numeric" enterkeyhint="done" min="1" max="300" step="1" value="${r.min}" aria-label="${z.label} minimum percentage">
           <span>%</span>
         </div>
       `;
     } else {
       inputHtml = `
         <div class="matrix-input-wrap matrix-input-dual">
-          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="min" type="number" inputmode="numeric" min="1" max="300" step="1" value="${r.min}" aria-label="${z.label} minimum percentage">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="min" type="number" inputmode="numeric" min="1" enterkeyhint="done" max="300" step="1" value="${r.min}" aria-label="${z.label} minimum percentage">
           <span>to</span>
-          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="max" type="number" inputmode="numeric" min="1" max="300" step="1" value="${r.max}" aria-label="${z.label} maximum percentage">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="max" type="number" inputmode="numeric" min="1" enterkeyhint="done" max="300" step="1" value="${r.max}" aria-label="${z.label} maximum percentage">
           <span>%</span>
         </div>
       `;
@@ -1889,14 +1754,6 @@ function generateCustomZonesTable() {
   `;
 
   cacheCustomPowerCells();
-}
-
-function syncPowerAnchorInputs(anchor, value) {
-  document.querySelectorAll(`.custom-zone-input[data-anchor="${anchor}"]`).forEach(input => {
-    if (document.activeElement !== input && input.value !== String(value)) {
-      input.value = String(value);
-    }
-  });
 }
 
 function validateAndApplyCustomZones(changedInput = null) {
@@ -1998,11 +1855,11 @@ function renderCustomHrControls() {
   ['Zone 1 upper', 'Zone 2 upper', 'Zone 3 upper', 'Zone 4 upper'].forEach((label, i) => {
     els.customHrMaxGrid.insertAdjacentHTML(
       'beforeend',
-      `<label for="custom-max-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" inputmode="numeric" min="1" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`
+      `<label for="custom-max-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-max" id="custom-max-${i}" data-index="${i}" type="number" inputmode="numeric" enterkeyhint="done" min="1" max="100" step="1" value="${customHrAnchors.max[i]}"><span>%</span></div>`
     );
     els.customHrLthrGrid.insertAdjacentHTML(
       'beforeend',
-      `<label for="custom-lthr-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" inputmode="numeric" min="1" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`
+      `<label for="custom-lthr-${i}" class="w-auto">${label}</label><div class="inline-fields"><input class="input-small numeric-input custom-hr-lthr" id="custom-lthr-${i}" data-index="${i}" type="number" inputmode="numeric" enterkeyhint="done" min="1" max="150" step="1" value="${customHrAnchors.lthr[i]}"><span>%</span></div>`
     );
   });
 }
@@ -2193,7 +2050,17 @@ function bindSelectOnFocus(el) {
 }
 
 function bindSelectOnFocusToAll(root = document) {
-  root.querySelectorAll('input').forEach(bindSelectOnFocus);
+  root.querySelectorAll('input').forEach(input => {
+    if (
+      input.classList.contains('custom-zone-range-input') ||
+      input.classList.contains('custom-hr-max') ||
+      input.classList.contains('custom-hr-lthr')
+    ) {
+      return;
+    }
+
+    bindSelectOnFocus(input);
+  });
 }
 
 function persistOnCommit(el, key, decimals = 0, afterSave) {
@@ -2283,7 +2150,6 @@ function bindCustomZoneInputs() {
     };
 
     el.addEventListener('change', commit);
-    el.addEventListener('blur', commit);
   });
 }
 
@@ -2295,7 +2161,6 @@ function bindCustomHrInputs() {
     };
 
     el.addEventListener('change', commit);
-    el.addEventListener('blur', commit);
   });
 }
 
