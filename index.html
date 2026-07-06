@@ -531,6 +531,13 @@ th {
   scrollbar-width: thin;
 }
 
+#hr-default-max-scroll,
+#hr-default-lthr-scroll,
+#hr-custom-max-scroll,
+#hr-custom-lthr-scroll {
+  overscroll-behavior-x: contain;
+}
+
 .power-matrix {
   width: max-content;
   min-width: 760px;
@@ -2536,24 +2543,54 @@ function bindTablistKeyboard(selector, activate) {
 function syncHorizontalScroll(elA, elB) {
   if (!elA || !elB) return;
 
-  let syncing = false;
+  let activeSource = null;
+  let rafId = null;
+  let interactionTimer = null;
 
-  const syncFromA = () => {
-    if (syncing) return;
-    syncing = true;
-    elB.scrollLeft = elA.scrollLeft;
-    requestAnimationFrame(() => { syncing = false; });
+  const setActiveSource = (source) => {
+    activeSource = source;
+
+    if (interactionTimer) clearTimeout(interactionTimer);
+    interactionTimer = setTimeout(() => {
+      activeSource = null;
+    }, 120);
   };
 
-  const syncFromB = () => {
-    if (syncing) return;
-    syncing = true;
-    elA.scrollLeft = elB.scrollLeft;
-    requestAnimationFrame(() => { syncing = false; });
+  const applySync = () => {
+    if (!activeSource) {
+      rafId = null;
+      return;
+    }
+
+    const target = activeSource === elA ? elB : elA;
+    if (Math.abs(target.scrollLeft - activeSource.scrollLeft) > 1) {
+      target.scrollLeft = activeSource.scrollLeft;
+    }
+
+    rafId = null;
   };
 
-  elA.addEventListener('scroll', syncFromA, { passive: true });
-  elB.addEventListener('scroll', syncFromB, { passive: true });
+  const queueSync = (source) => {
+    if (activeSource && activeSource !== source) return;
+
+    setActiveSource(source);
+
+    if (rafId !== null) return;
+    rafId = requestAnimationFrame(applySync);
+  };
+
+  const bindSource = (source) => {
+    const activate = () => setActiveSource(source);
+
+    source.addEventListener('touchstart', activate, { passive: true });
+    source.addEventListener('pointerdown', activate, { passive: true });
+    source.addEventListener('mouseenter', activate, { passive: true });
+
+    source.addEventListener('scroll', () => queueSync(source), { passive: true });
+  };
+
+  bindSource(elA);
+  bindSource(elB);
 }
 
 function resetPairedHorizontalScroll(elA, elB) {
