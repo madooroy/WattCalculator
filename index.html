@@ -1454,7 +1454,9 @@ function loadCustomHrAnchors() {
     const parsed = JSON.parse(raw);
     const candidate = parsed && parsed.version === 3 && parsed.anchors
       ? normalizeHrAnchors(parsed.anchors)
-      : normalizeHrAnchors(null);
+      : parsed && parsed.anchors
+        ? normalizeHrAnchors(parsed.anchors)
+        : normalizeHrAnchors(parsed);
 
     return validateHrAnchorSet(candidate, 0, 0) ? deepClone(defaultHrPercentConfig) : candidate;
   } catch {
@@ -2204,6 +2206,9 @@ function renderHrTables() {
   if (defaultLthrBody) defaultLthrBody.innerHTML = buildHrDisplayMatrix('lthr', '', defaultHrPercentConfig);
   if (customMaxBody) customMaxBody.innerHTML = buildHrEditableMatrix('max', 'c-', customHrAnchors);
   if (customLthrBody) customLthrBody.innerHTML = buildHrEditableMatrix('lthr', 'c-', customHrAnchors);
+
+  bindSelectOnFocusToAll(els.hrDefaultPanel || document);
+  bindSelectOnFocusToAll(els.hrCustomPanel || document);
 }
 
 function readCustomHrAnchorsInline() {
@@ -2262,7 +2267,6 @@ function validateAndApplyCustomHR() {
   saveCustomHrAnchors();
   renderHrTables();
   bindCustomHrInlineInputs();
-  bindSelectOnFocusToAll(els.hrCustomPanel);
   updateCustomHRZones();
 }
 
@@ -2349,7 +2353,14 @@ function bindSelectOnFocus(el) {
   const selectAll = () => {
     requestAnimationFrame(() => {
       try {
+        el.focus({ preventScroll: true });
+      } catch {}
+
+      try {
         el.select();
+      } catch {}
+
+      try {
         if (typeof el.setSelectionRange === 'function') {
           el.setSelectionRange(0, el.value.length);
         }
@@ -2359,6 +2370,8 @@ function bindSelectOnFocus(el) {
 
   el.addEventListener('focus', selectAll);
   el.addEventListener('click', selectAll);
+  el.addEventListener('pointerup', selectAll);
+  el.addEventListener('touchend', selectAll, { passive: true });
 }
 
 function bindSelectOnFocusToAll(root = document) {
@@ -2622,8 +2635,7 @@ window.addEventListener('DOMContentLoaded', () => {
   bindCustomZoneInputs();
   bindCustomHrInlineInputs();
   loadSavedValues();
-  renderHrTables();
-  bindCustomHrInlineInputs();
+
   updateZones();
   updateHRZones();
   updateCustomHRZones();
