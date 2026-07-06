@@ -2567,14 +2567,11 @@ function bindEvents() {
   els.newFtpKj.addEventListener('input', syncProposed);
   els.newFtpWatts.addEventListener('input', syncProposed);
 
-  els.hrMaxIn.addEventListener('input', () => {
-    updateHRZones();
-    validateAndApplyCustomHR();
-  });
+  els.hrMaxIn.addEventListener('input', updateHRZones);
+  els.hrLthrIn.addEventListener('input', updateHRZones);
 
-  els.hrLthrIn.addEventListener('input', () => {
-    updateHRZones();
-    validateAndApplyCustomHR();
+  els.hrMaxIn.addEventListener('change', validateAndApplyCustomHR);
+  els.hrLthrIn.addEventListener('change', validateAndApplyCustomHR);
   });
 
   persistOnCommit(els.ftpIn, 'cycling_ftp', 0, updateZones);
