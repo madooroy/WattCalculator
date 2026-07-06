@@ -321,7 +321,7 @@ input[type="number"] {
   font-size: 16px;
   font-weight: bold;
 }
-
+  
 @media (max-width: 768px) {
   .input-small,
   .numeric-input {
@@ -338,17 +338,22 @@ input[type="number"] {
   .hr-edit-grid .input-small {
     font-size: 16px;
   }
-  
+
   .power-matrix.hr-matrix .matrix-input-dual {
     font-size: 11px;
   }
 
   .power-matrix.hr-matrix .matrix-input-dual .input-small {
-    width: 42px;
+    width: 38px;
+    min-width: 38px;
+  }
+
+  .power-matrix.hr-matrix .matrix-input-wrap span {
+    font-size: 10px;
   }
 }
 
-  .range-col {
+.range-col {
   text-align: right;
   font-family: monospace;
   font-size: 13px;
@@ -356,15 +361,15 @@ input[type="number"] {
 }
 
 #hr-default-panel td:last-child,
-#hr--panel td:last-child {
+#hr-custom-panel td:last-child {
   text-align: right;
   font-family: monospace;
 }
 
 #default-power-zones-table td,
-#-zones-table td,
+#custom-zones-table td,
 #hr-default-panel td,
-#hr--panel td,
+#hr-custom-panel td,
 .range-col {
   font-size: 13px;
   font-weight: bold;
@@ -376,9 +381,6 @@ input[type="number"] {
   font-weight: bold;
 }
 
-.-zone-input,
-.-hr-max,
-.-hr-lthr,
 .power-matrix .input-small,
 .hr-edit-grid .input-small,
 .table-scroll-wrapper .input-small {
@@ -490,7 +492,7 @@ select {
   transition: background 0.2s ease;
 }
 
- .calc-badge .badge-subline {
+.calc-badge .badge-subline {
   display: block;
   font-size: 11px;
   margin-top: 2px;
@@ -569,6 +571,19 @@ th {
   z-index: 2;
 }
 
+.hr-matrix {
+  table-layout: fixed;
+  width: 760px;
+  min-width: 760px;
+}
+
+.hr-matrix th,
+.hr-matrix td {
+  width: 122px;
+  min-width: 122px;
+  max-width: 122px;
+}
+
 .hr-matrix .row-label {
   width: 150px;
   min-width: 150px;
@@ -639,16 +654,29 @@ th {
   flex-wrap: nowrap;
 }
 
-  .power-matrix.hr-matrix .matrix-input-wrap {
+.power-matrix.hr-matrix .matrix-input-wrap {
+  width: 100%;
+  justify-content: center;
   gap: 3px;
 }
 
 .power-matrix.hr-matrix .matrix-input-dual {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  white-space: nowrap;
   font-size: 12px;
 }
 
 .power-matrix.hr-matrix .matrix-input-dual .input-small {
-  width: 46px;
+  width: 40px;
+  min-width: 40px;
+  padding: 4px 2px;
+}
+
+.power-matrix.hr-matrix .matrix-input-wrap span {
+  font-size: 11px;
 }
 
 .power-matrix.hr-matrix .matrix-input-dual span {
@@ -789,7 +817,7 @@ tr:last-child td { border-bottom: none; }
 .zone-row-tint.hr-z3 { background: rgba(0, 122, 255, 0.12); }
 .zone-row-tint.hr-z4 { background: rgba(255, 149, 0, 0.12); }
 .zone-row-tint.hr-z5 { background: rgba(255, 59, 48, 0.12); }
-  
+
 #custom-zones-table .input-small {
   font-size: 16px;
   font-weight: bold;
@@ -844,8 +872,8 @@ tr:last-child td { border-bottom: none; }
 #custom-zones-table th,
 #custom-zones-table td {
   white-space: nowrap;
-}  
-  
+}
+
 #hr-view td.range-col,
 #hr-view th.text-right {
   white-space: nowrap;
