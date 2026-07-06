@@ -490,6 +490,13 @@ select {
   transition: background 0.2s ease;
 }
 
+ .calc-badge .badge-subline {
+  display: block;
+  font-size: 11px;
+  margin-top: 2px;
+  opacity: 0.95;
+}
+
 .table-scroll-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -1486,7 +1493,8 @@ function zoneCellBg(zone, alpha = 0.5) {
  
 function getZoneForRatio(ratio, system = activeZoneSystem) {
   if (!(ratio > 0)) return null;
-  const config = getZonesConfigForSystem(system);
+
+  const config = getZonesConfigForSystem(system).filter(z => z.id !== 'ss');
 
   for (const z of config) {
     if (z.max === null) {
@@ -1499,11 +1507,48 @@ function getZoneForRatio(ratio, system = activeZoneSystem) {
   return null;
 }
 
+function isSweetSpotRatio(ratio, system = activeZoneSystem) {
+  if (!(ratio > 0)) return false;
+
+  const ss = getZonesConfigForSystem(system).find(z => z.id === 'ss');
+  if (!ss) return false;
+
+  return ss.max === null
+    ? ratio >= ss.min
+    : ratio >= ss.min && ratio < ss.max;
+}
+
+function getOutputZoneDetails(watts, ftp) {
+  if (ftp <= 0 || watts <= 0) {
+    return {
+      label: 'None',
+      color: '#8e8e93',
+      sweetSpot: false
+    };
+  }
+
+  const ratio = watts / ftp;
+  const zone = getZoneForRatio(ratio);
+  const sweetSpot = isSweetSpotRatio(ratio);
+
+  if (!zone) {
+    return {
+      label: 'None',
+      color: '#8e8e93',
+      sweetSpot
+    };
+  }
+
+  return {
+    label: zone.label,
+    color: getPowerColor(zone),
+    sweetSpot
+  };
+}
+  
 function getOutputZone(watts, ftp) {
-  if (ftp <= 0 || watts <= 0) return { label: 'None', color: '#8e8e93' };
-  const zone = getZoneForRatio(watts / ftp);
-  if (!zone) return { label: 'None', color: '#8e8e93' };
-  return { label: zone.label, color: getPowerColor(zone) };
+  const details = getOutputZoneDetails(watts, ftp);
+  return { label: details.label, color: details.color };
 }
 
 function getZoneRangeInfo(zone, ftp) {
@@ -1680,15 +1725,18 @@ function setNewFTP(val, persist = true) {
 }
 
 function updateBadgeUI(badgeEl, prefix, watts, ftp) {
-  const zone = getOutputZone(watts, ftp);
+  const details = getOutputZoneDetails(watts, ftp);
   const pctText = (ftp > 0 && watts > 0)
     ? ` (${((watts / ftp) * 100).toFixed(1)}% of ${wholeNumber(ftp)}W)`
     : ftp > 0
       ? ` (${wholeNumber(ftp)}W)`
       : '';
 
-  badgeEl.textContent = `${prefix}: ${zone.label}${pctText}`;
-  badgeEl.style.backgroundColor = zone.color;
+  badgeEl.innerHTML = details.sweetSpot
+    ? `${prefix}: ${details.label}${pctText}<span class="badge-subline">Sweet Spot</span>`
+    : `${prefix}: ${details.label}${pctText}`;
+
+  badgeEl.style.backgroundColor = details.color;
 }
 
 function recalculateAllBadges() {
