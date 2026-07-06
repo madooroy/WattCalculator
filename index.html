@@ -2209,6 +2209,8 @@ function renderHrTables() {
 
   bindSelectOnFocusToAll(els.hrDefaultPanel || document);
   bindSelectOnFocusToAll(els.hrCustomPanel || document);
+  bindSelectOnFocusToInputList('.custom-hr-max-inline', els.hrCustomPanel || document);
+  bindSelectOnFocusToInputList('.custom-hr-lthr-inline', els.hrCustomPanel || document);
 }
 
 function readCustomHrAnchorsInline() {
@@ -2378,6 +2380,10 @@ function bindSelectOnFocusToAll(root = document) {
   root.querySelectorAll('input').forEach(bindSelectOnFocus);
 }
 
+function bindSelectOnFocusToInputList(selector, root = document) {
+  root.querySelectorAll(selector).forEach(bindSelectOnFocus);
+}
+
 function persistOnCommit(el, key, decimals = 0, afterSave) {
   const handler = () => {
     const clean = sanitizeInput(el, decimals);
@@ -2469,7 +2475,6 @@ function bindCustomZoneInputs() {
     el.addEventListener('change', commit);
   });
 }
-
 
 function bindTablistKeyboard(selector, activate) {
   const tabs = [...document.querySelectorAll(selector)];
