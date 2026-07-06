@@ -1973,46 +1973,6 @@ function updateHRZones() {
   applyHrRanges('', maxHr, lthr, defaultHrPercentConfig);
 }
 
-function buildHrMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
-  const pctValues = metric === 'max' ? cfg.max : cfg.lthr;
-  const anchorLabel = metric === 'max' ? 'Max HR' : 'LTHR';
-  const pctRanges = formatHrPctRanges(pctValues);
-
-  const zoneHeaderCells = hrZoneDefs.map(zone => `
-    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
-      <div class="zone-top">${zone.num}</div>
-      <span class="zone-sub">${zone.desc}</span>
-    </td>
-  `).join('');
-
-  const pctCells = hrZoneDefs.map((zone, i) => `
-    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
-      <div class="zone-value" id="${prefix}hr${zone.num}-${metric}-pct-range">${pctRanges[i]}</div>
-    </td>
-  `).join('');
-
-  const bpmCells = hrZoneDefs.map(zone => `
-    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
-      <div class="zone-value-large" id="${prefix}hr${zone.num}-${metric}-range">—</div>
-    </td>
-  `).join('');
-
-  return `
-    <tr>
-      <th class="row-label">Zone</th>
-      ${zoneHeaderCells}
-    </tr>
-    <tr>
-      <th class="row-label">${anchorLabel} Range (%)</th>
-      ${pctCells}
-    </tr>
-    <tr>
-      <th class="row-label">BPM Range</th>
-      ${bpmCells}
-    </tr>
-  `;
-}
-
 function buildHrDisplayMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
   const metricCfg = cfg[metric];
   const anchorLabel = metric === 'max' ? 'Max HR' : 'LTHR';
@@ -2195,7 +2155,7 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
     </tr>
   `;
 }
-  
+
 function renderHrTables() {
   const defaultMaxBody = document.getElementById('hr-default-max-body');
   const defaultLthrBody = document.getElementById('hr-default-lthr-body');
@@ -2252,7 +2212,7 @@ function bindCustomHrInlineInputs() {
     el.addEventListener('change', commit);
   });
 }
-  
+
 function validateAndApplyCustomHR() {
   const nextAnchors = readCustomHrAnchorsInline();
 
@@ -2569,10 +2529,8 @@ function bindEvents() {
 
   els.hrMaxIn.addEventListener('input', updateHRZones);
   els.hrLthrIn.addEventListener('input', updateHRZones);
-
   els.hrMaxIn.addEventListener('change', validateAndApplyCustomHR);
   els.hrLthrIn.addEventListener('change', validateAndApplyCustomHR);
-  });
 
   persistOnCommit(els.ftpIn, 'cycling_ftp', 0, updateZones);
   persistOnCommit(els.weightIn, 'cycling_weight', 1, updateZones);
