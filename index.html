@@ -604,7 +604,8 @@ th {
   overflow-wrap: anywhere;
   word-break: break-word;
   line-height: 1.2;
-
+}
+  
 .power-matrix .zone-cell-matrix {
   font-weight: 700;
   color: #111;
@@ -702,9 +703,25 @@ th {
   width: 54px;
   min-height: 36px;
   padding: 4px 3px;
-  background: rgba(255,255,255,0.88);
-  color: #111;
+  background: #fff !important;
+  color: #111 !important;
   border: 1px solid rgba(0,0,0,0.18);
+}
+
+.power-matrix input.input-small,
+.hr-matrix input.input-small {
+  background-color: #fff !important;
+  color: #111 !important;
+  -webkit-text-fill-color: #111 !important;
+  background-image: none !important;
+}
+  
+@media (prefers-color-scheme: dark) {
+  .power-matrix .matrix-input-wrap .input-small {
+    background: #fff !important;
+    color: #111 !important;
+    border: 1px solid rgba(0,0,0,0.18) !important;
+  }
 }
 
 .power-matrix .matrix-input-dual .input-small {
@@ -850,6 +867,12 @@ tr:last-child td { border-bottom: none; }
   color: var(--muted);
   line-height: 1.4;
   margin-top: 8px;
+}
+
+#custom-zones-table .help-text,
+#hr-custom-panel .help-text {
+  font-size: 11px;
+  line-height: 1.3;
 }
 
 .inline-fields {
