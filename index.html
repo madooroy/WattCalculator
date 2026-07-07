@@ -877,6 +877,21 @@ tr:last-child td { border-bottom: none; }
   line-height: 1.3;
 }
 
+.custom-swipe-note {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+#custom-zones-table .controls-row,
+#hr-custom-panel .controls-row {
+  margin-bottom: 4px;
+}
+
+#hr-custom-panel .error-text {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+  
 #default-power-zones-table > .help-text:first-child,
 #custom-zones-table > .help-text:first-of-type,
 #hr-default-panel > .help-text:first-child,
@@ -1134,17 +1149,17 @@ tr:last-child td { border-bottom: none; }
       <div class="controls-row">
         <button id="reset-custom-zones" class="secondary-btn" type="button">Reset to Default</button>
       </div>
-      <div class="help-text">Swipe sideways to view all zones.</div>
-      
+
+      <div class="custom-swipe-note help-text">Swipe sideways to view all zones.</div>
+
       <div class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix">
           <tbody id="custom-table-body"></tbody>
         </table>
       </div>
-      <div class="help-text">Selection of Default or Custom Power Zones drives badge classification on Find Watts and Find kJ tabs.</div> 
 
-      <div class="help-text">Sweet Spot is shown as an independent reference band in the table and does not override primary zone classification.</div> 
-
+      <div class="help-text">Selection of Default or Custom Power Zones drives badge classification on Find Watts and Find kJ tabs.</div>
+      <div class="help-text">Sweet Spot is shown as an independent reference band in the table and does not override primary zone classification.</div>
       <div class="help-text">Power Zones increase by exactly 1 W between zones to ensure a continuous scale.</div>
       <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
     </div>
@@ -1184,16 +1199,17 @@ tr:last-child td { border-bottom: none; }
         </table>
       </div>
       
-      <div class="help-text">Heart rates increase by exactly 1 BPM between zones to ensure a continuous scale.</div>
+      <div class="help-text">Heart rate zones increase by exactly 1 BPM between zones to ensure a continuous scale.</div>
      </div>
 
     <div id="hr-custom-panel" class="card card-pad-12" role="tabpanel" aria-labelledby="hr-sub-btn-custom" hidden>
       <div class="controls-row">
         <button id="reset-custom-hr" class="secondary-btn" type="button">Reset to Default</button>
       </div>
-      <div class="help-text">Swipe sideways to view all zones.</div>
-      
+
+      <div class="custom-swipe-note help-text">Swipe sideways to view all zones.</div>
       <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
+
       <div class="hr-group-title mt-4 mb-8">Custom Max Heart Rate Zones</div>
       <div id="hr-custom-max-scroll" class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix hr-matrix">
@@ -1209,8 +1225,7 @@ tr:last-child td { border-bottom: none; }
       </div>
 
       <div class="help-text">Max HR thresholds cannot exceed 100%. LTHR thresholds are automatically limited so the resulting BPM does not exceed your entered Max HR.</div>
-      
-      <div class="help-text">Heart rates increase by exactly 1 BPM between zones to ensure a continuous scale.</div>
+      <div class="help-text">Heart rate zones increase by exactly 1 BPM between zones to ensure a continuous scale.</div>
     </div>
   </div>
  </div>
