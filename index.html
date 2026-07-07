@@ -1615,6 +1615,25 @@ function getZoneRangeInfo(zone, ftp) {
     targetText: `${wholeNumber(ftp * zone.target)}`
   };
 }
+function getCustomZoneTargetInfo(zone, ftp) {
+  const minPct = Math.round(zone.min * 100);
+  const maxPct = zone.max === null ? null : Math.round(zone.max * 100);
+
+  let targetPctValue;
+
+  if (zone.id === 'z1' || zone.id === 'z7') {
+    targetPctValue = Math.round(zone.target * 100);
+  } else {
+    targetPctValue = Math.round((minPct + maxPct) / 2);
+  }
+
+  const targetWatts = wholeNumber(ftp * (targetPctValue / 100));
+
+  return {
+    targetPctText: `${targetPctValue}%`,
+    targetText: `${targetWatts}`
+  };
+}
 
 function cacheDefaultPowerCells() {
   powerCellCache.default = {};
@@ -1634,7 +1653,6 @@ function cacheCustomPowerCells() {
 
   customZonesConfig.forEach(z => {
     powerCellCache.custom[z.id] = {
-      pct: document.getElementById(`c-${z.id}-pct-range`),
       range: document.getElementById(`c-${z.id}-range`),
       targetPct: document.getElementById(`c-${z.id}-target-pct`),
       target: document.getElementById(`c-${z.id}-target`)
@@ -1643,11 +1661,14 @@ function cacheCustomPowerCells() {
 }
 
 function sanitizeInput(el, decimals = 0) {
-  const value = clampNonNegative(el.value);
+  const raw = String(el.value ?? '').trim();
+  if (raw === '') return 0;
+
+  const value = clampNonNegative(raw);
   el.value = decimals > 0
     ? value.toFixed(decimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1')
     : String(wholeNumber(value));
-  return clampNonNegative(el.value);
+  return value;
 }
 
 function setTabState(buttons, activeBtn) {
@@ -1864,17 +1885,23 @@ function generateDefaultTables() {
 }
 
 function generateCustomZonesTable() {
-  const displayRanges = displayRangesFromAnchors(customPowerAnchors);
+  const targetPctCells = customZonesConfig.map(z => {
+    const targetPctText = (z.id === 'z1' || z.id === 'z7')
+      ? `${Math.round(z.target * 100)}%`
+      : '—';
 
-  const zoneHeaderCells = customZonesConfig.map(z => {
-    const shortLabel = z.id === 'ss' ? 'SS' : z.label.replace('Zone ', '');
     return `
       <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
-        <div class="zone-top ${z.id === 'ss' ? 'ss' : ''}">${shortLabel}</div>
-        <span class="zone-sub">${z.desc}</span>
+        <div class="zone-value" id="c-${z.id}-target-pct">${targetPctText}</div>
       </td>
     `;
   }).join('');
+
+  const targetWattCells = customZonesConfig.map(z => `
+    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
+      <div class="zone-value-large" id="c-${z.id}-target">—</div>
+    </td>
+  `).join('');
 
   const editCells = customZonesConfig.map(z => {
     const r = displayRanges[z.id];
@@ -1910,12 +1937,6 @@ function generateCustomZonesTable() {
     return `<td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">${inputHtml}</td>`;
   }).join('');
 
-  const rangePctCells = customZonesConfig.map(z => `
-    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
-      <div class="zone-value" id="c-${z.id}-pct-range">—</div>
-    </td>
-  `).join('');
-
   const rangeWattCells = customZonesConfig.map(z => `
     <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
       <div class="zone-value" id="c-${z.id}-range">—</div>
@@ -1942,10 +1963,6 @@ function generateCustomZonesTable() {
     <tr>
       <th class="row-label">Custom Range (%)</th>
       ${editCells}
-    </tr>
-    <tr>
-      <th class="row-label">Resolved Range (%)</th>
-      ${rangePctCells}
     </tr>
     <tr>
       <th class="row-label">Range (W)</th>
@@ -2028,15 +2045,16 @@ function updateDefaultPowerZoneTable(ftp) {
 function updateCustomPowerZoneTable(ftp) {
   customZonesConfig.forEach(z => {
     const info = getZoneRangeInfo(z, ftp);
+    const targetInfo = getCustomZoneTargetInfo(z, ftp);
     const cellSet = powerCellCache.custom[z.id];
 
     if (!cellSet) return;
-    if (cellSet.pct) cellSet.pct.textContent = info.pctText;
     if (cellSet.range) cellSet.range.textContent = info.wattsText;
-    if (cellSet.targetPct) cellSet.targetPct.textContent = `${Math.round(z.target * 100)}%`;
-    if (cellSet.target) cellSet.target.textContent = info.targetText;
+    if (cellSet.targetPct) cellSet.targetPct.textContent = targetInfo.targetPctText;
+    if (cellSet.target) cellSet.target.textContent = targetInfo.targetText;
   });
 }
+
 
 function updateZones() {
   const ftp = clampNonNegative(els.ftpIn.value);
@@ -2054,6 +2072,7 @@ function updateHRZones() {
   const maxHr = clampNonNegative(els.hrMaxIn.value);
   const lthr = clampNonNegative(els.hrLthrIn.value);
   applyHrRanges('', maxHr, lthr, defaultHrPercentConfig);
+  applyHrRanges('c-', maxHr, lthr, customHrAnchors);
 }
 
 function buildHrDisplayMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
@@ -2207,12 +2226,6 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
     `;
   }).join('');
 
-  const pctCells = hrZoneDefs.map(zone => `
-    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
-      <div class="zone-value" id="${prefix}hr${zone.num}-${metric}-pct-range">—</div>
-    </td>
-  `).join('');
-
   const bpmCells = hrZoneDefs.map(zone => `
     <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
       <div class="zone-value-large" id="${prefix}hr${zone.num}-${metric}-range">—</div>
@@ -2227,10 +2240,6 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
     <tr>
       <th class="row-label">Custom ${anchorLabel} (%)</th>
       ${editCells}
-    </tr>
-    <tr>
-      <th class="row-label">Resolved ${anchorLabel} (%)</th>
-      ${pctCells}
     </tr>
     <tr>
       <th class="row-label">BPM Range</th>
@@ -2345,20 +2354,14 @@ function bpmRangeTexts(metricCfg, base) {
 }
 
 function applyHrRanges(prefix, maxHr, lthr, cfg) {
-  const maxPctRanges = formatHrPctRanges(cfg.max);
-  const lthrPctRanges = formatHrPctRanges(cfg.lthr);
   const maxBpm = bpmRangeTexts(cfg.max, maxHr);
   const lthrBpm = bpmRangeTexts(cfg.lthr, lthr);
 
   for (let i = 0; i < 5; i++) {
-    const maxPctEl = document.getElementById(`${prefix}hr${i + 1}-max-pct-range`);
     const maxRangeEl = document.getElementById(`${prefix}hr${i + 1}-max-range`);
-    const lthrPctEl = document.getElementById(`${prefix}hr${i + 1}-lthr-pct-range`);
     const lthrRangeEl = document.getElementById(`${prefix}hr${i + 1}-lthr-range`);
 
-    if (maxPctEl) maxPctEl.textContent = maxPctRanges[i];
     if (maxRangeEl) maxRangeEl.textContent = maxBpm[i];
-    if (lthrPctEl) lthrPctEl.textContent = lthrPctRanges[i];
     if (lthrRangeEl) lthrRangeEl.textContent = lthrBpm[i];
   }
 }
