@@ -878,25 +878,23 @@ tr:last-child td { border-bottom: none; }
 }
 
 #default-power-zones-table > .help-text:first-child,
-#custom-zones-table > .help-text:first-child,
+#custom-zones-table > .help-text:first-of-type,
 #hr-default-panel > .help-text:first-child,
-#hr-custom-panel > .help-text:first-child {
+#hr-custom-panel > .help-text:first-of-type {
   margin-top: 0;
   margin-bottom: 12px;
 }
 
-#hr-custom-panel .hr-group-title:first-of-type {
-  margin-top: 0;
-}
-  
-#hr-custom-panel > .help-text:first-of-type {
-  margin-bottom: 0;
+#custom-zones-table .controls-row,
+#hr-custom-panel .controls-row {
+  margin-bottom: 8px;
 }
 
 #hr-custom-panel .hr-group-title:first-of-type {
   margin-top: 4px;
+  margin-bottom: 8px;
 }
- 
+
 .inline-fields {
   display: flex;
   justify-content: flex-end;
