@@ -877,6 +877,19 @@ tr:last-child td { border-bottom: none; }
   line-height: 1.3;
 }
 
+#default-power-zones-table > .help-text:first-child,
+#custom-zones-table > .help-text:first-child {
+  margin-bottom: 12px;
+}
+  
+#hr-custom-panel > .help-text:first-of-type {
+  margin-bottom: 0;
+}
+
+#hr-custom-panel .hr-group-title:first-of-type {
+  margin-top: 4px;
+}
+ 
 .inline-fields {
   display: flex;
   justify-content: flex-end;
@@ -1176,7 +1189,7 @@ tr:last-child td { border-bottom: none; }
       <div class="help-text">Swipe sideways to view all zones.</div>
       
       <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
-      <div class="hr-group-title my-16-8">Custom Max Heart Rate Zones</div>
+      <div class="hr-group-title mt-4 mb-8">Custom Max Heart Rate Zones</div>
       <div id="hr-custom-max-scroll" class="table-scroll-wrapper power-matrix-scroll">
         <table class="power-matrix hr-matrix">
           <tbody id="hr-custom-max-body"></tbody>
