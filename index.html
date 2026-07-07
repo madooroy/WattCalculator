@@ -1738,7 +1738,20 @@ function switchTab(type) {
 
   els.appTitle.textContent = titles[type] || 'Cycling Calculator';
 
-  if (type === 'zones') updateZones();
+  if (type === 'zones') {
+    const isDefault = activeZoneSystem === 'default';
+
+    setTabState(
+      [els.subBtnDefaultPower, els.subBtnCustomPower],
+      isDefault ? els.subBtnDefaultPower : els.subBtnCustomPower
+    );
+
+    els.defaultPowerZonesTable.hidden = !isDefault;
+    els.customZonesTable.hidden = isDefault;
+
+    updateZones();
+  }
+
   if (type === 'hr') {
     updateHRZones();
     updateCustomHRZones();
@@ -1751,6 +1764,8 @@ function toggleActiveSystem() {
 
 function setActiveZoneSystem(val, persist = true) {
   activeZoneSystem = val;
+  activeZoneSubtab = val;
+
   if (persist) savePrimitive('cycling_active_system', val);
 
   const labelMap = {
@@ -1764,11 +1779,22 @@ function setActiveZoneSystem(val, persist = true) {
   els.toggleSystemKj.setAttribute('aria-pressed', String(val === 'custom'));
   els.toggleSystemWatts.setAttribute('aria-pressed', String(val === 'custom'));
 
+  setTabState(
+    [els.subBtnDefaultPower, els.subBtnCustomPower],
+    val === 'default' ? els.subBtnDefaultPower : els.subBtnCustomPower
+  );
+
+  els.defaultPowerZonesTable.hidden = val !== 'default';
+  els.customZonesTable.hidden = val !== 'custom';
+
   recalculateAllBadges();
 }
 
-function setZoneSubtab(val) {
+function setZoneSubtab(val, persist = true) {
   activeZoneSubtab = val;
+  activeZoneSystem = val;
+
+  if (persist) savePrimitive('cycling_active_system', val);
 
   const isDefault = val === 'default';
   const isCustom = val === 'custom';
@@ -1781,7 +1807,19 @@ function setZoneSubtab(val) {
   els.defaultPowerZonesTable.hidden = !isDefault;
   els.customZonesTable.hidden = !isCustom;
 
+  const labelMap = {
+    default: 'Zones: Default Power Zones',
+    custom: 'Zones: Custom Power Zones'
+  };
+
+  const buttonText = labelMap[val];
+  els.toggleSystemKj.textContent = buttonText;
+  els.toggleSystemWatts.textContent = buttonText;
+  els.toggleSystemKj.setAttribute('aria-pressed', String(val === 'custom'));
+  els.toggleSystemWatts.setAttribute('aria-pressed', String(val === 'custom'));
+
   updateZones();
+  recalculateAllBadges();
 }
 
 function setHrSubtab(val) {
@@ -2723,8 +2761,10 @@ function loadSavedValues() {
   syncDropdowns();
 
   const system = safeStorageGet('cycling_active_system');
-  setActiveZoneSystem(['default', 'custom'].includes(system) ? system : 'default', false);
-  setZoneSubtab('default');
+  const initialSystem = ['default', 'custom'].includes(system) ? system : 'default';
+
+  setActiveZoneSystem(initialSystem, false);
+  setZoneSubtab(initialSystem, false);
   setHrSubtab('default');
 }
 
