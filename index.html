@@ -1169,71 +1169,71 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
 
-  <div id="hr-view" class="view" role="tabpanel" aria-labelledby="btn-hr" hidden>
-    <div class="card">
-      <div class="row">
-        <label for="hr-max-in">Max Heart Rate (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="hr-max-in" placeholder="190" value="190" min="60" step="1" autocomplete="off">
-      </div>
-      <div class="row">
-        <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="hr-lthr-in" placeholder="170" value="170" min="60" step="1" autocomplete="off">
-      </div>
+<div id="hr-view" class="view" role="tabpanel" aria-labelledby="btn-hr" hidden>
+  <div class="card">
+    <div class="row">
+      <label for="hr-max-in">Max Heart Rate (BPM)</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="hr-max-in" placeholder="190" value="190" min="60" step="1" autocomplete="off">
     </div>
-
-    <div class="sub-tabs" role="tablist" aria-label="Heart rate systems">
-      <button id="hr-sub-btn-default" class="sub-tab active" role="tab" aria-selected="true" aria-controls="hr-default-panel" data-hr-subtab="default" type="button" tabindex="0">Default</button>
-      <button id="hr-sub-btn-custom" class="sub-tab" role="tab" aria-selected="false" aria-controls="hr-custom-panel" data-hr-subtab="custom" type="button" tabindex="-1">Custom</button>
-    </div>
-
-    <div id="hr-default-panel" class="card card-pad-8" role="tabpanel" aria-labelledby="hr-sub-btn-default">
-      <div class="help-text">Swipe sideways to view all zones.</div>
-      
-      <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
-      <div id="hr-default-max-scroll" class="table-scroll-wrapper power-matrix-scroll">
-        <table class="power-matrix hr-matrix">
-          <tbody id="hr-default-max-body"></tbody>
-        </table>
-      </div>
-
-      <div class="hr-group-title my-16-8">Lactate Threshold Heart Rate Zones</div>
-      <div id="hr-default-lthr-scroll" class="table-scroll-wrapper power-matrix-scroll">
-        <table class="power-matrix hr-matrix">
-          <tbody id="hr-default-lthr-body"></tbody>
-        </table>
-      </div>
-      
-      <div class="help-text">Heart rate zones increase by exactly 1 BPM between zones to ensure a continuous scale.</div>
-     </div>
-
-    <div id="hr-custom-panel" class="card card-pad-12" role="tabpanel" aria-labelledby="hr-sub-btn-custom" hidden>
-      <div class="controls-row">
-        <button id="reset-custom-hr" class="secondary-btn" type="button">Reset to Default</button>
-      </div>
-
-      <div class="custom-swipe-note help-text">Swipe sideways to view all zones.</div>
-      <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
-
-      <div class="hr-group-title mt-4 mb-8">Custom Max Heart Rate Zones</div>
-      <div id="hr-custom-max-scroll" class="table-scroll-wrapper power-matrix-scroll">
-        <table class="power-matrix hr-matrix">
-          <tbody id="hr-custom-max-body"></tbody>
-        </table>
-      </div>
-
-      <div class="hr-group-title my-16-8">Custom Lactate Threshold Heart Rate Zones</div>
-      <div id="hr-custom-lthr-scroll" class="table-scroll-wrapper power-matrix-scroll">
-        <table class="power-matrix hr-matrix">
-          <tbody id="hr-custom-lthr-body"></tbody>
-        </table>
-      </div>
-
-      <div class="help-text">Max HR thresholds cannot exceed 100%. LTHR thresholds are automatically limited so the resulting BPM does not exceed your entered Max HR.</div>
-      <div class="help-text">Heart rate zones increase by exactly 1 BPM between zones to ensure a continuous scale.</div>
+    <div class="row">
+      <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="hr-lthr-in" placeholder="170" value="170" min="60" step="1" autocomplete="off">
     </div>
   </div>
+
+  <div class="sub-tabs" role="tablist" aria-label="Heart rate systems">
+    <button id="hr-sub-btn-default" class="sub-tab active" role="tab" aria-selected="true" aria-controls="hr-default-panel" data-hr-subtab="default" type="button" tabindex="0">Default</button>
+    <button id="hr-sub-btn-custom" class="sub-tab" role="tab" aria-selected="false" aria-controls="hr-custom-panel" data-hr-subtab="custom" type="button" tabindex="-1">Custom</button>
+  </div>
+
+  <div id="hr-default-panel" class="card card-pad-8" role="tabpanel" aria-labelledby="hr-sub-btn-default">
+    <div class="help-text">Swipe sideways to view all zones.</div>
+
+    <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
+    <div id="hr-default-max-scroll" class="table-scroll-wrapper power-matrix-scroll">
+      <table class="power-matrix hr-matrix">
+        <tbody id="hr-default-max-body"></tbody>
+      </table>
+    </div>
+
+    <div class="hr-group-title my-16-8">Lactate Threshold Heart Rate Zones</div>
+    <div id="hr-default-lthr-scroll" class="table-scroll-wrapper power-matrix-scroll">
+      <table class="power-matrix hr-matrix">
+        <tbody id="hr-default-lthr-body"></tbody>
+      </table>
+    </div>
+
+    <div class="help-text">Each zone begins exactly 1 BPM above the previous zone to keep the scale continuous.</div>
+  </div>
+
+  <div id="hr-custom-panel" class="card card-pad-12" role="tabpanel" aria-labelledby="hr-sub-btn-custom" hidden>
+    <div class="controls-row">
+      <button id="reset-custom-hr" class="secondary-btn" type="button">Reset to Default</button>
+    </div>
+
+    <div class="custom-swipe-note help-text">Swipe sideways to view all zones.</div>
+    <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
+
+    <div class="hr-group-title mt-4 mb-8">Custom Max Heart Rate Zones</div>
+    <div id="hr-custom-max-scroll" class="table-scroll-wrapper power-matrix-scroll">
+      <table class="power-matrix hr-matrix">
+        <tbody id="hr-custom-max-body"></tbody>
+      </table>
+    </div>
+
+    <div class="hr-group-title my-16-8">Custom Lactate Threshold Heart Rate Zones</div>
+    <div id="hr-custom-lthr-scroll" class="table-scroll-wrapper power-matrix-scroll">
+      <table class="power-matrix hr-matrix">
+        <tbody id="hr-custom-lthr-body"></tbody>
+      </table>
+    </div>
+
+    <div class="help-text">Max HR values must stay at or below 100%. LTHR values are limited so the resulting BPM does not exceed your entered Max HR.</div>
+    <div class="help-text">Each zone must begin exactly 1 point above the previous zone to keep the scale continuous.</div>
+   </div>
+  </div>
  </div>
-  
+ 
 <script>
 const defaultZonesConfig = [
   { id: 'z1', label: 'Zone 1', desc: 'Active Recovery', min: 0.00, max: 0.55, target: 0.45, colorVar: 'z1' },
@@ -1431,17 +1431,44 @@ function zonesFromPowerAnchors(anchors) {
 }
 
 function validatePowerAnchors(anchors) {
-  const required = ['z1', 'z2', 'z3', 'ssMin', 'ssMax', 'z4', 'z5', 'z6'];
-  for (const key of required) {
-    if (!(anchors[key] > 0)) return 'Custom zone anchors must be greater than 0.';
+  const ranges = displayRangesFromAnchors(anchors);
+
+  function validateRange(range, label) {
+    if (!(range.min > 0 && range.max > 0)) {
+      return `${label}: Lower and upper values must be greater than 0.`;
+    }
+
+    if (!(range.min < range.max)) {
+      return `${label}: The lower value must be smaller than the upper value.`;
+    }
+
+    return '';
   }
 
-  if (!(anchors.z1 < anchors.z2 && anchors.z2 < anchors.z3 && anchors.z3 < anchors.z4 && anchors.z4 < anchors.z5 && anchors.z5 < anchors.z6)) {
-    return 'Custom power zone boundaries must be strictly increasing.';
+  if (!(ranges.z1.max > 0)) {
+    return 'Custom Power Zones: Zone 1: The upper value must be greater than 0.';
   }
 
-  if (!(anchors.ssMin < anchors.ssMax)) {
-    return 'Sweet Spot min must be lower than max.';
+  let error = validateRange(ranges.z2, 'Custom Power Zones: Zone 2');
+  if (error) return error;
+
+  error = validateRange(ranges.z3, 'Custom Power Zones: Zone 3');
+  if (error) return error;
+
+  error = validateRange(ranges.ss, 'Custom Power Zones: Sweet Spot');
+  if (error) return error;
+
+  error = validateRange(ranges.z4, 'Custom Power Zones: Zone 4');
+  if (error) return error;
+
+  error = validateRange(ranges.z5, 'Custom Power Zones: Zone 5');
+  if (error) return error;
+
+  error = validateRange(ranges.z6, 'Custom Power Zones: Zone 6');
+  if (error) return error;
+
+  if (!(ranges.z7.min > 0)) {
+    return 'Custom Power Zones: Zone 7: The lower value must be greater than 0.';
   }
 
   return '';
@@ -1517,16 +1544,53 @@ function validateHrAnchorSet(values, maxHr, lthr) {
     const z4 = metric.z4;
     const z5 = metric.z5;
 
-    if (!(z1.max > 0 && z1.max <= cap)) return `${label} Zone 1 max must be between 1 and ${cap}.`;
-    if (!(z2.min > 0 && z2.max > 0 && z2.min <= cap && z2.max <= cap && z2.min < z2.max)) return `${label} Zone 2 min must be lower than max.`;
-    if (!(z3.min > 0 && z3.max > 0 && z3.min <= cap && z3.max <= cap && z3.min < z3.max)) return `${label} Zone 3 min must be lower than max.`;
-    if (!(z4.min > 0 && z4.max > 0 && z4.min <= cap && z4.max <= cap && z4.min < z4.max)) return `${label} Zone 4 min must be lower than max.`;
-    if (!(z5.min > 0 && z5.min <= cap)) return `${label} Zone 5 min must be between 1 and ${cap}.`;
+    if (!(z1.max > 0 && z1.max <= cap)) {
+      return `${label}: Zone 1: The upper value must be between 1 and ${cap}.`;
+    }
 
-    if (z2.min !== z1.max + 1) return `${label} Zone 2 min must equal Zone 1 max + 1.`;
-    if (z3.min !== z2.max + 1) return `${label} Zone 3 min must equal Zone 2 max + 1.`;
-    if (z4.min !== z3.max + 1) return `${label} Zone 4 min must equal Zone 3 max + 1.`;
-    if (z5.min !== z4.max + 1) return `${label} Zone 5 min must equal Zone 4 max + 1.`;
+    if (!(z2.min > 0 && z2.max > 0 && z2.min <= cap && z2.max <= cap)) {
+      return `${label}: Zone 2: Lower and upper values must be between 1 and ${cap}.`;
+    }
+
+    if (!(z2.min < z2.max)) {
+      return `${label}: Zone 2: The lower value must be smaller than the upper value.`;
+    }
+
+    if (!(z3.min > 0 && z3.max > 0 && z3.min <= cap && z3.max <= cap)) {
+      return `${label}: Zone 3: Lower and upper values must be between 1 and ${cap}.`;
+    }
+
+    if (!(z3.min < z3.max)) {
+      return `${label}: Zone 3: The lower value must be smaller than the upper value.`;
+    }
+
+    if (!(z4.min > 0 && z4.max > 0 && z4.min <= cap && z4.max <= cap)) {
+      return `${label}: Zone 4: Lower and upper values must be between 1 and ${cap}.`;
+    }
+
+    if (!(z4.min < z4.max)) {
+      return `${label}: Zone 4: The lower value must be smaller than the upper value.`;
+    }
+
+    if (!(z5.min > 0 && z5.min <= cap)) {
+      return `${label}: Zone 5: The lower value must be between 1 and ${cap}.`;
+    }
+
+    if (z2.min !== z1.max + 1) {
+      return `${label}: Zone 2: The lower value must be exactly 1 point above Zone 1.`;
+    }
+
+    if (z3.min !== z2.max + 1) {
+      return `${label}: Zone 3: The lower value must be exactly 1 point above Zone 2.`;
+    }
+
+    if (z4.min !== z3.max + 1) {
+      return `${label}: Zone 4: The lower value must be exactly 1 point above Zone 3.`;
+    }
+
+    if (z5.min !== z4.max + 1) {
+      return `${label}: Zone 5: The lower value must be exactly 1 point above Zone 4.`;
+    }
 
     return '';
   }
@@ -1539,11 +1603,19 @@ function validateHrAnchorSet(values, maxHr, lthr) {
 
   if (maxHr > 0 && lthr > 0) {
     const maxAllowedPct = Math.floor((maxHr / lthr) * 100);
-    if (values.lthr.z1.max > maxAllowedPct) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
-    if (values.lthr.z2.min > maxAllowedPct || values.lthr.z2.max > maxAllowedPct) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
-    if (values.lthr.z3.min > maxAllowedPct || values.lthr.z3.max > maxAllowedPct) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
-    if (values.lthr.z4.min > maxAllowedPct || values.lthr.z4.max > maxAllowedPct) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
-    if (values.lthr.z5.min > maxAllowedPct) return 'Custom LTHR thresholds conflict with Max HR limit. Increase Max HR or lower LTHR thresholds.';
+
+    if (
+      values.lthr.z1.max > maxAllowedPct ||
+      values.lthr.z2.min > maxAllowedPct ||
+      values.lthr.z2.max > maxAllowedPct ||
+      values.lthr.z3.min > maxAllowedPct ||
+      values.lthr.z3.max > maxAllowedPct ||
+      values.lthr.z4.min > maxAllowedPct ||
+      values.lthr.z4.max > maxAllowedPct ||
+      values.lthr.z5.min > maxAllowedPct
+    ) {
+      return 'Custom LTHR: One or more values are too high for the Max HR you entered. Increase Max HR or lower the LTHR values.';
+    }
   }
 
   return '';
