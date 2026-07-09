@@ -2121,8 +2121,11 @@ function validateAndApplyCustomZones(changedInput = null) {
       const side = input.dataset.side;
       const value = wholeNumber(clampNonNegative(input.value));
 
-      if (zone === 'ss') nextRanges.ss[side] = value;
-      else nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
+      if (zone === 'ss') {
+        nextRanges.ss[side] = value;
+      } else {
+        nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
+      }
     });
   }
 
@@ -2137,7 +2140,8 @@ function validateAndApplyCustomZones(changedInput = null) {
   customPowerAnchors = candidateAnchors;
   customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
   saveCustomPowerAnchors();
-  updateZones();
+  updateCustomPowerZoneTable(clampNonNegative(els.ftpIn.value));
+  recalculateAllBadges();
 }
 
 function updateFtpDisplays(ftp) {
@@ -2513,10 +2517,7 @@ function validateAndApplyCustomHR(changedInput = null) {
 
   customHrAnchors = normalizeHrAnchors(nextAnchors);
   saveCustomHrAnchors();
-  renderHrTables();
-  bindCustomHrInlineInputs();
   updateCustomHRZones();
-}
 
 function formatHrPctRanges(metricCfg) {
   return [
