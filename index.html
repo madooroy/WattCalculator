@@ -2876,51 +2876,9 @@ function resetPairedHorizontalScroll(elA, elB) {
 
 function enableDirectionalTableScroll(selector = '.power-matrix-scroll') {
   document.querySelectorAll(selector).forEach(scroller => {
-    let startX = 0;
-    let startY = 0;
-    let startScrollLeft = 0;
-    let lockedDirection = '';
-
     let isMouseDown = false;
     let mouseStartX = 0;
     let mouseStartScrollLeft = 0;
-
-    scroller.addEventListener('touchstart', (e) => {
-      if (!e.touches || e.touches.length !== 1) return;
-
-      const touch = e.touches[0];
-      startX = touch.clientX;
-      startY = touch.clientY;
-      startScrollLeft = scroller.scrollLeft;
-      lockedDirection = '';
-    }, { passive: true });
-
-    scroller.addEventListener('touchmove', (e) => {
-      if (!e.touches || e.touches.length !== 1) return;
-
-      const touch = e.touches[0];
-      const dx = touch.clientX - startX;
-      const dy = touch.clientY - startY;
-
-      if (!lockedDirection) {
-        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
-          lockedDirection = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-        }
-      }
-
-      if (lockedDirection === 'x') {
-        e.preventDefault();
-        scroller.scrollLeft = startScrollLeft - dx;
-      }
-    }, { passive: false });
-
-    scroller.addEventListener('touchend', () => {
-      lockedDirection = '';
-    }, { passive: true });
-
-    scroller.addEventListener('touchcancel', () => {
-      lockedDirection = '';
-    }, { passive: true });
 
     scroller.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return;
