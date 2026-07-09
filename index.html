@@ -2518,7 +2518,8 @@ function validateAndApplyCustomHR(changedInput = null) {
   customHrAnchors = normalizeHrAnchors(nextAnchors);
   saveCustomHrAnchors();
   updateCustomHRZones();
-
+}
+  
 function formatHrPctRanges(metricCfg) {
   return [
     `≤ ${metricCfg.z1.max}%`,
