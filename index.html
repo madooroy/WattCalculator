@@ -527,8 +527,14 @@ th {
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x; pan-y;
   scrollbar-width: thin;
+  cursor: grab;
+  overscroll-behavior-x: contain;
+}
+
+.power-matrix-scroll.dragging-scroll {
+  cursor: grabbing;
+  user-select: none;
 }
 
 #hr-default-max-scroll,
@@ -2868,6 +2874,87 @@ function resetPairedHorizontalScroll(elA, elB) {
   if (elA) elA.scrollLeft = 0;
   if (elB) elB.scrollLeft = 0;
 }
+
+function enableDirectionalTableScroll(selector = '.power-matrix-scroll') {
+  document.querySelectorAll(selector).forEach(scroller => {
+    let startX = 0;
+    let startY = 0;
+    let startScrollLeft = 0;
+    let lockedDirection = '';
+
+    let isMouseDown = false;
+    let mouseStartX = 0;
+    let mouseStartScrollLeft = 0;
+
+    scroller.addEventListener('touchstart', (e) => {
+      if (!e.touches || e.touches.length !== 1) return;
+
+      const touch = e.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+      startScrollLeft = scroller.scrollLeft;
+      lockedDirection = '';
+    }, { passive: true });
+
+    scroller.addEventListener('touchmove', (e) => {
+      if (!e.touches || e.touches.length !== 1) return;
+
+      const touch = e.touches[0];
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
+
+      if (!lockedDirection) {
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+          lockedDirection = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        }
+      }
+
+      if (lockedDirection === 'x') {
+        e.preventDefault();
+        scroller.scrollLeft = startScrollLeft - dx;
+      }
+    }, { passive: false });
+
+    scroller.addEventListener('touchend', () => {
+      lockedDirection = '';
+    }, { passive: true });
+
+    scroller.addEventListener('touchcancel', () => {
+      lockedDirection = '';
+    }, { passive: true });
+
+    scroller.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+
+      const interactive = e.target.closest('input, button, select, label');
+      if (interactive) return;
+
+      isMouseDown = true;
+      mouseStartX = e.clientX;
+      mouseStartScrollLeft = scroller.scrollLeft;
+      scroller.classList.add('dragging-scroll');
+      e.preventDefault();
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isMouseDown) return;
+
+      const dx = e.clientX - mouseStartX;
+      scroller.scrollLeft = mouseStartScrollLeft - dx;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!isMouseDown) return;
+      isMouseDown = false;
+      scroller.classList.remove('dragging-scroll');
+    });
+
+    scroller.addEventListener('mouseleave', () => {
+      if (!isMouseDown) return;
+      scroller.classList.remove('dragging-scroll');
+    });
+  });
+}
   
 function bindEvents() {
   bindSelectOnFocusToAll();
@@ -2981,6 +3068,8 @@ window.addEventListener('DOMContentLoaded', () => {
   bindCustomZoneInputs();
   bindCustomHrInlineInputs();
   loadSavedValues();
+
+  enableDirectionalTableScroll();
 
   updateZones();
   updateHRZones();
