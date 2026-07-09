@@ -2384,6 +2384,68 @@ function renderHrTables() {
   bindSelectOnFocusToInputList('.custom-hr-max-inline', els.hrCustomPanel || document);
   bindSelectOnFocusToInputList('.custom-hr-lthr-inline', els.hrCustomPanel || document);
 }
+function hrZoneOrder() {
+  return ['z1', 'z2', 'z3', 'z4', 'z5'];
+}
+
+function syncHrMetricRanges(metricRanges) {
+  const out = JSON.parse(JSON.stringify(metricRanges));
+  const order = hrZoneOrder();
+
+  for (let i = 1; i < order.length; i++) {
+    const prev = order[i - 1];
+    const curr = order[i];
+
+    if (out[prev].max != null && out[curr].min != null) {
+      out[curr].min = out[prev].max + 1;
+    }
+  }
+
+  return out;
+}
+
+function applyHrBoundaryEdit(metricRanges, zoneId, side, rawValue, cap) {
+  const out = JSON.parse(JSON.stringify(metricRanges));
+  const value = wholeNumber(Math.min(clampNonNegative(rawValue), cap));
+  const order = hrZoneOrder();
+  const index = order.indexOf(zoneId);
+
+  if (index === -1) return out;
+
+  if (side === 'max' && out[zoneId].max != null) {
+    out[zoneId].max = value;
+
+    if (index < order.length - 1) {
+      const nextZone = order[index + 1];
+      if (out[nextZone].min != null) out[nextZone].min = value + 1;
+    }
+  }
+
+  if (side === 'min' && out[zoneId].min != null) {
+    out[zoneId].min = value;
+
+    if (index > 0) {
+      const prevZone = order[index - 1];
+      if (out[prevZone].max != null) out[prevZone].max = value - 1;
+    }
+  }
+
+  return syncHrMetricRanges(out);
+}
+
+function writeCustomHrInputs(metric, ranges) {
+  const selector = metric === 'max' ? '.custom-hr-max-inline' : '.custom-hr-lthr-inline';
+
+  document.querySelectorAll(selector).forEach(input => {
+    const zone = input.dataset.zone;
+    const side = input.dataset.side;
+    const next = String(ranges[zone][side]);
+
+    if (document.activeElement !== input && input.value !== next) {
+      input.value = next;
+    }
+  });
+}
 
 function readCustomHrAnchorsInline() {
   function readMetric(selector, cap) {
@@ -2418,15 +2480,27 @@ function bindCustomHrInlineInputs() {
   document.querySelectorAll('.custom-hr-max-inline, .custom-hr-lthr-inline').forEach(el => {
     const commit = () => {
       sanitizeInput(el, 0);
-      validateAndApplyCustomHR();
+      validateAndApplyCustomHR(el);
     };
 
     el.addEventListener('change', commit);
   });
 }
 
-function validateAndApplyCustomHR() {
-  const nextAnchors = readCustomHrAnchorsInline();
+function validateAndApplyCustomHR(changedInput = null) {
+  const current = readCustomHrAnchorsInline();
+  const nextAnchors = deepClone(current);
+
+  if (changedInput) {
+    const metric = changedInput.classList.contains('custom-hr-max-inline') ? 'max' : 'lthr';
+    const cap = metric === 'max' ? 100 : 150;
+    const zone = changedInput.dataset.zone;
+    const side = changedInput.dataset.side;
+    const value = changedInput.value;
+
+    nextAnchors[metric] = applyHrBoundaryEdit(nextAnchors[metric], zone, side, value, cap);
+    writeCustomHrInputs(metric, nextAnchors[metric]);
+  }
 
   const error = validateHrAnchorSet(
     nextAnchors,
