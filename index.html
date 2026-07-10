@@ -1444,7 +1444,7 @@ function validatePowerAnchors(anchors) {
     }
 
     if (!(range.min < range.max)) {
-      return `${label}: The lower value must be smaller than the upper value.`;
+      return `${label}: The lower value reached or exceeded the upper value. Lower this zone or the previous zone.`;
     }
 
     return '';
@@ -1558,7 +1558,7 @@ function validateHrAnchorSet(values, maxHr, lthr) {
     }
 
     if (!(z2.min < z2.max)) {
-      return `${label}: Zone 2: The lower value must be smaller than the upper value.`;
+      return `${label}: Zone 2: The lower value reached or exceeded the upper value. Lower this zone or the previous zone.`;
     }
 
     if (!(z3.min > 0 && z3.max > 0 && z3.min <= cap && z3.max <= cap)) {
@@ -1566,7 +1566,7 @@ function validateHrAnchorSet(values, maxHr, lthr) {
     }
 
     if (!(z3.min < z3.max)) {
-      return `${label}: Zone 3: The lower value must be smaller than the upper value.`;
+      return `${label}: Zone 3: The lower value reached or exceeded the upper value. Lower this zone or the previous zone.`;
     }
 
     if (!(z4.min > 0 && z4.max > 0 && z4.min <= cap && z4.max <= cap)) {
@@ -1574,7 +1574,7 @@ function validateHrAnchorSet(values, maxHr, lthr) {
     }
 
     if (!(z4.min < z4.max)) {
-      return `${label}: Zone 4: The lower value must be smaller than the upper value.`;
+      return `${label}: Zone 4: The lower value reached or exceeded the upper value. Lower this zone or the previous zone.`;
     }
 
     if (!(z5.min > 0 && z5.min <= cap)) {
