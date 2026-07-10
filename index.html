@@ -1266,6 +1266,22 @@ const hrZoneDefs = [
   { num: 5, label: 'Zone 5', desc: 'VO2 Max', colorVar: 'hr-z5' }
 ];
 
+const STORAGE_KEYS = {
+  FTP: 'cycling_ftp',
+  WEIGHT: 'cycling_weight',
+  UNIT: 'cycling_unit',
+  NEW_FTP: 'cycling_new_ftp',
+  FIND_KJ_AVG_WATTS: 'cycling_find_kj_avg_watts',
+  FIND_KJ_MINUTES: 'cycling_find_kj_minutes',
+  FIND_WATTS_TOTAL_KJ: 'cycling_find_watts_total_kj',
+  FIND_WATTS_MINUTES: 'cycling_find_watts_minutes',
+  CUSTOM_ZONES: 'cycling_custom_zones',
+  CUSTOM_HR: 'cycling_custom_hr',
+  HR_MAX: 'cycling_hr_max_val',
+  HR_LTHR: 'cycling_hr_lthr_val',
+  ACTIVE_SYSTEM: 'cycling_active_system'
+};
+  
 const els = {};
 const powerCellCache = {
   default: {},
@@ -1618,7 +1634,7 @@ function validateHrAnchorSet(values, maxHr, lthr) {
 
 function loadCustomPowerAnchors() {
   try {
-    const raw = safeStorageGet('cycling_custom_zones');
+    const raw = safeStorageGet(STORAGE_KEYS.CUSTOM_ZONES);
     if (!raw) return defaultPowerAnchors();
 
     const parsed = JSON.parse(raw);
@@ -1635,12 +1651,12 @@ function loadCustomPowerAnchors() {
 }
 
 function saveCustomPowerAnchors() {
-  saveField('cycling_custom_zones', { version: 2, anchors: customPowerAnchors });
+  saveField(STORAGE_KEYS.CUSTOM_ZONES, { version: 2, anchors: customPowerAnchors });
 }
 
 function loadCustomHrAnchors() {
   try {
-    const raw = safeStorageGet('cycling_custom_hr');
+    const raw = safeStorageGet(STORAGE_KEYS.CUSTOM_HR);
     if (!raw) return deepClone(defaultHrPercentConfig);
 
     const parsed = JSON.parse(raw);
@@ -1657,7 +1673,7 @@ function loadCustomHrAnchors() {
 }
 
 function saveCustomHrAnchors() {
-  saveField('cycling_custom_hr', { version: 3, anchors: customHrAnchors });
+  saveField(STORAGE_KEYS.CUSTOM_HR, { version: 3, anchors: customHrAnchors });
 }
 
 let customPowerAnchors = loadCustomPowerAnchors();
@@ -1883,7 +1899,7 @@ function setActiveZoneSystem(val, persist = true) {
   activeZoneSystem = val;
   activeZoneSubtab = val;
 
-  if (persist) savePrimitive('cycling_active_system', val);
+  if (persist) savePrimitive(STORAGE_KEYS.ACTIVE_SYSTEM, val);
 
   const labelMap = {
     default: 'Zones: Default Power Zones',
@@ -1911,7 +1927,7 @@ function setZoneSubtab(val, persist = true) {
   activeZoneSubtab = val;
   activeZoneSystem = val;
 
-  if (persist) savePrimitive('cycling_active_system', val);
+  if (persist) savePrimitive(STORAGE_KEYS.ACTIVE_SYSTEM, val);
 
   const isDefault = val === 'default';
   const isCustom = val === 'custom';
@@ -1964,7 +1980,7 @@ function setNewFTP(val, persist = true) {
   const clean = String(wholeNumber(clampNonNegative(val)));
   els.newFtpKj.value = clean;
   els.newFtpWatts.value = clean;
-  if (persist) savePrimitive('cycling_new_ftp', clean);
+  if (persist) savePrimitive(STORAGE_KEYS.NEW_FTP, clean);
   recalculateAllBadges();
 }
 
@@ -2930,7 +2946,7 @@ function bindEvents() {
   els.weightUnit.addEventListener('change', () => {
     syncDropdowns();
     updateZones();
-    savePrimitive('cycling_unit', els.weightUnit.value);
+    savePrimitive(STORAGE_KEYS.UNIT, els.weightUnit.value);
   });
 
   const syncProposed = (e) => setNewFTP(e.target.value, false);
@@ -2942,42 +2958,42 @@ function bindEvents() {
   els.hrMaxIn.addEventListener('change', validateAndApplyCustomHR);
   els.hrLthrIn.addEventListener('change', validateAndApplyCustomHR);
 
-persistOnCommit(els.ftpIn, 'cycling_ftp', 0, updateZones);
-persistOnCommit(els.weightIn, 'cycling_weight', 1, updateZones);
-persistOnCommit(els.hrMaxIn, 'cycling_hr_max_val', 0, () => {
-  updateHRZones();
-  validateAndApplyCustomHR();
-});
-persistOnCommit(els.hrLthrIn, 'cycling_hr_lthr_val', 0, () => {
-  updateHRZones();
-  validateAndApplyCustomHR();
-});
-persistOnCommit(els.newFtpKj, 'cycling_new_ftp', 0, clean => setNewFTP(clean, false));
-persistOnCommit(els.newFtpWatts, 'cycling_new_ftp', 0, clean => setNewFTP(clean, false));
+  persistOnCommit(els.ftpIn, STORAGE_KEYS.FTP, 0, updateZones);
+  persistOnCommit(els.weightIn, STORAGE_KEYS.WEIGHT, 1, updateZones);
+  persistOnCommit(els.hrMaxIn, STORAGE_KEYS.HR_MAX, 0, () => {
+    updateHRZones();
+    validateAndApplyCustomHR();
+  });
+  persistOnCommit(els.hrLthrIn, STORAGE_KEYS.HR_LTHR, 0, () => {
+    updateHRZones();
+    validateAndApplyCustomHR();
+  });
+  persistOnCommit(els.newFtpKj, STORAGE_KEYS.NEW_FTP, 0, clean => setNewFTP(clean, false));
+  persistOnCommit(els.newFtpWatts, STORAGE_KEYS.NEW_FTP, 0, clean => setNewFTP(clean, false));
 
-persistOnInput(els.ftpIn, 'cycling_ftp');
-persistOnInput(els.weightIn, 'cycling_weight', 1);
-persistOnInput(els.hrMaxIn, 'cycling_hr_max_val');
-persistOnInput(els.hrLthrIn, 'cycling_hr_lthr_val');
-persistOnInput(els.newFtpKj, 'cycling_new_ftp');
-persistOnInput(els.newFtpWatts, 'cycling_new_ftp');
+  persistOnInput(els.ftpIn, STORAGE_KEYS.FTP);
+  persistOnInput(els.weightIn, STORAGE_KEYS.WEIGHT, 1);
+  persistOnInput(els.hrMaxIn, STORAGE_KEYS.HR_MAX);
+  persistOnInput(els.hrLthrIn, STORAGE_KEYS.HR_LTHR);
+  persistOnInput(els.newFtpKj, STORAGE_KEYS.NEW_FTP);
+  persistOnInput(els.newFtpWatts, STORAGE_KEYS.NEW_FTP);
 
-persistOnInput(els.wattsIn, 'cycling_find_kj_avg_watts');
-persistOnInput(els.kjMinIn, 'cycling_find_kj_minutes');
-persistOnInput(els.kjIn, 'cycling_find_watts_total_kj');
-persistOnInput(els.wattsMinIn, 'cycling_find_watts_minutes');
+  persistOnInput(els.wattsIn, STORAGE_KEYS.FIND_KJ_AVG_WATTS);
+  persistOnInput(els.kjMinIn, STORAGE_KEYS.FIND_KJ_MINUTES);
+  persistOnInput(els.kjIn, STORAGE_KEYS.FIND_WATTS_TOTAL_KJ);
+  persistOnInput(els.wattsMinIn, STORAGE_KEYS.FIND_WATTS_MINUTES);
 }
 
 function loadSavedValues() {
   const mappings = [
-    ['cycling_ftp', els.ftpIn, v => String(wholeNumber(clampNonNegative(v)))],
-    ['cycling_weight', els.weightIn, v => String(clampNonNegative(v))],
-    ['cycling_hr_max_val', els.hrMaxIn, v => String(wholeNumber(clampNonNegative(v)))],
-    ['cycling_hr_lthr_val', els.hrLthrIn, v => String(wholeNumber(clampNonNegative(v)))],
-    ['cycling_find_kj_avg_watts', els.wattsIn, v => String(wholeNumber(clampNonNegative(v)))],
-    ['cycling_find_kj_minutes', els.kjMinIn, v => String(wholeNumber(clampNonNegative(v)))],
-    ['cycling_find_watts_total_kj', els.kjIn, v => String(wholeNumber(clampNonNegative(v)))],
-    ['cycling_find_watts_minutes', els.wattsMinIn, v => String(wholeNumber(clampNonNegative(v)))]
+    [STORAGE_KEYS.FTP, els.ftpIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.WEIGHT, els.weightIn, v => String(clampNonNegative(v))],
+    [STORAGE_KEYS.HR_MAX, els.hrMaxIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.HR_LTHR, els.hrLthrIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_KJ_AVG_WATTS, els.wattsIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_KJ_MINUTES, els.kjMinIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_WATTS_TOTAL_KJ, els.kjIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_WATTS_MINUTES, els.wattsMinIn, v => String(wholeNumber(clampNonNegative(v)))]
   ];
 
   mappings.forEach(([key, el, transform]) => {
@@ -2985,13 +3001,13 @@ function loadSavedValues() {
     if (value !== null) el.value = transform(value);
   });
 
-  const unit = safeStorageGet('cycling_unit');
+  const unit = safeStorageGet(STORAGE_KEYS.UNIT);
   if (unit === 'lbs' || unit === 'kg') els.weightUnit.value = unit;
 
-  setNewFTP(safeStorageGet('cycling_new_ftp') || '250', false);
+  setNewFTP(safeStorageGet(STORAGE_KEYS.NEW_FTP) || '250', false);
   syncDropdowns();
 
-  const system = safeStorageGet('cycling_active_system');
+  const system = safeStorageGet(STORAGE_KEYS.ACTIVE_SYSTEM);
   const initialSystem = ['default', 'custom'].includes(system) ? system : 'default';
 
   setActiveZoneSystem(initialSystem, false);
