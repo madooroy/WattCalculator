@@ -2615,6 +2615,12 @@ function applyHrRanges(prefix, maxHr, lthr, cfg) {
   }
 }
 
+function updateHRZones() {
+  const maxHr = clampNonNegative(els.hrMaxIn.value);
+  const lthr = clampNonNegative(els.hrLthrIn.value);
+  applyHrRanges('', maxHr, lthr, defaultHrPercentConfig);
+}
+  
 function updateCustomHRZones() {
   const maxHr = clampNonNegative(els.hrMaxIn.value);
   const lthr = clampNonNegative(els.hrLthrIn.value);
@@ -2888,7 +2894,7 @@ function enableDirectionalTableScroll(selector = '.power-matrix-scroll') {
     });
   });
 }
-  
+
 function bindEvents() {
   bindSelectOnFocusToAll();
 
@@ -2936,23 +2942,30 @@ function bindEvents() {
   els.hrMaxIn.addEventListener('change', validateAndApplyCustomHR);
   els.hrLthrIn.addEventListener('change', validateAndApplyCustomHR);
 
-  persistOnCommit(els.ftpIn, 'cycling_ftp', 0, updateZones);
-  persistOnCommit(els.weightIn, 'cycling_weight', 1, updateZones);
-  persistOnCommit(els.hrMaxIn, 'cycling_hr_max_val', 0, () => {
-    updateHRZones();
-    validateAndApplyCustomHR();
-  });
-  persistOnCommit(els.hrLthrIn, 'cycling_hr_lthr_val', 0, () => {
-    updateHRZones();
-    validateAndApplyCustomHR();
-  });
-  persistOnCommit(els.newFtpKj, 'cycling_new_ftp', 0, clean => setNewFTP(clean, false));
-  persistOnCommit(els.newFtpWatts, 'cycling_new_ftp', 0, clean => setNewFTP(clean, false));
+persistOnCommit(els.ftpIn, 'cycling_ftp', 0, updateZones);
+persistOnCommit(els.weightIn, 'cycling_weight', 1, updateZones);
+persistOnCommit(els.hrMaxIn, 'cycling_hr_max_val', 0, () => {
+  updateHRZones();
+  validateAndApplyCustomHR();
+});
+persistOnCommit(els.hrLthrIn, 'cycling_hr_lthr_val', 0, () => {
+  updateHRZones();
+  validateAndApplyCustomHR();
+});
+persistOnCommit(els.newFtpKj, 'cycling_new_ftp', 0, clean => setNewFTP(clean, false));
+persistOnCommit(els.newFtpWatts, 'cycling_new_ftp', 0, clean => setNewFTP(clean, false));
 
-  persistOnInput(els.wattsIn, 'cycling_find_kj_avg_watts');
-  persistOnInput(els.kjMinIn, 'cycling_find_kj_minutes');
-  persistOnInput(els.kjIn, 'cycling_find_watts_total_kj');
-  persistOnInput(els.wattsMinIn, 'cycling_find_watts_minutes');
+persistOnInput(els.ftpIn, 'cycling_ftp');
+persistOnInput(els.weightIn, 'cycling_weight', 1);
+persistOnInput(els.hrMaxIn, 'cycling_hr_max_val');
+persistOnInput(els.hrLthrIn, 'cycling_hr_lthr_val');
+persistOnInput(els.newFtpKj, 'cycling_new_ftp');
+persistOnInput(els.newFtpWatts, 'cycling_new_ftp');
+
+persistOnInput(els.wattsIn, 'cycling_find_kj_avg_watts');
+persistOnInput(els.kjMinIn, 'cycling_find_kj_minutes');
+persistOnInput(els.kjIn, 'cycling_find_watts_total_kj');
+persistOnInput(els.wattsMinIn, 'cycling_find_watts_minutes');
 }
 
 function loadSavedValues() {
