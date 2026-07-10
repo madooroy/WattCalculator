@@ -375,12 +375,6 @@ input[type="number"] {
   font-weight: bold;
 }
 
-.table-scroll-wrapper .input-small,
-.hr-edit-grid .input-small {
-  font-size: 16px;
-  font-weight: bold;
-}
-
 .power-matrix .input-small,
 .hr-edit-grid .input-small,
 .table-scroll-wrapper .input-small {
@@ -886,11 +880,6 @@ tr:last-child td { border-bottom: none; }
 .custom-swipe-note {
   margin-top: 0;
   margin-bottom: 12px;
-}
-
-#custom-zones-table .controls-row,
-#hr-custom-panel .controls-row {
-  margin-bottom: 4px;
 }
 
 #hr-custom-panel .error-text {
@@ -1711,7 +1700,7 @@ function isSweetSpotRatio(ratio, system = activeZoneSystem) {
 
   return ss.max === null
     ? ratio >= ss.min
-    : ratio >= ss.min && ratio < ss.max;
+    : ratio >= ss.min && ratio <= ss.max;
 }
 
 function getOutputZoneDetails(watts, ftp) {
@@ -2270,24 +2259,20 @@ function updateZones() {
   recalculateAllBadges();
 }
 
-function updateHRZones() {
-  const maxHr = clampNonNegative(els.hrMaxIn.value);
-  const lthr = clampNonNegative(els.hrLthrIn.value);
-  applyHrRanges('', maxHr, lthr, defaultHrPercentConfig);
-  applyHrRanges('c-', maxHr, lthr, customHrAnchors);
-}
-
-function buildHrDisplayMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
-  const metricCfg = cfg[metric];
-  const anchorLabel = metric === 'max' ? 'Max HR' : 'LTHR';
-
-  const pctRanges = [
+function formatHrPctRanges(metricCfg) {
+  return [
     `≤ ${metricCfg.z1.max}%`,
     `${metricCfg.z2.min}%–${metricCfg.z2.max}%`,
     `${metricCfg.z3.min}%–${metricCfg.z3.max}%`,
     `${metricCfg.z4.min}%–${metricCfg.z4.max}%`,
     `≥ ${metricCfg.z5.min}%`
   ];
+}
+  
+function buildHrDisplayMatrix(metric, prefix = '', cfg = defaultHrPercentConfig) {
+  const metricCfg = cfg[metric];
+  const anchorLabel = metric === 'max' ? 'Max HR' : 'LTHR';
+  const pctRanges = formatHrPctRanges(metricCfg);
 
   const zoneHeaderCells = hrZoneDefs.map(zone => `
     <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
@@ -2598,16 +2583,6 @@ function validateAndApplyCustomHR(changedInput = null) {
   updateCustomHRZones();
 }
   
-function formatHrPctRanges(metricCfg) {
-  return [
-    `≤ ${metricCfg.z1.max}%`,
-    `${metricCfg.z2.min}%–${metricCfg.z2.max}%`,
-    `${metricCfg.z3.min}%–${metricCfg.z3.max}%`,
-    `${metricCfg.z4.min}%–${metricCfg.z4.max}%`,
-    `≥ ${metricCfg.z5.min}%`
-  ];
-}
-
 function bpmRangeTexts(metricCfg, base) {
   const z1Max = wholeNumber(base * (metricCfg.z1.max / 100));
   const z2Min = wholeNumber(base * (metricCfg.z2.min / 100));
