@@ -2016,14 +2016,14 @@ function recalculateAllBadges() {
 function calcKJ() {
   const watts = clampNonNegative(els.wattsIn.value);
   const min = clampNonNegative(els.kjMinIn.value);
-  els.kjOut.textContent = String(Math.floor(kjFromWattsMinutes(watts, min)));} kJ`;
+  els.kjOut.textContent = String(Math.floor(kjFromWattsMinutes(watts, min)));
   recalculateAllBadges();
 }
 
 function calcWatts() {
   const kj = clampNonNegative(els.kjIn.value);
   const min = clampNonNegative(els.wattsMinIn.value);
-  els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));} W`;
+  els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));
   recalculateAllBadges();
 }
 
