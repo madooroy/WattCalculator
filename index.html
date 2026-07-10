@@ -1691,7 +1691,11 @@ function getPowerColor(zone) {
 function zoneCellBg(zone, alpha = 0.5) {
   return `linear-gradient(rgba(255,255,255,${alpha}), rgba(255,255,255,${alpha})), var(--p-${zone.colorVar})`;
 }
- 
+
+function hrCellBg(colorVar, alpha = 0.5) {
+  return `linear-gradient(rgba(255,255,255,${alpha}), rgba(255,255,255,${alpha})), var(--${colorVar})`;
+}
+  
 function getZoneForRatio(ratio, system = activeZoneSystem) {
   if (!(ratio > 0)) return null;
 
@@ -1969,6 +1973,7 @@ function setHrSubtab(val) {
   els.hrDefaultPanel.hidden = !isDefault;
   els.hrCustomPanel.hidden = !isCustom;
 
+  updateHRZones();
   updateCustomHRZones();
 }
 
@@ -2291,20 +2296,20 @@ function buildHrDisplayMatrix(metric, prefix = '', cfg = defaultHrPercentConfig)
   const pctRanges = formatHrPctRanges(metricCfg);
 
   const zoneHeaderCells = hrZoneDefs.map(zone => `
-    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${hrCellBg(zone.colorVar)};">
       <div class="zone-top">${zone.num}</div>
       <span class="zone-sub">${zone.desc}</span>
     </td>
   `).join('');
 
   const pctCells = hrZoneDefs.map((zone, i) => `
-    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${hrCellBg(zone.colorVar)};">
       <div class="zone-value" id="${prefix}hr${zone.num}-${metric}-pct-range">${pctRanges[i]}</div>
     </td>
   `).join('');
 
   const bpmCells = hrZoneDefs.map(zone => `
-    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${hrCellBg(zone.colorVar)};">
       <div class="zone-value-large" id="${prefix}hr${zone.num}-${metric}-range">—</div>
     </td>
   `).join('');
@@ -2340,7 +2345,7 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
   ];
 
   const zoneHeaderCells = hrZoneDefs.map(zone => `
-    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${hrCellBg(zone.colorVar)};">
       <div class="zone-top">${zone.num}</div>
       <span class="zone-sub">${zone.desc}</span>
     </td>
@@ -2351,7 +2356,7 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
 
     if (key === 'z1') {
       return `
-        <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--hr-z1);">
+        <td class="zone-cell-matrix" style="background: ${hrCellBg('hr-z1')};">
           <div class="matrix-input-wrap">
             <span>≤</span>
             <input
@@ -2374,7 +2379,7 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
 
     if (key === 'z5') {
       return `
-        <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--hr-z5);">
+        <td class="zone-cell-matrix" style="background: ${hrCellBg('hr-z5')};">
           <div class="matrix-input-wrap">
             <span>≥</span>
             <input
@@ -2396,7 +2401,7 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
     }
 
     return `
-      <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--hr-z${zone});">
+      <td class="zone-cell-matrix" style="background: ${hrCellBg(`hr-z${zone}`)};">
         <div class="matrix-input-wrap matrix-input-dual">
           <input
             class="input-small numeric-input ${inputClass}"
@@ -2430,7 +2435,7 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
   }).join('');
 
   const bpmCells = hrZoneDefs.map(zone => `
-    <td class="zone-cell-matrix" style="background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), var(--${zone.colorVar});">
+    <td class="zone-cell-matrix" style="background: ${hrCellBg(zone.colorVar)};">
       <div class="zone-value-large" id="${prefix}hr${zone.num}-${metric}-range">—</div>
     </td>
   `).join('');
@@ -2661,6 +2666,7 @@ function resetCustomHR() {
   resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
   bindCustomHrInlineInputs();
   bindSelectOnFocusToAll(els.hrCustomPanel);
+  updateHRZones();
   updateCustomHRZones();
   els.customHrError.textContent = '';
 }
