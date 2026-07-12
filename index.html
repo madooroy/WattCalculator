@@ -1862,8 +1862,10 @@ function getCustomZoneTargetInfo(zone, ftp) {
 
   let targetPctValue;
 
-  if (zone.id === 'z1' || zone.id === 'z7') {
-    targetPctValue = Math.round(zone.target * 100);
+  if (zone.id === 'z1') {
+    targetPctValue = Math.max(1, maxPct - 10);
+  } else if (zone.id === 'z7') {
+    targetPctValue = minPct + 10;
   } else {
     targetPctValue = Math.round((minPct + maxPct) / 2);
   }
