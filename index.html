@@ -1291,7 +1291,10 @@ let activeZoneSystem = 'default';
 let activeZoneSubtab = 'default';
 let activeHrSubtab = 'default';
 
-function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
+function deepClone(obj) {
+  if (typeof structuredClone === 'function') return structuredClone(obj);
+  return JSON.parse(JSON.stringify(obj));
+}
 function clampNonNegative(value) { const n = parseFloat(value); return Number.isFinite(n) && n >= 0 ? n : 0; }
 function wholeNumber(value) { return Math.round(value); }
 function kjFromWattsMinutes(watts, minutes) { return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0; }
@@ -1364,7 +1367,7 @@ function mainZoneOrder() {
 }
 
 function syncMainZoneDisplayRanges(ranges) {
-  const out = JSON.parse(JSON.stringify(ranges));
+  const out = deepClone(ranges);
   const order = mainZoneOrder();
 
   for (let i = 1; i < order.length; i++) {
@@ -1380,7 +1383,7 @@ function syncMainZoneDisplayRanges(ranges) {
 }
 
 function applyMainZoneBoundaryEdit(ranges, zoneId, side, rawValue) {
-  const out = JSON.parse(JSON.stringify(ranges));
+  const out = deepClone(ranges);
   const value = wholeNumber(clampNonNegative(rawValue));
   const order = mainZoneOrder();
   const index = order.indexOf(zoneId);
@@ -2546,7 +2549,7 @@ function hrZoneOrder() {
 }
 
 function syncHrMetricRanges(metricRanges) {
-  const out = JSON.parse(JSON.stringify(metricRanges));
+  const out = deepClone(metricRanges);
   const order = hrZoneOrder();
 
   for (let i = 1; i < order.length; i++) {
@@ -2562,7 +2565,7 @@ function syncHrMetricRanges(metricRanges) {
 }
 
 function applyHrBoundaryEdit(metricRanges, zoneId, side, rawValue, cap) {
-  const out = JSON.parse(JSON.stringify(metricRanges));
+  const out = deepClone(metricRanges);
   const value = wholeNumber(Math.min(clampNonNegative(rawValue), cap));
   const order = hrZoneOrder();
   const index = order.indexOf(zoneId);
