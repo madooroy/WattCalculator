@@ -2088,15 +2088,33 @@ function recalculateAllBadges() {
 }
 
 function calcKJ() {
-  const watts = clampNonNegative(els.wattsIn.value);
-  const min = clampNonNegative(els.kjMinIn.value);
+  const wattsRaw = String(els.wattsIn.value ?? '').trim();
+  const minRaw = String(els.kjMinIn.value ?? '').trim();
+
+  if (!wattsRaw || !minRaw) {
+    els.kjOut.textContent = '—';
+    recalculateAllBadges();
+    return;
+  }
+
+  const watts = clampNonNegative(wattsRaw);
+  const min = clampNonNegative(minRaw);
   els.kjOut.textContent = String(Math.floor(kjFromWattsMinutes(watts, min)));
   recalculateAllBadges();
 }
 
 function calcWatts() {
-  const kj = clampNonNegative(els.kjIn.value);
-  const min = clampNonNegative(els.wattsMinIn.value);
+  const kjRaw = String(els.kjIn.value ?? '').trim();
+  const minRaw = String(els.wattsMinIn.value ?? '').trim();
+
+  if (!kjRaw || !minRaw) {
+    els.wattsOut.textContent = '—';
+    recalculateAllBadges();
+    return;
+  }
+
+  const kj = clampNonNegative(kjRaw);
+  const min = clampNonNegative(minRaw);
   els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));
   recalculateAllBadges();
 }
