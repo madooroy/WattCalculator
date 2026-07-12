@@ -1818,24 +1818,15 @@ function getZoneRangeInfo(zone, ftp) {
 
     pctText = `${minPct}%–${maxPct}%`;
     wattsText = `${minW}–${maxW}`;
+  } else if (zone.max === null) {
+    pctText = `≥ ${minPct + 1}%`;
+    wattsText = `≥ ${wholeNumber(ftpVal * zone.min) + 1}`;
+  } else if (zone.min === 0) {
+    pctText = `≤ ${maxPct}%`;
+    wattsText = `≤ ${wholeNumber(ftpVal * zone.max)}`;
   } else {
-    const system = customZonesConfig.some(z => z.id === zone.id && z.min === zone.min && z.max === zone.max)
-      ? 'custom'
-      : 'default';
-
-    const mainRanges = getMainZoneWattRanges(ftpVal, system);
-    const wattRange = mainRanges.find(z => z.id === zone.id);
-
-    if (zone.max === null) {
-      pctText = `≥ ${minPct + 1}%`;
-      wattsText = wattRange ? `≥ ${wattRange.minW}` : '—';
-    } else if (zone.min === 0) {
-      pctText = `≤ ${maxPct}%`;
-      wattsText = wattRange ? `≤ ${wattRange.maxW}` : '—';
-    } else {
-      pctText = `${minPct + 1}%–${maxPct}%`;
-      wattsText = wattRange ? `${wattRange.minW}–${wattRange.maxW}` : '—';
-    }
+    pctText = `${minPct + 1}%–${maxPct}%`;
+    wattsText = `${wholeNumber(ftpVal * zone.min) + 1}–${wholeNumber(ftpVal * zone.max)}`;
   }
 
   return {
@@ -2321,22 +2312,35 @@ function updateDefaultPowerZoneTable(ftp) {
 
     if (!cellSet) return;
 
-    if (z.id !== 'ss') {
-      const wattRange = mainRanges.find(r => r.id === z.id);
-      if (cellSet.range && wattRange) {
-        if (z.max === null) cellSet.range.textContent = `≥ ${wattRange.minW}`;
-        else if (z.min === 0) cellSet.range.textContent = `≤ ${wattRange.maxW}`;
-        else cellSet.range.textContent = `${wattRange.minW}–${wattRange.maxW}`;
-      } else if (cellSet.range) {
-        cellSet.range.textContent = '—';
-      }
-    } else if (cellSet.range) {
-      cellSet.range.textContent = info.wattsText;
+    if (cellSet.pct) {
+      cellSet.pct.textContent = info.pctText;
     }
 
-    if (cellSet.pct) cellSet.pct.textContent = info.pctText;
-    if (cellSet.targetPct) cellSet.targetPct.textContent = `${Math.round(z.target * 100)}%`;
-    if (cellSet.target) cellSet.target.textContent = info.targetText;
+    if (cellSet.range) {
+      if (z.id === 'ss') {
+        cellSet.range.textContent = info.wattsText;
+      } else {
+        const wattRange = mainRanges.find(r => r.id === z.id);
+
+        if (!wattRange) {
+          cellSet.range.textContent = '—';
+        } else if (wattRange.maxW === null) {
+          cellSet.range.textContent = `≥ ${wattRange.minW}`;
+        } else if (z.id === 'z1') {
+          cellSet.range.textContent = `≤ ${wattRange.maxW}`;
+        } else {
+          cellSet.range.textContent = `${wattRange.minW}–${wattRange.maxW}`;
+        }
+      }
+    }
+
+    if (cellSet.targetPct) {
+      cellSet.targetPct.textContent = `${Math.round(z.target * 100)}%`;
+    }
+
+    if (cellSet.target) {
+      cellSet.target.textContent = info.targetText;
+    }
   });
 }
 
@@ -2350,21 +2354,31 @@ function updateCustomPowerZoneTable(ftp) {
 
     if (!cellSet) return;
 
-    if (z.id !== 'ss') {
-      const wattRange = mainRanges.find(r => r.id === z.id);
-      if (cellSet.range && wattRange) {
-        if (z.max === null) cellSet.range.textContent = `≥ ${wattRange.minW}`;
-        else if (z.min === 0) cellSet.range.textContent = `≤ ${wattRange.maxW}`;
-        else cellSet.range.textContent = `${wattRange.minW}–${wattRange.maxW}`;
-      } else if (cellSet.range) {
-        cellSet.range.textContent = '—';
+    if (cellSet.range) {
+      if (z.id === 'ss') {
+        cellSet.range.textContent = info.wattsText;
+      } else {
+        const wattRange = mainRanges.find(r => r.id === z.id);
+
+        if (!wattRange) {
+          cellSet.range.textContent = '—';
+        } else if (wattRange.maxW === null) {
+          cellSet.range.textContent = `≥ ${wattRange.minW}`;
+        } else if (z.id === 'z1') {
+          cellSet.range.textContent = `≤ ${wattRange.maxW}`;
+        } else {
+          cellSet.range.textContent = `${wattRange.minW}–${wattRange.maxW}`;
+        }
       }
-    } else if (cellSet.range) {
-      cellSet.range.textContent = info.wattsText;
     }
 
-    if (cellSet.targetPct) cellSet.targetPct.textContent = targetInfo.targetPctText;
-    if (cellSet.target) cellSet.target.textContent = targetInfo.targetText;
+    if (cellSet.targetPct) {
+      cellSet.targetPct.textContent = targetInfo.targetPctText;
+    }
+
+    if (cellSet.target) {
+      cellSet.target.textContent = targetInfo.targetText;
+    }
   });
 }
 
