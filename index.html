@@ -2253,17 +2253,11 @@ function generateCustomZonesTable() {
     </td>
   `).join('');
 
-  const targetPctCells = customZonesConfig.map(z => {
-    const targetPctText = (z.id === 'z1' || z.id === 'z7')
-      ? `${Math.round(z.target * 100)}%`
-      : '—';
-
-    return `
-      <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
-        <div class="zone-value" id="c-${z.id}-target-pct">${targetPctText}</div>
-      </td>
-    `;
-  }).join('');
+  const targetPctCells = customZonesConfig.map(z => `
+    <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
+      <div class="zone-value" id="c-${z.id}-target-pct">—</div>
+     </td>
+  `).join('');
 
   const targetWattCells = customZonesConfig.map(z => `
     <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
@@ -2324,7 +2318,7 @@ function validateAndApplyCustomZones(changedInput = null) {
     customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
     saveCustomPowerAnchors();
     writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
-    updateCustomPowerZoneTable(clampNonNegative(els.ftpIn.value));
+    updateCustomPowerZoneTable(readNonNegativeOrNull(els.ftpIn) ?? 0);
     recalculateAllBadges();
     return;
   }
@@ -2350,7 +2344,7 @@ function validateAndApplyCustomZones(changedInput = null) {
   customPowerAnchors = candidateAnchors;
   customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
   saveCustomPowerAnchors();
-  updateCustomPowerZoneTable(clampNonNegative(els.ftpIn.value));
+  updateCustomPowerZoneTable(readNonNegativeOrNull(els.ftpIn) ?? 0);
   recalculateAllBadges();
 }
 
@@ -2784,18 +2778,10 @@ function validateHrBaseInputs(maxHr, lthr) {
 
   return '';
 }
-
-function validateHrBaseInputs(maxHr, lthr) {
-  if (maxHr > 0 && lthr > 0 && lthr > maxHr) {
-    return 'Lactate Threshold HR cannot be higher than Max HR.';
-  }
-
-  return '';
-}
-  
+ 
 function updateHRZones() {
-  const maxHr = clampNonNegative(els.hrMaxIn.value);
-  const lthr = clampNonNegative(els.hrLthrIn.value);
+  const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
+  const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 
   els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
 
