@@ -2634,7 +2634,24 @@ function validateAndApplyCustomHR(changedInput = null) {
     const value = changedInput.value;
 
     nextAnchors[metric] = applyHrBoundaryEdit(nextAnchors[metric], zone, side, value, cap);
-    writeCustomHrInputs(metric, nextAnchors[metric]);
+
+    const error = validateHrAnchorSet(
+      nextAnchors,
+      clampNonNegative(els.hrMaxIn.value),
+      clampNonNegative(els.hrLthrIn.value)
+    );
+
+    els.customHrError.textContent = error;
+    if (error) {
+      writeCustomHrInputs(metric, customHrAnchors[metric]);
+      return;
+    }
+
+    customHrAnchors = normalizeHrAnchors(nextAnchors);
+    saveCustomHrAnchors();
+    writeCustomHrInputs(metric, customHrAnchors[metric]);
+    updateCustomHRZones();
+    return;
   }
 
   const error = validateHrAnchorSet(
