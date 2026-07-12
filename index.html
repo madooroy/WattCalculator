@@ -1558,6 +1558,10 @@ function normalizeHrAnchors(value) {
 }
 
 function validateHrAnchorSet(values, maxHr, lthr) {
+  if (maxHr > 0 && lthr > 0 && lthr > maxHr) {
+    return 'Lactate Threshold HR cannot be higher than Max HR.';
+  }
+
   function validateMetric(metric, label, cap) {
     const z1 = metric.z1;
     const z2 = metric.z2;
@@ -1806,7 +1810,7 @@ function getOutputZone(watts, ftp) {
   return { label: details.label, color: details.color };
 }
 
-function getZoneRangeInfo(zone, ftp) {
+function getZoneRangeInfo(zone, ftp, system = activeZoneSystem) {
   const minPct = Math.round(zone.min * 100);
   const maxPct = zone.max === null ? null : Math.round(zone.max * 100);
 
@@ -1820,8 +1824,16 @@ function getZoneRangeInfo(zone, ftp) {
     pctText = `${minPct}%–${maxPct}%`;
     wattsText = `${minW}–${maxW}`;
   } else {
-    const mainRanges = getMainZoneWattRanges(ftp);
+    const mainRanges = getMainZoneWattRanges(ftp, system);
     const wattRange = mainRanges.find(z => z.id === zone.id);
+
+    if (!wattRange) {
+      return {
+        pctText: '—',
+        wattsText: '—',
+        targetText: '—'
+      };
+    }
 
     if (zone.max === null) {
       pctText = `≥ ${minPct + 1}%`;
@@ -2316,7 +2328,7 @@ function updateWkg(ftp, weight, unit) {
 
 function updateDefaultPowerZoneTable(ftp) {
   defaultZonesConfig.forEach(z => {
-    const info = getZoneRangeInfo(z, ftp);
+    const info = getZoneRangeInfo(z, ftp, 'default');
     const cellSet = powerCellCache.default[z.id];
 
     if (!cellSet) return;
@@ -2329,7 +2341,7 @@ function updateDefaultPowerZoneTable(ftp) {
 
 function updateCustomPowerZoneTable(ftp) {
   customZonesConfig.forEach(z => {
-    const info = getZoneRangeInfo(z, ftp);
+    const info = getZoneRangeInfo(z, ftp, 'custom');
     const targetInfo = getCustomZoneTargetInfo(z, ftp);
     const cellSet = powerCellCache.custom[z.id];
 
@@ -2695,20 +2707,16 @@ function validateAndApplyCustomHR(changedInput = null) {
   
 function bpmRangeTexts(metricCfg, base) {
   const z1Max = wholeNumber(base * (metricCfg.z1.max / 100));
-  const z2Min = wholeNumber(base * (metricCfg.z2.min / 100));
   const z2Max = wholeNumber(base * (metricCfg.z2.max / 100));
-  const z3Min = wholeNumber(base * (metricCfg.z3.min / 100));
   const z3Max = wholeNumber(base * (metricCfg.z3.max / 100));
-  const z4Min = wholeNumber(base * (metricCfg.z4.min / 100));
   const z4Max = wholeNumber(base * (metricCfg.z4.max / 100));
-  const z5Min = wholeNumber(base * (metricCfg.z5.min / 100));
 
   return [
     `≤ ${z1Max}`,
-    `${z2Min}–${z2Max}`,
-    `${z3Min}–${z3Max}`,
-    `${z4Min}–${z4Max}`,
-    `≥ ${z5Min}`
+    `${z1Max + 1}–${z2Max}`,
+    `${z2Max + 1}–${z3Max}`,
+    `${z3Max + 1}–${z4Max}`,
+    `≥ ${z4Max + 1}`
   ];
 }
 
@@ -2728,9 +2736,16 @@ function applyHrRanges(prefix, maxHr, lthr, cfg) {
 function updateHRZones() {
   const maxHr = clampNonNegative(els.hrMaxIn.value);
   const lthr = clampNonNegative(els.hrLthrIn.value);
+
+  if (maxHr > 0 && lthr > maxHr) {
+    els.customHrError.textContent = 'Lactate Threshold HR cannot be higher than Max HR.';
+  } else if (els.customHrError.textContent === 'Lactate Threshold HR cannot be higher than Max HR.') {
+    els.customHrError.textContent = '';
+  }
+
   applyHrRanges('', maxHr, lthr, defaultHrPercentConfig);
 }
-  
+ 
 function updateCustomHRZones() {
   const maxHr = clampNonNegative(els.hrMaxIn.value);
   const lthr = clampNonNegative(els.hrLthrIn.value);
@@ -3048,8 +3063,16 @@ function bindEvents() {
   els.newFtpKj.addEventListener('input', syncProposed);
   els.newFtpWatts.addEventListener('input', syncProposed);
 
-  els.hrMaxIn.addEventListener('input', updateHRZones);
-  els.hrLthrIn.addEventListener('input', updateHRZones);
+  els.hrMaxIn.addEventListener('input', () => {
+    updateHRZones();
+    updateCustomHRZones();
+  });
+
+  els.hrLthrIn.addEventListener('input', () => {
+    updateHRZones();
+    updateCustomHRZones();
+  });
+
   els.hrMaxIn.addEventListener('change', validateAndApplyCustomHR);
   els.hrLthrIn.addEventListener('change', validateAndApplyCustomHR);
 
