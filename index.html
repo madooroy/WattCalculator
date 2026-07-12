@@ -1836,48 +1836,82 @@ function getZoneRangeInfo(zone, ftp) {
   };
 }
 
-function getCustomZoneTargetInfo(zone, ftp) {
-  const minPct = Math.round(zone.min * 100);
-  const maxPct = zone.max === null ? null : Math.round(zone.max * 100);
-
-  let targetPctValue;
-
-  if (zone.id === 'z1' || zone.id === 'z7') {
-    targetPctValue = Math.round(zone.target * 100);
-  } else {
-    targetPctValue = Math.round((minPct + maxPct) / 2);
-  }
-
-  const targetWatts = wholeNumber(ftp * (targetPctValue / 100));
-
-  return {
-    targetPctText: `${targetPctValue}%`,
-    targetText: `${targetWatts}`
-  };
-}
-
-function cacheDefaultPowerCells() {
-  powerCellCache.default = {};
+function updateDefaultPowerZoneTable(ftp) {
+  const mainRanges = getMainZoneWattRanges(ftp, 'default');
 
   defaultZonesConfig.forEach(z => {
-    powerCellCache.default[z.id] = {
-      pct: document.getElementById(`p-${z.id}-pct-range`),
-      range: document.getElementById(`p-${z.id}-range`),
-      targetPct: document.getElementById(`p-${z.id}-target-pct`),
-      target: document.getElementById(`p-${z.id}-target`)
-    };
+    const info = getZoneRangeInfo(z, ftp);
+    const cellSet = powerCellCache.default[z.id];
+
+    if (!cellSet) return;
+
+    if (cellSet.pct) {
+      cellSet.pct.textContent = info.pctText;
+    }
+
+    if (cellSet.range) {
+      if (z.id === 'ss') {
+        cellSet.range.textContent = info.wattsText;
+      } else {
+        const wattRange = mainRanges.find(r => r.id === z.id);
+
+        if (!wattRange) {
+          cellSet.range.textContent = '—';
+        } else if (wattRange.maxW === null) {
+          cellSet.range.textContent = `≥ ${wattRange.minW}`;
+        } else if (z.id === 'z1') {
+          cellSet.range.textContent = `≤ ${wattRange.maxW}`;
+        } else {
+          cellSet.range.textContent = `${wattRange.minW}–${wattRange.maxW}`;
+        }
+      }
+    }
+
+    if (cellSet.targetPct) {
+      cellSet.targetPct.textContent = `${Math.round(z.target * 100)}%`;
+    }
+
+    if (cellSet.target) {
+      cellSet.target.textContent = info.targetText;
+    }
   });
 }
 
-function cacheCustomPowerCells() {
-  powerCellCache.custom = {};
+function updateCustomPowerZoneTable(ftp) {
+  const mainRanges = getMainZoneWattRanges(ftp, 'custom');
 
   customZonesConfig.forEach(z => {
-    powerCellCache.custom[z.id] = {
-      range: document.getElementById(`c-${z.id}-range`),
-      targetPct: document.getElementById(`c-${z.id}-target-pct`),
-      target: document.getElementById(`c-${z.id}-target`)
-    };
+    const info = getZoneRangeInfo(z, ftp);
+    const targetInfo = getCustomZoneTargetInfo(z, ftp);
+    const cellSet = powerCellCache.custom[z.id];
+
+    if (!cellSet) return;
+
+    if (cellSet.range) {
+      if (z.id === 'ss') {
+        cellSet.range.textContent = info.wattsText;
+      } else {
+        const wattRange = mainRanges.find(r => r.id === z.id);
+
+        if (!wattRange) {
+          cellSet.range.textContent = '—';
+        } else if (wattRange.maxW === null) {
+          cellSet.range.textContent = `≥ ${wattRange.minW}`;
+        } else if (z.id === 'z1') {
+          cellSet.range.textContent = `≤ ${wattRange.maxW}`;
+        } else {
+          cellSet.range.textContent = `${wattRange.minW}–${wattRange.maxW}`;
+        }
+      }
+    }
+
+    if (cellSet.targetPct) {
+      cellSet.targetPct.textContent = targetInfo.targetPctText;
+    }
+
+    if (cellSet.target) {
+      cellSet.target.textContent = targetInfo.targetText;
+    }
   });
 }
 
@@ -2380,6 +2414,11 @@ function updateCustomPowerZoneTable(ftp) {
       cellSet.target.textContent = targetInfo.targetText;
     }
   });
+}
+
+function updateFtpDisplays(ftp) {
+  els.currentFtpDisplayKj.textContent = `${wholeNumber(ftp)}W`;
+  els.currentFtpDisplayWatts.textContent = `${wholeNumber(ftp)}W`;
 }
 
 function updateZones() {
