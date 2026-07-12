@@ -1326,15 +1326,22 @@ function defaultPowerAnchors() {
 function normalizePowerAnchors(value) {
   const defaults = defaultPowerAnchors();
   const source = value && typeof value === 'object' ? value : {};
+
+  function normalizeField(field) {
+    return source[field] == null
+      ? defaults[field]
+      : wholeNumber(clampNonNegative(source[field]));
+  }
+
   return {
-    z1: wholeNumber(clampNonNegative(source.z1)) || defaults.z1,
-    z2: wholeNumber(clampNonNegative(source.z2)) || defaults.z2,
-    z3: wholeNumber(clampNonNegative(source.z3)) || defaults.z3,
-    ssMin: wholeNumber(clampNonNegative(source.ssMin)) || defaults.ssMin,
-    ssMax: wholeNumber(clampNonNegative(source.ssMax)) || defaults.ssMax,
-    z4: wholeNumber(clampNonNegative(source.z4)) || defaults.z4,
-    z5: wholeNumber(clampNonNegative(source.z5)) || defaults.z5,
-    z6: wholeNumber(clampNonNegative(source.z6)) || defaults.z6
+    z1: normalizeField('z1'),
+    z2: normalizeField('z2'),
+    z3: normalizeField('z3'),
+    ssMin: normalizeField('ssMin'),
+    ssMax: normalizeField('ssMax'),
+    z4: normalizeField('z4'),
+    z5: normalizeField('z5'),
+    z6: normalizeField('z6')
   };
 }
 
@@ -2250,21 +2257,36 @@ function validateAndApplyCustomZones(changedInput = null) {
     } else {
       nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
     }
-  } else {
-    document.querySelectorAll('.custom-zone-range-input').forEach(input => {
-      const zone = input.dataset.zone;
-      const side = input.dataset.side;
-      const value = wholeNumber(clampNonNegative(input.value));
 
-      if (zone === 'ss') {
-        nextRanges.ss[side] = value;
-      } else {
-        nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
-      }
-    });
+    const candidateAnchors = anchorsFromSyncedDisplayRanges(nextRanges, customPowerAnchors);
+    const error = validatePowerAnchors(candidateAnchors);
+
+    els.customZoneError.textContent = error;
+    if (error) {
+      writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
+      return;
+    }
+
+    customPowerAnchors = candidateAnchors;
+    customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
+    saveCustomPowerAnchors();
+    writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
+    updateCustomPowerZoneTable(clampNonNegative(els.ftpIn.value));
+    recalculateAllBadges();
+    return;
   }
 
-  writeCustomZoneRangeInputs(nextRanges);
+  document.querySelectorAll('.custom-zone-range-input').forEach(input => {
+    const zone = input.dataset.zone;
+    const side = input.dataset.side;
+    const value = wholeNumber(clampNonNegative(input.value));
+
+    if (zone === 'ss') {
+      nextRanges.ss[side] = value;
+    } else {
+      nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
+    }
+  });
 
   const candidateAnchors = anchorsFromSyncedDisplayRanges(nextRanges, customPowerAnchors);
   const error = validatePowerAnchors(candidateAnchors);
