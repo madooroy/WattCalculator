@@ -1165,18 +1165,17 @@ tr:last-child td { border-bottom: none; }
   </div>
 
 <div id="hr-view" class="view" role="tabpanel" aria-labelledby="btn-hr" hidden>
- <div class="card">
-   <div class="row">
-     <label for="hr-max-in">Max Heart Rate (BPM)</label>
-     <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="hr-max-in" placeholder="190" value="190" min="60" step="1" autocomplete="off">
-   </div>
-   <div class="row">
-     <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
-     <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="hr-lthr-in" placeholder="170" value="170" min="60" step="1" autocomplete="off">
-   </div>
-   <div id="hr-input-error" class="error-text" aria-live="polite"></div>
- </div>
-
+  <div class="card">
+    <div class="row">
+      <label for="hr-max-in">Max Heart Rate (BPM)</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="hr-max-in" placeholder="190" value="190" min="60" step="1" autocomplete="off">
+    </div>
+    <div class="row">
+      <label for="hr-lthr-in">Lactate Threshold HR (BPM)</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="hr-lthr-in" placeholder="170" value="170" min="60" step="1" autocomplete="off">
+    </div>
+    <div id="hr-input-error" class="error-text" aria-live="polite"></div>
+  </div>
 
   <div class="sub-tabs" role="tablist" aria-label="Heart rate systems">
     <button id="hr-sub-btn-default" class="sub-tab active" role="tab" aria-selected="true" aria-controls="hr-default-panel" data-hr-subtab="default" type="button" tabindex="0">Default</button>
@@ -1299,6 +1298,18 @@ function deepClone(obj) {
 }
 function clampNonNegative(value) { const n = parseFloat(value); return Number.isFinite(n) && n >= 0 ? n : 0; }
 function wholeNumber(value) { return Math.round(value); }
+function hasInputValue(el) {
+  return String(el?.value ?? '').trim() !== '';
+}
+
+function readNonNegativeOrNull(el) {
+  const raw = String(el?.value ?? '').trim();
+  if (raw === '') return null;
+
+  const n = parseFloat(raw);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+  
 function kjFromWattsMinutes(watts, minutes) { return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0; }
 function wattsFromKjMinutes(kj, minutes) { return minutes > 0 && kj > 0 ? (kj * 1000) / (minutes * 60) : 0; }
 
@@ -2078,47 +2089,52 @@ function updateBadgeUI(badgeEl, prefix, watts, ftp) {
 }
 
 function recalculateAllBadges() {
-  const currentFTP = clampNonNegative(els.ftpIn.value);
-  const newFTP = clampNonNegative(els.newFtpKj.value);
-  const kjWatts = clampNonNegative(els.wattsIn.value);
-  const wattsKj = clampNonNegative(els.kjIn.value);
-  const wattsMin = clampNonNegative(els.wattsMinIn.value);
-  const calculatedWatts = Math.ceil(wattsFromKjMinutes(wattsKj, wattsMin));
+  const currentFTP = readNonNegativeOrNull(els.ftpIn) ?? 0;
+  const newFTP = readNonNegativeOrNull(els.newFtpKj) ?? 0;
+  const kjWatts = readNonNegativeOrNull(els.wattsIn);
 
-  updateBadgeUI(els.kjCurrentBadge, 'Current FTP', kjWatts, currentFTP);
-  updateBadgeUI(els.kjNewBadge, 'New FTP', kjWatts, newFTP);
+  const wattsKj = readNonNegativeOrNull(els.kjIn);
+  const wattsMin = readNonNegativeOrNull(els.wattsMinIn);
+
+  const calculatedWatts = (
+    wattsKj !== null &&
+    wattsMin !== null &&
+    wattsKj > 0 &&
+    wattsMin > 0
+  )
+    ? Math.ceil(wattsFromKjMinutes(wattsKj, wattsMin))
+    : 0;
+
+  updateBadgeUI(els.kjCurrentBadge, 'Current FTP', kjWatts ?? 0, currentFTP);
+  updateBadgeUI(els.kjNewBadge, 'New FTP', kjWatts ?? 0, newFTP);
   updateBadgeUI(els.wattsCurrentBadge, 'Current FTP', calculatedWatts, currentFTP);
   updateBadgeUI(els.wattsNewBadge, 'New FTP', calculatedWatts, newFTP);
 }
 
 function calcKJ() {
-  const wattsRaw = String(els.wattsIn.value ?? '').trim();
-  const minRaw = String(els.kjMinIn.value ?? '').trim();
+  const watts = readNonNegativeOrNull(els.wattsIn);
+  const min = readNonNegativeOrNull(els.kjMinIn);
 
-  if (!wattsRaw || !minRaw) {
+  if (watts === null || min === null || watts <= 0 || min <= 0) {
     els.kjOut.textContent = '—';
     recalculateAllBadges();
     return;
   }
 
-  const watts = clampNonNegative(wattsRaw);
-  const min = clampNonNegative(minRaw);
   els.kjOut.textContent = String(Math.floor(kjFromWattsMinutes(watts, min)));
   recalculateAllBadges();
 }
 
 function calcWatts() {
-  const kjRaw = String(els.kjIn.value ?? '').trim();
-  const minRaw = String(els.wattsMinIn.value ?? '').trim();
+  const kj = readNonNegativeOrNull(els.kjIn);
+  const min = readNonNegativeOrNull(els.wattsMinIn);
 
-  if (!kjRaw || !minRaw) {
+  if (kj === null || min === null || kj <= 0 || min <= 0) {
     els.wattsOut.textContent = '—';
     recalculateAllBadges();
     return;
   }
 
-  const kj = clampNonNegative(kjRaw);
-  const min = clampNonNegative(minRaw);
   els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));
   recalculateAllBadges();
 }
@@ -2375,8 +2391,8 @@ function updateCustomPowerZoneTable(ftp) {
 }
 
 function updateZones() {
-  const ftp = clampNonNegative(els.ftpIn.value);
-  const weight = clampNonNegative(els.weightIn.value);
+  const ftp = readNonNegativeOrNull(els.ftpIn) ?? 0;
+  const weight = readNonNegativeOrNull(els.weightIn) ?? 0;
   const unit = els.weightUnit.value;
 
   updateFtpDisplays(ftp);
@@ -2685,8 +2701,8 @@ function validateAndApplyCustomHR(changedInput = null) {
   const current = readCustomHrAnchorsInline();
   const nextAnchors = deepClone(current);
 
-  const maxHr = clampNonNegative(els.hrMaxIn.value);
-  const lthr = clampNonNegative(els.hrLthrIn.value);
+  const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
+  const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 
   els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
   if (els.hrInputError.textContent) return;
@@ -2768,6 +2784,14 @@ function validateHrBaseInputs(maxHr, lthr) {
 
   return '';
 }
+
+function validateHrBaseInputs(maxHr, lthr) {
+  if (maxHr > 0 && lthr > 0 && lthr > maxHr) {
+    return 'Lactate Threshold HR cannot be higher than Max HR.';
+  }
+
+  return '';
+}
   
 function updateHRZones() {
   const maxHr = clampNonNegative(els.hrMaxIn.value);
@@ -2779,8 +2803,8 @@ function updateHRZones() {
 }
 
 function updateCustomHRZones() {
-  const maxHr = clampNonNegative(els.hrMaxIn.value);
-  const lthr = clampNonNegative(els.hrLthrIn.value);
+  const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
+  const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 
   els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
 
