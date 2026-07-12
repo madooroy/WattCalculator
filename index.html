@@ -1326,22 +1326,15 @@ function defaultPowerAnchors() {
 function normalizePowerAnchors(value) {
   const defaults = defaultPowerAnchors();
   const source = value && typeof value === 'object' ? value : {};
-
-  function normalizeField(field) {
-    return source[field] == null
-      ? defaults[field]
-      : wholeNumber(clampNonNegative(source[field]));
-  }
-
   return {
-    z1: normalizeField('z1'),
-    z2: normalizeField('z2'),
-    z3: normalizeField('z3'),
-    ssMin: normalizeField('ssMin'),
-    ssMax: normalizeField('ssMax'),
-    z4: normalizeField('z4'),
-    z5: normalizeField('z5'),
-    z6: normalizeField('z6')
+    z1: wholeNumber(clampNonNegative(source.z1)) || defaults.z1,
+    z2: wholeNumber(clampNonNegative(source.z2)) || defaults.z2,
+    z3: wholeNumber(clampNonNegative(source.z3)) || defaults.z3,
+    ssMin: wholeNumber(clampNonNegative(source.ssMin)) || defaults.ssMin,
+    ssMax: wholeNumber(clampNonNegative(source.ssMax)) || defaults.ssMax,
+    z4: wholeNumber(clampNonNegative(source.z4)) || defaults.z4,
+    z5: wholeNumber(clampNonNegative(source.z5)) || defaults.z5,
+    z6: wholeNumber(clampNonNegative(source.z6)) || defaults.z6
   };
 }
 
@@ -1704,15 +1697,14 @@ function hrCellBg(colorVar, alpha = 0.5) {
 }
   
 function getMainZoneWattRanges(ftp, system = activeZoneSystem) {
-  const ftpVal = clampNonNegative(ftp);
-  if (!(ftpVal > 0)) return [];
+  if (!(ftp > 0)) return [];
 
   const zones = getZonesConfigForSystem(system).filter(z => z.id !== 'ss');
   const out = [];
   let previousMax = null;
 
   for (const z of zones) {
-    const rawMax = z.max == null ? null : wholeNumber(ftpVal * z.max);
+    const rawMax = z.max === null ? null : wholeNumber(ftp * z.max);
 
     let minW;
     let maxW;
@@ -1720,11 +1712,11 @@ function getMainZoneWattRanges(ftp, system = activeZoneSystem) {
     if (z.id === 'z1') {
       minW = 0;
       maxW = rawMax;
-    } else if (z.max == null) {
-      minW = previousMax != null ? previousMax + 1 : 1;
+    } else if (z.max === null) {
+      minW = previousMax + 1;
       maxW = null;
     } else {
-      minW = previousMax != null ? previousMax + 1 : wholeNumber(ftpVal * z.min);
+      minW = previousMax + 1;
       maxW = rawMax;
     }
 
@@ -1734,7 +1726,7 @@ function getMainZoneWattRanges(ftp, system = activeZoneSystem) {
       maxW
     });
 
-    if (maxW != null) previousMax = maxW;
+    if (maxW !== null) previousMax = maxW;
   }
 
   return out;
@@ -1805,7 +1797,6 @@ function getOutputZone(watts, ftp) {
 }
 
 function getZoneRangeInfo(zone, ftp) {
-  const ftpVal = clampNonNegative(ftp);
   const minPct = Math.round(zone.min * 100);
   const maxPct = zone.max === null ? null : Math.round(zone.max * 100);
 
@@ -1813,105 +1804,76 @@ function getZoneRangeInfo(zone, ftp) {
   let wattsText = '';
 
   if (zone.id === 'ss') {
-    const minW = wholeNumber(ftpVal * zone.min);
-    const maxW = wholeNumber(ftpVal * zone.max);
+    const minW = wholeNumber(ftp * zone.min);
+    const maxW = wholeNumber(ftp * zone.max);
 
     pctText = `${minPct}%–${maxPct}%`;
     wattsText = `${minW}–${maxW}`;
-  } else if (zone.max === null) {
-    pctText = `≥ ${minPct + 1}%`;
-    wattsText = `≥ ${wholeNumber(ftpVal * zone.min) + 1}`;
-  } else if (zone.min === 0) {
-    pctText = `≤ ${maxPct}%`;
-    wattsText = `≤ ${wholeNumber(ftpVal * zone.max)}`;
   } else {
-    pctText = `${minPct + 1}%–${maxPct}%`;
-    wattsText = `${wholeNumber(ftpVal * zone.min) + 1}–${wholeNumber(ftpVal * zone.max)}`;
+    const mainRanges = getMainZoneWattRanges(ftp);
+    const wattRange = mainRanges.find(z => z.id === zone.id);
+
+    if (zone.max === null) {
+      pctText = `≥ ${minPct + 1}%`;
+      wattsText = `≥ ${wattRange.minW}`;
+    } else if (zone.min === 0) {
+      pctText = `≤ ${maxPct}%`;
+      wattsText = `≤ ${wattRange.maxW}`;
+    } else {
+      pctText = `${minPct + 1}%–${maxPct}%`;
+      wattsText = `${wattRange.minW}–${wattRange.maxW}`;
+    }
   }
 
   return {
     pctText,
     wattsText,
-    targetText: `${wholeNumber(ftpVal * zone.target)}`
+    targetText: `${wholeNumber(ftp * zone.target)}`
   };
 }
 
-function updateDefaultPowerZoneTable(ftp) {
-  const mainRanges = getMainZoneWattRanges(ftp, 'default');
+function getCustomZoneTargetInfo(zone, ftp) {
+  const minPct = Math.round(zone.min * 100);
+  const maxPct = zone.max === null ? null : Math.round(zone.max * 100);
+
+  let targetPctValue;
+
+  if (zone.id === 'z1' || zone.id === 'z7') {
+    targetPctValue = Math.round(zone.target * 100);
+  } else {
+    targetPctValue = Math.round((minPct + maxPct) / 2);
+  }
+
+  const targetWatts = wholeNumber(ftp * (targetPctValue / 100));
+
+  return {
+    targetPctText: `${targetPctValue}%`,
+    targetText: `${targetWatts}`
+  };
+}
+
+function cacheDefaultPowerCells() {
+  powerCellCache.default = {};
 
   defaultZonesConfig.forEach(z => {
-    const info = getZoneRangeInfo(z, ftp);
-    const cellSet = powerCellCache.default[z.id];
-
-    if (!cellSet) return;
-
-    if (cellSet.pct) {
-      cellSet.pct.textContent = info.pctText;
-    }
-
-    if (cellSet.range) {
-      if (z.id === 'ss') {
-        cellSet.range.textContent = info.wattsText;
-      } else {
-        const wattRange = mainRanges.find(r => r.id === z.id);
-
-        if (!wattRange) {
-          cellSet.range.textContent = '—';
-        } else if (wattRange.maxW === null) {
-          cellSet.range.textContent = `≥ ${wattRange.minW}`;
-        } else if (z.id === 'z1') {
-          cellSet.range.textContent = `≤ ${wattRange.maxW}`;
-        } else {
-          cellSet.range.textContent = `${wattRange.minW}–${wattRange.maxW}`;
-        }
-      }
-    }
-
-    if (cellSet.targetPct) {
-      cellSet.targetPct.textContent = `${Math.round(z.target * 100)}%`;
-    }
-
-    if (cellSet.target) {
-      cellSet.target.textContent = info.targetText;
-    }
+    powerCellCache.default[z.id] = {
+      pct: document.getElementById(`p-${z.id}-pct-range`),
+      range: document.getElementById(`p-${z.id}-range`),
+      targetPct: document.getElementById(`p-${z.id}-target-pct`),
+      target: document.getElementById(`p-${z.id}-target`)
+    };
   });
 }
 
-function updateCustomPowerZoneTable(ftp) {
-  const mainRanges = getMainZoneWattRanges(ftp, 'custom');
+function cacheCustomPowerCells() {
+  powerCellCache.custom = {};
 
   customZonesConfig.forEach(z => {
-    const info = getZoneRangeInfo(z, ftp);
-    const targetInfo = getCustomZoneTargetInfo(z, ftp);
-    const cellSet = powerCellCache.custom[z.id];
-
-    if (!cellSet) return;
-
-    if (cellSet.range) {
-      if (z.id === 'ss') {
-        cellSet.range.textContent = info.wattsText;
-      } else {
-        const wattRange = mainRanges.find(r => r.id === z.id);
-
-        if (!wattRange) {
-          cellSet.range.textContent = '—';
-        } else if (wattRange.maxW === null) {
-          cellSet.range.textContent = `≥ ${wattRange.minW}`;
-        } else if (z.id === 'z1') {
-          cellSet.range.textContent = `≤ ${wattRange.maxW}`;
-        } else {
-          cellSet.range.textContent = `${wattRange.minW}–${wattRange.maxW}`;
-        }
-      }
-    }
-
-    if (cellSet.targetPct) {
-      cellSet.targetPct.textContent = targetInfo.targetPctText;
-    }
-
-    if (cellSet.target) {
-      cellSet.target.textContent = targetInfo.targetText;
-    }
+    powerCellCache.custom[z.id] = {
+      range: document.getElementById(`c-${z.id}-range`),
+      targetPct: document.getElementById(`c-${z.id}-target-pct`),
+      target: document.getElementById(`c-${z.id}-target`)
+    };
   });
 }
 
@@ -2288,36 +2250,21 @@ function validateAndApplyCustomZones(changedInput = null) {
     } else {
       nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
     }
+  } else {
+    document.querySelectorAll('.custom-zone-range-input').forEach(input => {
+      const zone = input.dataset.zone;
+      const side = input.dataset.side;
+      const value = wholeNumber(clampNonNegative(input.value));
 
-    const candidateAnchors = anchorsFromSyncedDisplayRanges(nextRanges, customPowerAnchors);
-    const error = validatePowerAnchors(candidateAnchors);
-
-    els.customZoneError.textContent = error;
-    if (error) {
-      writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
-      return;
-    }
-
-    customPowerAnchors = candidateAnchors;
-    customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
-    saveCustomPowerAnchors();
-    writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
-    updateCustomPowerZoneTable(clampNonNegative(els.ftpIn.value));
-    recalculateAllBadges();
-    return;
+      if (zone === 'ss') {
+        nextRanges.ss[side] = value;
+      } else {
+        nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
+      }
+    });
   }
 
-  document.querySelectorAll('.custom-zone-range-input').forEach(input => {
-    const zone = input.dataset.zone;
-    const side = input.dataset.side;
-    const value = wholeNumber(clampNonNegative(input.value));
-
-    if (zone === 'ss') {
-      nextRanges.ss[side] = value;
-    } else {
-      nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
-    }
-  });
+  writeCustomZoneRangeInputs(nextRanges);
 
   const candidateAnchors = anchorsFromSyncedDisplayRanges(nextRanges, customPowerAnchors);
   const error = validatePowerAnchors(candidateAnchors);
@@ -2332,14 +2279,40 @@ function validateAndApplyCustomZones(changedInput = null) {
   recalculateAllBadges();
 }
 
+function updateFtpDisplays(ftp) {
+  els.currentFtpDisplayKj.textContent = `${wholeNumber(ftp)}W`;
+  els.currentFtpDisplayWatts.textContent = `${wholeNumber(ftp)}W`;
+}
+
 function updateWkg(ftp, weight, unit) {
   const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
   els.wkgOut.textContent = (weightKg > 0 && ftp > 0) ? (ftp / weightKg).toFixed(2) : '—';
 }
 
-function updateFtpDisplays(ftp) {
-  els.currentFtpDisplayKj.textContent = `${wholeNumber(ftp)}W`;
-  els.currentFtpDisplayWatts.textContent = `${wholeNumber(ftp)}W`;
+function updateDefaultPowerZoneTable(ftp) {
+  defaultZonesConfig.forEach(z => {
+    const info = getZoneRangeInfo(z, ftp);
+    const cellSet = powerCellCache.default[z.id];
+
+    if (!cellSet) return;
+    if (cellSet.pct) cellSet.pct.textContent = info.pctText;
+    if (cellSet.range) cellSet.range.textContent = info.wattsText;
+    if (cellSet.targetPct) cellSet.targetPct.textContent = `${Math.round(z.target * 100)}%`;
+    if (cellSet.target) cellSet.target.textContent = info.targetText;
+  });
+}
+
+function updateCustomPowerZoneTable(ftp) {
+  customZonesConfig.forEach(z => {
+    const info = getZoneRangeInfo(z, ftp);
+    const targetInfo = getCustomZoneTargetInfo(z, ftp);
+    const cellSet = powerCellCache.custom[z.id];
+
+    if (!cellSet) return;
+    if (cellSet.range) cellSet.range.textContent = info.wattsText;
+    if (cellSet.targetPct) cellSet.targetPct.textContent = targetInfo.targetPctText;
+    if (cellSet.target) cellSet.target.textContent = targetInfo.targetText;
+  });
 }
 
 function updateZones() {
@@ -2661,24 +2634,7 @@ function validateAndApplyCustomHR(changedInput = null) {
     const value = changedInput.value;
 
     nextAnchors[metric] = applyHrBoundaryEdit(nextAnchors[metric], zone, side, value, cap);
-
-    const error = validateHrAnchorSet(
-      nextAnchors,
-      clampNonNegative(els.hrMaxIn.value),
-      clampNonNegative(els.hrLthrIn.value)
-    );
-
-    els.customHrError.textContent = error;
-    if (error) {
-      writeCustomHrInputs(metric, customHrAnchors[metric]);
-      return;
-    }
-
-    customHrAnchors = normalizeHrAnchors(nextAnchors);
-    saveCustomHrAnchors();
-    writeCustomHrInputs(metric, customHrAnchors[metric]);
-    updateCustomHRZones();
-    return;
+    writeCustomHrInputs(metric, nextAnchors[metric]);
   }
 
   const error = validateHrAnchorSet(
