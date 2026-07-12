@@ -1704,14 +1704,15 @@ function hrCellBg(colorVar, alpha = 0.5) {
 }
   
 function getMainZoneWattRanges(ftp, system = activeZoneSystem) {
-  if (!(ftp > 0)) return [];
+  const ftpVal = clampNonNegative(ftp);
+  if (!(ftpVal > 0)) return [];
 
   const zones = getZonesConfigForSystem(system).filter(z => z.id !== 'ss');
   const out = [];
   let previousMax = null;
 
   for (const z of zones) {
-    const rawMax = z.max === null ? null : wholeNumber(ftp * z.max);
+    const rawMax = z.max == null ? null : wholeNumber(ftpVal * z.max);
 
     let minW;
     let maxW;
@@ -1719,11 +1720,11 @@ function getMainZoneWattRanges(ftp, system = activeZoneSystem) {
     if (z.id === 'z1') {
       minW = 0;
       maxW = rawMax;
-    } else if (z.max === null) {
-      minW = previousMax + 1;
+    } else if (z.max == null) {
+      minW = previousMax != null ? previousMax + 1 : 1;
       maxW = null;
     } else {
-      minW = previousMax + 1;
+      minW = previousMax != null ? previousMax + 1 : wholeNumber(ftpVal * z.min);
       maxW = rawMax;
     }
 
@@ -1733,7 +1734,7 @@ function getMainZoneWattRanges(ftp, system = activeZoneSystem) {
       maxW
     });
 
-    if (maxW !== null) previousMax = maxW;
+    if (maxW != null) previousMax = maxW;
   }
 
   return out;
@@ -1804,6 +1805,7 @@ function getOutputZone(watts, ftp) {
 }
 
 function getZoneRangeInfo(zone, ftp) {
+  const ftpVal = clampNonNegative(ftp);
   const minPct = Math.round(zone.min * 100);
   const maxPct = zone.max === null ? null : Math.round(zone.max * 100);
 
@@ -1811,31 +1813,35 @@ function getZoneRangeInfo(zone, ftp) {
   let wattsText = '';
 
   if (zone.id === 'ss') {
-    const minW = wholeNumber(ftp * zone.min);
-    const maxW = wholeNumber(ftp * zone.max);
+    const minW = wholeNumber(ftpVal * zone.min);
+    const maxW = wholeNumber(ftpVal * zone.max);
 
     pctText = `${minPct}%–${maxPct}%`;
     wattsText = `${minW}–${maxW}`;
   } else {
-    const mainRanges = getMainZoneWattRanges(ftp);
+    const system = customZonesConfig.some(z => z.id === zone.id && z.min === zone.min && z.max === zone.max)
+      ? 'custom'
+      : 'default';
+
+    const mainRanges = getMainZoneWattRanges(ftpVal, system);
     const wattRange = mainRanges.find(z => z.id === zone.id);
 
     if (zone.max === null) {
       pctText = `≥ ${minPct + 1}%`;
-      wattsText = `≥ ${wattRange.minW}`;
+      wattsText = wattRange ? `≥ ${wattRange.minW}` : '—';
     } else if (zone.min === 0) {
       pctText = `≤ ${maxPct}%`;
-      wattsText = `≤ ${wattRange.maxW}`;
+      wattsText = wattRange ? `≤ ${wattRange.maxW}` : '—';
     } else {
       pctText = `${minPct + 1}%–${maxPct}%`;
-      wattsText = `${wattRange.minW}–${wattRange.maxW}`;
+      wattsText = wattRange ? `${wattRange.minW}–${wattRange.maxW}` : '—';
     }
   }
 
   return {
     pctText,
     wattsText,
-    targetText: `${wholeNumber(ftp * zone.target)}`
+    targetText: `${wholeNumber(ftpVal * zone.target)}`
   };
 }
 
@@ -2307,26 +2313,56 @@ function updateWkg(ftp, weight, unit) {
 }
 
 function updateDefaultPowerZoneTable(ftp) {
+  const mainRanges = getMainZoneWattRanges(ftp, 'default');
+
   defaultZonesConfig.forEach(z => {
     const info = getZoneRangeInfo(z, ftp);
     const cellSet = powerCellCache.default[z.id];
 
     if (!cellSet) return;
+
+    if (z.id !== 'ss') {
+      const wattRange = mainRanges.find(r => r.id === z.id);
+      if (cellSet.range && wattRange) {
+        if (z.max === null) cellSet.range.textContent = `≥ ${wattRange.minW}`;
+        else if (z.min === 0) cellSet.range.textContent = `≤ ${wattRange.maxW}`;
+        else cellSet.range.textContent = `${wattRange.minW}–${wattRange.maxW}`;
+      } else if (cellSet.range) {
+        cellSet.range.textContent = '—';
+      }
+    } else if (cellSet.range) {
+      cellSet.range.textContent = info.wattsText;
+    }
+
     if (cellSet.pct) cellSet.pct.textContent = info.pctText;
-    if (cellSet.range) cellSet.range.textContent = info.wattsText;
     if (cellSet.targetPct) cellSet.targetPct.textContent = `${Math.round(z.target * 100)}%`;
     if (cellSet.target) cellSet.target.textContent = info.targetText;
   });
 }
 
 function updateCustomPowerZoneTable(ftp) {
+  const mainRanges = getMainZoneWattRanges(ftp, 'custom');
+
   customZonesConfig.forEach(z => {
     const info = getZoneRangeInfo(z, ftp);
     const targetInfo = getCustomZoneTargetInfo(z, ftp);
     const cellSet = powerCellCache.custom[z.id];
 
     if (!cellSet) return;
-    if (cellSet.range) cellSet.range.textContent = info.wattsText;
+
+    if (z.id !== 'ss') {
+      const wattRange = mainRanges.find(r => r.id === z.id);
+      if (cellSet.range && wattRange) {
+        if (z.max === null) cellSet.range.textContent = `≥ ${wattRange.minW}`;
+        else if (z.min === 0) cellSet.range.textContent = `≤ ${wattRange.maxW}`;
+        else cellSet.range.textContent = `${wattRange.minW}–${wattRange.maxW}`;
+      } else if (cellSet.range) {
+        cellSet.range.textContent = '—';
+      }
+    } else if (cellSet.range) {
+      cellSet.range.textContent = info.wattsText;
+    }
+
     if (cellSet.targetPct) cellSet.targetPct.textContent = targetInfo.targetPctText;
     if (cellSet.target) cellSet.target.textContent = targetInfo.targetText;
   });
