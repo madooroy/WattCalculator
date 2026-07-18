@@ -1027,75 +1027,81 @@ tr:last-child td { border-bottom: none; }
      <button id="btn-hr" class="tab" role="tab" aria-selected="false" aria-controls="hr-view" data-tab="hr" type="button" tabindex="-1">HR Zones</button>
   </div>
   
-  <div id="kj-view" class="view" role="tabpanel" aria-labelledby="btn-kj" hidden>
-    <div class="card">
-      <div class="row">
-        <label for="watts-in">Average Watts</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="watts-in" value="150" min="1" step="1" autocomplete="off">
+<div id="kj-view" class="view" role="tabpanel" aria-labelledby="btn-kj" hidden>
+  <div class="card">
+    <div class="row">
+      <label for="watts-in">Average Watts</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="watts-in" value="150" min="1" step="1" autocomplete="off">
+    </div>
+    <div class="row row-stack">
+      <div class="row-split">
+        <label for="kj-min-in">Time</label>
+        <input class="input-boxed" type="text" inputmode="decimal" enterkeyhint="done" id="kj-min-in" value="60" autocomplete="off">
       </div>
-      <div class="row">
-        <label for="kj-min-in">Time (Minutes)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="kj-min-in" value="60" min="1" step="1" autocomplete="off">
+      <div class="subnote-right">Enter minutes, h:mm, or h:mm:ss</div>
+    </div>
+    <div class="row row-stack">
+      <div class="row-split">
+        <span class="muted-label">Current FTP</span>
+        <div id="current-ftp-display-kj" class="value-display">250W</div>
       </div>
-      <div class="row row-stack">
-        <div class="row-split">
-          <span class="muted-label">Current FTP</span>
-          <div id="current-ftp-display-kj" class="value-display">250W</div>
-        </div>
-        <div class="subnote-right">Set in Power Zones</div>
-      </div>
-
-      <div class="row">
-        <label for="proposed-ftp-kj">New FTP for Comparison</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="proposed-ftp-kj" value="250" min="1" step="1" autocomplete="off">
-      </div>
+      <div class="subnote-right">Set in Power Zones</div>
     </div>
 
-    <div class="card result-box">
-      <div class="result-val" id="kj-out" aria-live="polite">—</div>
-      <div class="result-lbl">Total Kilojoules</div>
-      <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
-      <div class="badge-container">
-        <div class="calc-badge" id="kj-current-badge">Current FTP: —</div>
-        <div class="calc-badge" id="kj-new-badge">New FTP: —</div>
-      </div>
+    <div class="row">
+      <label for="proposed-ftp-kj">New FTP for Comparison</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="proposed-ftp-kj" value="250" min="1" step="1" autocomplete="off">
     </div>
   </div>
 
-  <div id="watts-view" class="view" role="tabpanel" aria-labelledby="btn-watts">
-    <div class="card">
-      <div class="row">
-        <label for="kj-in">Total Kilojoules</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="kj-in" value="500" min="1" step="1" autocomplete="off">
-      </div>
-      <div class="row">
-        <label for="watts-min-in">Time (Minutes)</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="watts-min-in" value="60" min="1" step="1" autocomplete="off">
-      </div>
-      <div class="row row-stack">
-        <div class="row-split">
-          <span class="muted-label">Current FTP</span>
-          <div id="current-ftp-display-watts" class="value-display">250W</div>
-        </div>
-        <div class="subnote-right">Set in Power Zones</div>
-      </div>
-
-      <div class="row">
-        <label for="proposed-ftp-watts">New FTP for Comparison</label>
-        <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="proposed-ftp-watts" value="250" min="1" step="1" autocomplete="off">
-      </div>
-    </div>
-
-    <div class="card result-box">
-      <div class="result-val" id="watts-out" aria-live="polite">—</div>
-      <div class="result-lbl">Average Watts</div>
-      <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
-      <div class="badge-container">
-        <div class="calc-badge" id="watts-current-badge">Current FTP: —</div>
-        <div class="calc-badge" id="watts-new-badge">New FTP: —</div>
-      </div>
+  <div class="card result-box">
+    <div class="result-val" id="kj-out" aria-live="polite">—</div>
+    <div class="result-lbl">Total Kilojoules</div>
+    <button id="toggle-system-kj" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
+    <div class="badge-container">
+      <div class="calc-badge" id="kj-current-badge">Current FTP: —</div>
+      <div class="calc-badge" id="kj-new-badge">New FTP: —</div>
     </div>
   </div>
+</div>
+
+<div id="watts-view" class="view" role="tabpanel" aria-labelledby="btn-watts">
+  <div class="card">
+    <div class="row">
+      <label for="kj-in">Total Kilojoules</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="kj-in" value="500" min="1" step="1" autocomplete="off">
+    </div>
+    <div class="row row-stack">
+      <div class="row-split">
+        <label for="watts-min-in">Time</label>
+        <input class="input-boxed" type="text" inputmode="decimal" enterkeyhint="done" id="watts-min-in" value="60" autocomplete="off">
+      </div>
+      <div class="subnote-right">Enter minutes, h:mm, or h:mm:ss</div>
+    </div>
+    <div class="row row-stack">
+      <div class="row-split">
+        <span class="muted-label">Current FTP</span>
+        <div id="current-ftp-display-watts" class="value-display">250W</div>
+      </div>
+      <div class="subnote-right">Set in Power Zones</div>
+    </div>
+
+    <div class="row">
+      <label for="proposed-ftp-watts">New FTP for Comparison</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="proposed-ftp-watts" value="250" min="1" step="1" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="card result-box">
+    <div class="result-val" id="watts-out" aria-live="polite">—</div>
+    <div class="result-lbl">Average Watts</div>
+    <button id="toggle-system-watts" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
+    <div class="badge-container">
+      <div class="calc-badge" id="watts-current-badge">Current FTP: —</div>
+      <div class="calc-badge" id="watts-new-badge">New FTP: —</div>
+    </div>
+  </div>
+</div>
 
   <div id="zones-view" class="view" role="tabpanel" aria-labelledby="btn-zones" hidden>
     <div class="card">
@@ -1304,6 +1310,71 @@ function readNonNegativeOrNull(el) {
 
   const n = parseFloat(raw);
   return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+function parseTimeToMinutes(raw) {
+  const text = String(raw ?? '').trim();
+  if (text === '') return null;
+
+  if (/^\d+(\.\d+)?$/.test(text)) {
+    const minutes = parseFloat(text);
+    return Number.isFinite(minutes) && minutes >= 0 ? minutes : null;
+  }
+
+  if (!/^\d+:\d{1,2}(:\d{1,2})?$/.test(text)) {
+    return null;
+  }
+
+  const parts = text.split(':').map(part => Number(part));
+  if (parts.some(part => !Number.isFinite(part) || part < 0)) {
+    return null;
+  }
+
+  if (parts.length === 2) {
+    const [hours, minutes] = parts;
+    if (minutes >= 60) return null;
+    return (hours * 60) + minutes;
+  }
+
+  if (parts.length === 3) {
+    const [hours, minutes, seconds] = parts;
+    if (minutes >= 60 || seconds >= 60) return null;
+    return (hours * 60) + minutes + (seconds / 60);
+  }
+
+  return null;
+}
+
+function readTimeMinutesOrNull(el) {
+  return parseTimeToMinutes(el?.value);
+}
+
+function normalizeTimeInput(el) {
+  const text = String(el?.value ?? '').trim();
+  if (text === '') return '';
+
+  const minutes = parseTimeToMinutes(text);
+  if (minutes === null) return text;
+
+  if (/^\d+(\.\d+)?$/.test(text)) {
+    el.value = String(minutes).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+    return el.value;
+  }
+
+  const parts = text.split(':');
+  if (parts.length === 2) {
+    const [hours, mins] = parts;
+    el.value = `${Number(hours)}:${String(Number(mins)).padStart(2, '0')}`;
+    return el.value;
+  }
+
+  if (parts.length === 3) {
+    const [hours, mins, secs] = parts;
+    el.value = `${Number(hours)}:${String(Number(mins)).padStart(2, '0')}:${String(Number(secs)).padStart(2, '0')}`;
+    return el.value;
+  }
+
+  return text;
 }
   
 function kjFromWattsMinutes(watts, minutes) { return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0; }
@@ -2039,7 +2110,7 @@ function recalculateAllBadges() {
   const kjWatts = readNonNegativeOrNull(els.wattsIn);
 
   const wattsKj = readNonNegativeOrNull(els.kjIn);
-  const wattsMin = readNonNegativeOrNull(els.wattsMinIn);
+  const wattsMin = readTimeMinutesOrNull(els.wattsMinIn);
 
   const calculatedWatts = (
     wattsKj !== null &&
@@ -2058,7 +2129,7 @@ function recalculateAllBadges() {
 
 function calcKJ() {
   const watts = readNonNegativeOrNull(els.wattsIn);
-  const min = readNonNegativeOrNull(els.kjMinIn);
+  const min = readTimeMinutesOrNull(els.kjMinIn);
 
   if (watts === null || min === null || watts <= 0 || min <= 0) {
     els.kjOut.textContent = '—';
@@ -2072,7 +2143,7 @@ function calcKJ() {
 
 function calcWatts() {
   const kj = readNonNegativeOrNull(els.kjIn);
-  const min = readNonNegativeOrNull(els.wattsMinIn);
+  const min = readTimeMinutesOrNull(els.wattsMinIn);
 
   if (kj === null || min === null || kj <= 0 || min <= 0) {
     els.wattsOut.textContent = '—';
@@ -2888,6 +2959,37 @@ function persistOnInput(el, key, decimals = 0) {
   });
 }
 
+function persistRawTextOnInput(el, key) {
+  if (!el) return;
+
+  el.addEventListener('input', () => {
+    const raw = String(el.value ?? '');
+    if (raw.trim() === '') {
+      safeStorageRemove(key);
+      return;
+    }
+
+    safeStorageSet(key, raw);
+  });
+}
+
+function normalizeAndPersistTimeOnChange(el, key, afterChange) {
+  if (!el) return;
+
+  el.addEventListener('change', () => {
+    const normalized = normalizeTimeInput(el);
+    const parsed = parseTimeToMinutes(normalized);
+
+    if (normalized.trim() === '') {
+      safeStorageRemove(key);
+    } else {
+      safeStorageSet(key, normalized);
+    }
+
+    if (afterChange) afterChange(parsed);
+  });
+}
+  
 function initCache() {
   Object.assign(els, {
     appTitle: document.getElementById('app-title'),
@@ -3126,6 +3228,9 @@ function bindEvents() {
   els.hrMaxIn.addEventListener('change', validateAndApplyCustomHR);
   els.hrLthrIn.addEventListener('change', validateAndApplyCustomHR);
 
+  normalizeAndPersistTimeOnChange(els.kjMinIn, STORAGE_KEYS.FIND_KJ_MINUTES, calcKJ);
+  normalizeAndPersistTimeOnChange(els.wattsMinIn, STORAGE_KEYS.FIND_WATTS_MINUTES, calcWatts);
+
   persistOnCommit(els.ftpIn, STORAGE_KEYS.FTP, 0, updateZones);
   persistOnCommit(els.weightIn, STORAGE_KEYS.WEIGHT, 1, updateZones);
   persistOnCommit(els.hrMaxIn, STORAGE_KEYS.HR_MAX, 0, () => {
@@ -3147,9 +3252,9 @@ function bindEvents() {
   persistOnInput(els.newFtpWatts, STORAGE_KEYS.NEW_FTP);
 
   persistOnInput(els.wattsIn, STORAGE_KEYS.FIND_KJ_AVG_WATTS);
-  persistOnInput(els.kjMinIn, STORAGE_KEYS.FIND_KJ_MINUTES);
+  persistRawTextOnInput(els.kjMinIn, STORAGE_KEYS.FIND_KJ_MINUTES);
   persistOnInput(els.kjIn, STORAGE_KEYS.FIND_WATTS_TOTAL_KJ);
-  persistOnInput(els.wattsMinIn, STORAGE_KEYS.FIND_WATTS_MINUTES);
+  persistRawTextOnInput(els.wattsMinIn, STORAGE_KEYS.FIND_WATTS_MINUTES)
 }
 
 function loadSavedValues() {
@@ -3159,15 +3264,19 @@ function loadSavedValues() {
     [STORAGE_KEYS.HR_MAX, els.hrMaxIn, v => String(wholeNumber(clampNonNegative(v)))],
     [STORAGE_KEYS.HR_LTHR, els.hrLthrIn, v => String(wholeNumber(clampNonNegative(v)))],
     [STORAGE_KEYS.FIND_KJ_AVG_WATTS, els.wattsIn, v => String(wholeNumber(clampNonNegative(v)))],
-    [STORAGE_KEYS.FIND_KJ_MINUTES, els.kjMinIn, v => String(wholeNumber(clampNonNegative(v)))],
-    [STORAGE_KEYS.FIND_WATTS_TOTAL_KJ, els.kjIn, v => String(wholeNumber(clampNonNegative(v)))],
-    [STORAGE_KEYS.FIND_WATTS_MINUTES, els.wattsMinIn, v => String(wholeNumber(clampNonNegative(v)))]
+    [STORAGE_KEYS.FIND_WATTS_TOTAL_KJ, els.kjIn, v => String(wholeNumber(clampNonNegative(v)))]
   ];
 
   mappings.forEach(([key, el, transform]) => {
     const value = safeStorageGet(key);
     if (value !== null) el.value = transform(value);
   });
+
+  const savedKjTime = safeStorageGet(STORAGE_KEYS.FIND_KJ_MINUTES);
+  if (savedKjTime !== null) els.kjMinIn.value = savedKjTime;
+
+  const savedWattsTime = safeStorageGet(STORAGE_KEYS.FIND_WATTS_MINUTES);
+  if (savedWattsTime !== null) els.wattsMinIn.value = savedWattsTime;
 
   const unit = safeStorageGet(STORAGE_KEYS.UNIT);
   if (unit === 'lbs' || unit === 'kg') els.weightUnit.value = unit;
