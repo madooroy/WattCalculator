@@ -1357,25 +1357,20 @@ function readNonNegativeOrNull(el) {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
-function readDurationMinutes(hoursEl, minutesEl, secondsEl) {
-  const hours = readNonNegativeOrNull(hoursEl) ?? 0;
-  const minutes = readNonNegativeOrNull(minutesEl) ?? 0;
-  const seconds = readNonNegativeOrNull(secondsEl) ?? 0;
-
-  if (minutes >= 60 || seconds >= 60) return null;
-
-  const totalMinutes = (hours * 60) + minutes + (seconds / 60);
-  return totalMinutes > 0 ? totalMinutes : null;
-}
-
-function getDurationValidationError(hoursEl, minutesEl, secondsEl) {
+function parseDurationParts(hoursEl, minutesEl, secondsEl) {
   const hoursRaw = String(hoursEl?.value ?? '').trim();
   const minutesRaw = String(minutesEl?.value ?? '').trim();
   const secondsRaw = String(secondsEl?.value ?? '').trim();
 
-  const hours = hoursRaw === '' ? 0 : parseFloat(hoursRaw);
-  const minutes = minutesRaw === '' ? 0 : parseFloat(minutesRaw);
-  const seconds = secondsRaw === '' ? 0 : parseFloat(secondsRaw);
+  return {
+    hours: hoursRaw === '' ? 0 : parseFloat(hoursRaw),
+    minutes: minutesRaw === '' ? 0 : parseFloat(minutesRaw),
+    seconds: secondsRaw === '' ? 0 : parseFloat(secondsRaw)
+  };
+}
+
+function getDurationValidationError(hoursEl, minutesEl, secondsEl) {
+  const { hours, minutes, seconds } = parseDurationParts(hoursEl, minutesEl, secondsEl);
 
   if (!Number.isFinite(hours) || hours < 0) return 'Hours must be 0 or greater.';
   if (!Number.isFinite(minutes) || minutes < 0) return 'Minutes must be 0 or greater.';
@@ -1389,6 +1384,64 @@ function getDurationValidationError(hoursEl, minutesEl, secondsEl) {
   }
 
   return '';
+}
+
+function readDurationMinutes(hoursEl, minutesEl, secondsEl) {
+  const { hours, minutes, seconds } = parseDurationParts(hoursEl, minutesEl, secondsEl);
+
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes) || !Number.isFinite(seconds)) {
+    return null;
+  }
+
+  if (hours < 0 || minutes < 0 || seconds < 0) return null;
+  if (minutes >= 60 || seconds >= 60) return null;
+
+  const totalMinutes = (hours * 60) + minutes + (seconds / 60);
+  return totalMinutes > 0 ? totalMinutes : null;
+}
+
+function getValidDurationOrShowError(errorEl, hoursEl, minutesEl, secondsEl) {
+  const error = getDurationValidationError(hoursEl, minutesEl, secondsEl);
+  if (errorEl) errorEl.textContent = error;
+  return error ? null : readDurationMinutes(hoursEl, minutesEl, secondsEl);
+}
+
+function calcKJ() {
+  const watts = readNonNegativeOrNull(els.wattsIn);
+  const min = getValidDurationOrShowError(
+    els.kjTimeError,
+    els.kjHoursIn,
+    els.kjMinutesPartIn,
+    els.kjSecondsIn
+  );
+
+  if (watts === null || watts <= 0 || min === null) {
+    els.kjOut.textContent = '—';
+    recalculateAllBadges();
+    return;
+  }
+
+  els.kjOut.textContent = String(Math.floor(kjFromWattsMinutes(watts, min)));
+  recalculateAllBadges();
+}
+
+function calcWatts() {
+  const kj = readNonNegativeOrNull(els.kjIn);
+  const min = getValidDurationOrShowError(
+    els.wattsTimeError,
+    els.wattsHoursIn,
+    els.wattsMinutesPartIn,
+    els.wattsSecondsIn
+  );
+
+  if (kj === null || kj <= 0 || min === null) {
+    els.wattsOut.textContent = '—';
+    recalculateAllBadges();
+    return;
+  }
+
+  els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));
+  recalculateAllBadges();
 }
   
 function kjFromWattsMinutes(watts, minutes) { return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0; }
@@ -2139,54 +2192,6 @@ function recalculateAllBadges() {
   updateBadgeUI(els.kjNewBadge, 'New FTP', kjWatts ?? 0, newFTP);
   updateBadgeUI(els.wattsCurrentBadge, 'Current FTP', calculatedWatts, currentFTP);
   updateBadgeUI(els.wattsNewBadge, 'New FTP', calculatedWatts, newFTP);
-}
-
-function calcKJ() {
-  const watts = readNonNegativeOrNull(els.wattsIn);
-  const timeError = getDurationValidationError(
-    els.kjHoursIn,
-    els.kjMinutesPartIn,
-    els.kjSecondsIn
-  );
-
-  els.kjTimeError.textContent = timeError;
-
-  const min = timeError
-    ? null
-    : readDurationMinutes(els.kjHoursIn, els.kjMinutesPartIn, els.kjSecondsIn);
-
-  if (watts === null || watts <= 0 || min === null) {
-    els.kjOut.textContent = '—';
-    recalculateAllBadges();
-    return;
-  }
-
-  els.kjOut.textContent = String(Math.floor(kjFromWattsMinutes(watts, min)));
-  recalculateAllBadges();
-}
-
-function calcWatts() {
-  const kj = readNonNegativeOrNull(els.kjIn);
-  const timeError = getDurationValidationError(
-    els.wattsHoursIn,
-    els.wattsMinutesPartIn,
-    els.wattsSecondsIn
-  );
-
-  els.wattsTimeError.textContent = timeError;
-
-  const min = timeError
-    ? null
-    : readDurationMinutes(els.wattsHoursIn, els.wattsMinutesPartIn, els.wattsSecondsIn);
-
-  if (kj === null || kj <= 0 || min === null) {
-    els.wattsOut.textContent = '—';
-    recalculateAllBadges();
-    return;
-  }
-
-  els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));
-  recalculateAllBadges();
 }
 
 function powerCellId(prefix, zoneId, field) {
