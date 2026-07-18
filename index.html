@@ -1033,13 +1033,21 @@ tr:last-child td { border-bottom: none; }
       <label for="watts-in">Average Watts</label>
       <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="watts-in" value="150" min="1" step="1" autocomplete="off">
     </div>
+
     <div class="row row-stack">
       <div class="row-split">
-        <label for="kj-min-in">Time</label>
-        <input class="input-boxed" type="text" inputmode="text" enterkeyhint="done" id="kj-min-in" value="60" autocomplete="off">
+        <label>Time</label>
+        <div class="inline-fields">
+          <input class="input-small numeric-input" type="number" inputmode="numeric" enterkeyhint="done" id="kj-hours-in" value="1" min="0" step="1" autocomplete="off" aria-label="Hours">
+          <span>h</span>
+          <input class="input-small numeric-input" type="number" inputmode="numeric" enterkeyhint="done" id="kj-minutes-part-in" value="0" min="0" max="59" step="1" autocomplete="off" aria-label="Minutes">
+          <span>m</span>
+          <input class="input-small numeric-input" type="number" inputmode="numeric" enterkeyhint="done" id="kj-seconds-in" value="0" min="0" max="59" step="1" autocomplete="off" aria-label="Seconds">
+          <span>s</span>
+        </div>
       </div>
-      <div class="subnote-right">Enter minutes, h:mm, or h:mm:ss</div>
     </div>
+
     <div class="row row-stack">
       <div class="row-split">
         <span class="muted-label">Current FTP</span>
@@ -1071,13 +1079,21 @@ tr:last-child td { border-bottom: none; }
       <label for="kj-in">Total Kilojoules</label>
       <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="kj-in" value="500" min="1" step="1" autocomplete="off">
     </div>
+
     <div class="row row-stack">
       <div class="row-split">
-        <label for="watts-min-in">Time</label>
-        <input class="input-boxed" type="text" inputmode="text" enterkeyhint="done" id="watts-min-in" value="60" autocomplete="off">
+        <label>Time</label>
+        <div class="inline-fields">
+          <input class="input-small numeric-input" type="number" inputmode="numeric" enterkeyhint="done" id="watts-hours-in" value="1" min="0" step="1" autocomplete="off" aria-label="Hours">
+          <span>h</span>
+          <input class="input-small numeric-input" type="number" inputmode="numeric" enterkeyhint="done" id="watts-minutes-part-in" value="0" min="0" max="59" step="1" autocomplete="off" aria-label="Minutes">
+          <span>m</span>
+          <input class="input-small numeric-input" type="number" inputmode="numeric" enterkeyhint="done" id="watts-seconds-in" value="0" min="0" max="59" step="1" autocomplete="off" aria-label="Seconds">
+          <span>s</span>
+        </div>
       </div>
-      <div class="subnote-right">Enter minutes, h:mm, or h:mm:ss</div>
     </div>
+
     <div class="row row-stack">
       <div class="row-split">
         <span class="muted-label">Current FTP</span>
@@ -1279,6 +1295,12 @@ const STORAGE_KEYS = {
   FIND_KJ_MINUTES: 'cycling_find_kj_minutes',
   FIND_WATTS_TOTAL_KJ: 'cycling_find_watts_total_kj',
   FIND_WATTS_MINUTES: 'cycling_find_watts_minutes',
+  FIND_KJ_HOURS: 'cycling_find_kj_hours',
+  FIND_KJ_MINUTES_PART: 'cycling_find_kj_minutes_part',
+  FIND_KJ_SECONDS: 'cycling_find_kj_seconds',
+  FIND_WATTS_HOURS: 'cycling_find_watts_hours',
+  FIND_WATTS_MINUTES_PART: 'cycling_find_watts_minutes_part',
+  FIND_WATTS_SECONDS: 'cycling_find_watts_seconds',
   CUSTOM_ZONES: 'cycling_custom_zones',
   CUSTOM_HR: 'cycling_custom_hr',
   HR_MAX: 'cycling_hr_max_val',
@@ -1312,69 +1334,15 @@ function readNonNegativeOrNull(el) {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
-function parseTimeToMinutes(raw) {
-  const text = String(raw ?? '').trim();
-  if (text === '') return null;
+function readDurationMinutes(hoursEl, minutesEl, secondsEl) {
+  const hours = readNonNegativeOrNull(hoursEl) ?? 0;
+  const minutes = readNonNegativeOrNull(minutesEl) ?? 0;
+  const seconds = readNonNegativeOrNull(secondsEl) ?? 0;
 
-  if (/^\d+(\.\d+)?$/.test(text)) {
-    const minutes = parseFloat(text);
-    return Number.isFinite(minutes) && minutes >= 0 ? minutes : null;
-  }
+  if (minutes >= 60 || seconds >= 60) return null;
 
-  if (!/^\d+:\d{1,2}(:\d{1,2})?$/.test(text)) {
-    return null;
-  }
-
-  const parts = text.split(':').map(part => Number(part));
-  if (parts.some(part => !Number.isFinite(part) || part < 0)) {
-    return null;
-  }
-
-  if (parts.length === 2) {
-    const [hours, minutes] = parts;
-    if (minutes >= 60) return null;
-    return (hours * 60) + minutes;
-  }
-
-  if (parts.length === 3) {
-    const [hours, minutes, seconds] = parts;
-    if (minutes >= 60 || seconds >= 60) return null;
-    return (hours * 60) + minutes + (seconds / 60);
-  }
-
-  return null;
-}
-
-function readTimeMinutesOrNull(el) {
-  return parseTimeToMinutes(el?.value);
-}
-
-function normalizeTimeInput(el) {
-  const text = String(el?.value ?? '').trim();
-  if (text === '') return '';
-
-  const minutes = parseTimeToMinutes(text);
-  if (minutes === null) return text;
-
-  if (/^\d+(\.\d+)?$/.test(text)) {
-    el.value = String(minutes).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
-    return el.value;
-  }
-
-  const parts = text.split(':');
-  if (parts.length === 2) {
-    const [hours, mins] = parts;
-    el.value = `${Number(hours)}:${String(Number(mins)).padStart(2, '0')}`;
-    return el.value;
-  }
-
-  if (parts.length === 3) {
-    const [hours, mins, secs] = parts;
-    el.value = `${Number(hours)}:${String(Number(mins)).padStart(2, '0')}:${String(Number(secs)).padStart(2, '0')}`;
-    return el.value;
-  }
-
-  return text;
+  const totalMinutes = (hours * 60) + minutes + (seconds / 60);
+  return totalMinutes > 0 ? totalMinutes : null;
 }
   
 function kjFromWattsMinutes(watts, minutes) { return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0; }
@@ -2110,7 +2078,7 @@ function recalculateAllBadges() {
   const kjWatts = readNonNegativeOrNull(els.wattsIn);
 
   const wattsKj = readNonNegativeOrNull(els.kjIn);
-  const wattsMin = readTimeMinutesOrNull(els.wattsMinIn);
+  const wattsMin = readDurationMinutes(els.wattsHoursIn, els.wattsMinutesPartIn, els.wattsSecondsIn);
 
   const calculatedWatts = (
     wattsKj !== null &&
@@ -2129,9 +2097,9 @@ function recalculateAllBadges() {
 
 function calcKJ() {
   const watts = readNonNegativeOrNull(els.wattsIn);
-  const min = readTimeMinutesOrNull(els.kjMinIn);
+  const min = readDurationMinutes(els.kjHoursIn, els.kjMinutesPartIn, els.kjSecondsIn);
 
-  if (watts === null || min === null || watts <= 0 || min <= 0) {
+  if (watts === null || min === null || watts <= 0) {
     els.kjOut.textContent = '—';
     recalculateAllBadges();
     return;
@@ -2143,9 +2111,9 @@ function calcKJ() {
 
 function calcWatts() {
   const kj = readNonNegativeOrNull(els.kjIn);
-  const min = readTimeMinutesOrNull(els.wattsMinIn);
+  const min = readDurationMinutes(els.wattsHoursIn, els.wattsMinutesPartIn, els.wattsSecondsIn);
 
-  if (kj === null || min === null || kj <= 0 || min <= 0) {
+  if (kj === null || min === null || kj <= 0) {
     els.wattsOut.textContent = '—';
     recalculateAllBadges();
     return;
@@ -2958,38 +2926,7 @@ function persistOnInput(el, key, decimals = 0) {
     safeStorageSet(key, val);
   });
 }
-
-function persistRawTextOnInput(el, key) {
-  if (!el) return;
-
-  el.addEventListener('input', () => {
-    const raw = String(el.value ?? '');
-    if (raw.trim() === '') {
-      safeStorageRemove(key);
-      return;
-    }
-
-    safeStorageSet(key, raw);
-  });
-}
-
-function normalizeAndPersistTimeOnChange(el, key, afterChange) {
-  if (!el) return;
-
-  el.addEventListener('change', () => {
-    const normalized = normalizeTimeInput(el);
-    const parsed = parseTimeToMinutes(normalized);
-
-    if (normalized.trim() === '') {
-      safeStorageRemove(key);
-    } else {
-      safeStorageSet(key, normalized);
-    }
-
-    if (afterChange) afterChange(parsed);
-  });
-}
-  
+ 
 function initCache() {
   Object.assign(els, {
     appTitle: document.getElementById('app-title'),
@@ -3002,7 +2939,9 @@ function initCache() {
     zonesView: document.getElementById('zones-view'),
     hrView: document.getElementById('hr-view'),
     wattsIn: document.getElementById('watts-in'),
-    kjMinIn: document.getElementById('kj-min-in'),
+    kjHoursIn: document.getElementById('kj-hours-in'),
+    kjMinutesPartIn: document.getElementById('kj-minutes-part-in'),
+    kjSecondsIn: document.getElementById('kj-seconds-in'),
     newFtpKj: document.getElementById('proposed-ftp-kj'),
     kjOut: document.getElementById('kj-out'),
     toggleSystemKj: document.getElementById('toggle-system-kj'),
@@ -3010,7 +2949,9 @@ function initCache() {
     kjNewBadge: document.getElementById('kj-new-badge'),
     currentFtpDisplayKj: document.getElementById('current-ftp-display-kj'),
     kjIn: document.getElementById('kj-in'),
-    wattsMinIn: document.getElementById('watts-min-in'),
+    wattsHoursIn: document.getElementById('watts-hours-in'),
+    wattsMinutesPartIn: document.getElementById('watts-minutes-part-in'),
+    wattsSecondsIn: document.getElementById('watts-seconds-in'),
     newFtpWatts: document.getElementById('proposed-ftp-watts'),
     wattsOut: document.getElementById('watts-out'),
     toggleSystemWatts: document.getElementById('toggle-system-watts'),
@@ -3201,9 +3142,14 @@ function bindEvents() {
   els.resetCustomHr.addEventListener('click', resetCustomHR);
 
   els.wattsIn.addEventListener('input', calcKJ);
-  els.kjMinIn.addEventListener('input', calcKJ);
   els.kjIn.addEventListener('input', calcWatts);
-  els.wattsMinIn.addEventListener('input', calcWatts);
+  els.kjHoursIn.addEventListener('input', calcKJ);
+  els.kjMinutesPartIn.addEventListener('input', calcKJ);
+  els.kjSecondsIn.addEventListener('input', calcKJ);
+  els.wattsHoursIn.addEventListener('input', calcWatts);
+  els.wattsMinutesPartIn.addEventListener('input', calcWatts);
+  els.wattsSecondsIn.addEventListener('input', calcWatts);
+
   els.ftpIn.addEventListener('input', updateZones);
   els.weightIn.addEventListener('input', updateZones);
 
@@ -3228,9 +3174,6 @@ function bindEvents() {
   els.hrMaxIn.addEventListener('change', validateAndApplyCustomHR);
   els.hrLthrIn.addEventListener('change', validateAndApplyCustomHR);
 
-  normalizeAndPersistTimeOnChange(els.kjMinIn, STORAGE_KEYS.FIND_KJ_MINUTES, calcKJ);
-  normalizeAndPersistTimeOnChange(els.wattsMinIn, STORAGE_KEYS.FIND_WATTS_MINUTES, calcWatts);
-
   persistOnCommit(els.ftpIn, STORAGE_KEYS.FTP, 0, updateZones);
   persistOnCommit(els.weightIn, STORAGE_KEYS.WEIGHT, 1, updateZones);
   persistOnCommit(els.hrMaxIn, STORAGE_KEYS.HR_MAX, 0, () => {
@@ -3244,6 +3187,14 @@ function bindEvents() {
   persistOnCommit(els.newFtpKj, STORAGE_KEYS.NEW_FTP, 0, clean => setNewFTP(clean, false));
   persistOnCommit(els.newFtpWatts, STORAGE_KEYS.NEW_FTP, 0, clean => setNewFTP(clean, false));
 
+  persistOnCommit(els.kjHoursIn, STORAGE_KEYS.FIND_KJ_HOURS, 0, calcKJ);
+  persistOnCommit(els.kjMinutesPartIn, STORAGE_KEYS.FIND_KJ_MINUTES_PART, 0, calcKJ);
+  persistOnCommit(els.kjSecondsIn, STORAGE_KEYS.FIND_KJ_SECONDS, 0, calcKJ);
+
+  persistOnCommit(els.wattsHoursIn, STORAGE_KEYS.FIND_WATTS_HOURS, 0, calcWatts);
+  persistOnCommit(els.wattsMinutesPartIn, STORAGE_KEYS.FIND_WATTS_MINUTES_PART, 0, calcWatts);
+  persistOnCommit(els.wattsSecondsIn, STORAGE_KEYS.FIND_WATTS_SECONDS, 0, calcWatts);
+
   persistOnInput(els.ftpIn, STORAGE_KEYS.FTP);
   persistOnInput(els.weightIn, STORAGE_KEYS.WEIGHT, 1);
   persistOnInput(els.hrMaxIn, STORAGE_KEYS.HR_MAX);
@@ -3252,9 +3203,15 @@ function bindEvents() {
   persistOnInput(els.newFtpWatts, STORAGE_KEYS.NEW_FTP);
 
   persistOnInput(els.wattsIn, STORAGE_KEYS.FIND_KJ_AVG_WATTS);
-  persistRawTextOnInput(els.kjMinIn, STORAGE_KEYS.FIND_KJ_MINUTES);
   persistOnInput(els.kjIn, STORAGE_KEYS.FIND_WATTS_TOTAL_KJ);
-  persistRawTextOnInput(els.wattsMinIn, STORAGE_KEYS.FIND_WATTS_MINUTES)
+
+  persistOnInput(els.kjHoursIn, STORAGE_KEYS.FIND_KJ_HOURS);
+  persistOnInput(els.kjMinutesPartIn, STORAGE_KEYS.FIND_KJ_MINUTES_PART);
+  persistOnInput(els.kjSecondsIn, STORAGE_KEYS.FIND_KJ_SECONDS);
+
+  persistOnInput(els.wattsHoursIn, STORAGE_KEYS.FIND_WATTS_HOURS);
+  persistOnInput(els.wattsMinutesPartIn, STORAGE_KEYS.FIND_WATTS_MINUTES_PART);
+  persistOnInput(els.wattsSecondsIn, STORAGE_KEYS.FIND_WATTS_SECONDS);
 }
 
 function loadSavedValues() {
@@ -3264,19 +3221,19 @@ function loadSavedValues() {
     [STORAGE_KEYS.HR_MAX, els.hrMaxIn, v => String(wholeNumber(clampNonNegative(v)))],
     [STORAGE_KEYS.HR_LTHR, els.hrLthrIn, v => String(wholeNumber(clampNonNegative(v)))],
     [STORAGE_KEYS.FIND_KJ_AVG_WATTS, els.wattsIn, v => String(wholeNumber(clampNonNegative(v)))],
-    [STORAGE_KEYS.FIND_WATTS_TOTAL_KJ, els.kjIn, v => String(wholeNumber(clampNonNegative(v)))]
+    [STORAGE_KEYS.FIND_WATTS_TOTAL_KJ, els.kjIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_KJ_HOURS, els.kjHoursIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_KJ_MINUTES_PART, els.kjMinutesPartIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_KJ_SECONDS, els.kjSecondsIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_WATTS_HOURS, els.wattsHoursIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_WATTS_MINUTES_PART, els.wattsMinutesPartIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_WATTS_SECONDS, els.wattsSecondsIn, v => String(wholeNumber(clampNonNegative(v)))]
   ];
 
   mappings.forEach(([key, el, transform]) => {
     const value = safeStorageGet(key);
     if (value !== null) el.value = transform(value);
   });
-
-  const savedKjTime = safeStorageGet(STORAGE_KEYS.FIND_KJ_MINUTES);
-  if (savedKjTime !== null) els.kjMinIn.value = savedKjTime;
-
-  const savedWattsTime = safeStorageGet(STORAGE_KEYS.FIND_WATTS_MINUTES);
-  if (savedWattsTime !== null) els.wattsMinIn.value = savedWattsTime;
 
   const unit = safeStorageGet(STORAGE_KEYS.UNIT);
   if (unit === 'lbs' || unit === 'kg') els.weightUnit.value = unit;
