@@ -2750,13 +2750,15 @@ function readCustomHrAnchorsInline() {
 }
 
 function bindCustomHrInlineInputs() {
-  document.querySelectorAll('.custom-hr-max-inline, .custom-hr-lthr-inline').forEach(el => {
-    const commit = () => {
-      sanitizeInput(el, 0);
-      validateAndApplyCustomHR(el);
-    };
+  if (!els.hrCustomPanel || els.hrCustomPanel.dataset.bound === 'true') return;
+  els.hrCustomPanel.dataset.bound = 'true';
 
-    el.addEventListener('change', commit);
+  els.hrCustomPanel.addEventListener('change', (e) => {
+    const el = e.target.closest('.custom-hr-max-inline, .custom-hr-lthr-inline');
+    if (!el) return;
+
+    sanitizeInput(el, 0);
+    validateAndApplyCustomHR(el);
   });
 }
 
@@ -3062,13 +3064,15 @@ function initCache() {
 }
 
 function bindCustomZoneInputs() {
-  document.querySelectorAll('.custom-zone-range-input').forEach(el => {
-    const commit = () => {
-      sanitizeInput(el, 0);
-      validateAndApplyCustomZones(el);
-    };
+  if (!els.customZonesTable || els.customZonesTable.dataset.bound === 'true') return;
+  els.customZonesTable.dataset.bound = 'true';
 
-    el.addEventListener('change', commit);
+  els.customZonesTable.addEventListener('change', (e) => {
+    const el = e.target.closest('.custom-zone-range-input');
+    if (!el) return;
+
+    sanitizeInput(el, 0);
+    validateAndApplyCustomZones(el);
   });
 }
 
