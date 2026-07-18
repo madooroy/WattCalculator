@@ -2699,7 +2699,10 @@ function validateAndApplyCustomHR(changedInput = null) {
   const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 
   els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
-  if (els.hrInputError.textContent) return;
+  if (els.hrInputError.textContent) {
+    els.customHrError.textContent = '';
+    return;
+  }
 
   if (changedInput) {
     const metric = changedInput.classList.contains('custom-hr-max-inline') ? 'max' : 'lthr';
@@ -2744,6 +2747,10 @@ function validateAndApplyCustomHR(changedInput = null) {
 }
   
 function bpmRangeTexts(metricCfg, base) {
+  if (!(base > 0)) {
+    return ['—', '—', '—', '—', '—'];
+  }
+
   const z1Max = wholeNumber(base * (metricCfg.z1.max / 100));
   const z2Max = wholeNumber(base * (metricCfg.z2.max / 100));
   const z3Max = wholeNumber(base * (metricCfg.z3.max / 100));
@@ -2784,6 +2791,9 @@ function updateHRZones() {
   const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 
   els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
+  if (els.hrInputError.textContent) {
+    els.customHrError.textContent = '';
+  }
 
   applyHrRanges('', maxHr, lthr, defaultHrPercentConfig);
 }
@@ -2793,6 +2803,9 @@ function updateCustomHRZones() {
   const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 
   els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
+  if (els.hrInputError.textContent) {
+    els.customHrError.textContent = '';
+  }
 
   applyHrRanges('c-', maxHr, lthr, customHrAnchors);
 }
@@ -2815,9 +2828,24 @@ function resetCustomHR() {
   resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
   bindCustomHrInlineInputs();
   bindSelectOnFocusToAll(els.hrCustomPanel);
+
+  const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
+  const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
+
+  els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
+
+  if (els.hrInputError.textContent) {
+    els.customHrError.textContent = '';
+    updateHRZones();
+    updateCustomHRZones();
+    return;
+  }
+
+  const error = validateHrAnchorSet(customHrAnchors, maxHr, lthr);
+  els.customHrError.textContent = error;
+
   updateHRZones();
   updateCustomHRZones();
-  els.customHrError.textContent = '';
 }
 
 function bindSelectOnFocus(el) {
