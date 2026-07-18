@@ -1289,7 +1289,6 @@ const powerCellCache = {
   custom: {}
 };
 let activeZoneSystem = 'default';
-let activeZoneSubtab = 'default';
 let activeHrSubtab = 'default';
 
 function deepClone(obj) {
@@ -1960,17 +1959,7 @@ function switchTab(type) {
   els.appTitle.textContent = titles[type] || 'Cycling Calculator';
 
   if (type === 'zones') {
-    const isDefault = activeZoneSystem === 'default';
-
-    setTabState(
-      [els.subBtnDefaultPower, els.subBtnCustomPower],
-      isDefault ? els.subBtnDefaultPower : els.subBtnCustomPower
-    );
-
-    els.defaultPowerZonesTable.hidden = !isDefault;
-    els.customZonesTable.hidden = isDefault;
-
-    updateZones();
+    setActiveZoneSystem(activeZoneSystem, false);
   }
 
   if (type === 'hr') {
@@ -1985,9 +1974,11 @@ function toggleActiveSystem() {
 
 function setActiveZoneSystem(val, persist = true) {
   activeZoneSystem = val;
-  activeZoneSubtab = val;
 
   if (persist) savePrimitive(STORAGE_KEYS.ACTIVE_SYSTEM, val);
+
+  const isDefault = val === 'default';
+  const isCustom = val === 'custom';
 
   const labelMap = {
     default: 'Zones: Default Power Zones',
@@ -1997,28 +1988,8 @@ function setActiveZoneSystem(val, persist = true) {
   const buttonText = labelMap[val];
   els.toggleSystemKj.textContent = buttonText;
   els.toggleSystemWatts.textContent = buttonText;
-  els.toggleSystemKj.setAttribute('aria-pressed', String(val === 'custom'));
-  els.toggleSystemWatts.setAttribute('aria-pressed', String(val === 'custom'));
-
-  setTabState(
-    [els.subBtnDefaultPower, els.subBtnCustomPower],
-    val === 'default' ? els.subBtnDefaultPower : els.subBtnCustomPower
-  );
-
-  els.defaultPowerZonesTable.hidden = val !== 'default';
-  els.customZonesTable.hidden = val !== 'custom';
-
-  recalculateAllBadges();
-}
-
-function setZoneSubtab(val, persist = true) {
-  activeZoneSubtab = val;
-  activeZoneSystem = val;
-
-  if (persist) savePrimitive(STORAGE_KEYS.ACTIVE_SYSTEM, val);
-
-  const isDefault = val === 'default';
-  const isCustom = val === 'custom';
+  els.toggleSystemKj.setAttribute('aria-pressed', String(isCustom));
+  els.toggleSystemWatts.setAttribute('aria-pressed', String(isCustom));
 
   setTabState(
     [els.subBtnDefaultPower, els.subBtnCustomPower],
@@ -2028,19 +1999,12 @@ function setZoneSubtab(val, persist = true) {
   els.defaultPowerZonesTable.hidden = !isDefault;
   els.customZonesTable.hidden = !isCustom;
 
-  const labelMap = {
-    default: 'Zones: Default Power Zones',
-    custom: 'Zones: Custom Power Zones'
-  };
-
-  const buttonText = labelMap[val];
-  els.toggleSystemKj.textContent = buttonText;
-  els.toggleSystemWatts.textContent = buttonText;
-  els.toggleSystemKj.setAttribute('aria-pressed', String(val === 'custom'));
-  els.toggleSystemWatts.setAttribute('aria-pressed', String(val === 'custom'));
-
   updateZones();
   recalculateAllBadges();
+}
+
+function setZoneSubtab(val, persist = true) {
+  setActiveZoneSystem(val, persist);
 }
 
 function setHrSubtab(val) {
@@ -3057,42 +3021,42 @@ function resetPairedHorizontalScroll(elA, elB) {
 }
 
 function enableDirectionalTableScroll(selector = '.power-matrix-scroll') {
-  document.querySelectorAll(selector).forEach(scroller => {
-    let isMouseDown = false;
-    let mouseStartX = 0;
-    let mouseStartScrollLeft = 0;
+  const scrollers = [...document.querySelectorAll(selector)];
+  let activeDrag = null;
 
+  const clearActiveDrag = () => {
+    if (!activeDrag) return;
+    activeDrag.scroller.classList.remove('dragging-scroll');
+    activeDrag = null;
+  };
+
+  scrollers.forEach(scroller => {
     scroller.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return;
 
       const interactive = e.target.closest('input, button, select, label');
       if (interactive) return;
 
-      isMouseDown = true;
-      mouseStartX = e.clientX;
-      mouseStartScrollLeft = scroller.scrollLeft;
+      activeDrag = {
+        scroller,
+        startX: e.clientX,
+        startScrollLeft: scroller.scrollLeft
+      };
+
       scroller.classList.add('dragging-scroll');
       e.preventDefault();
     });
-
-    window.addEventListener('mousemove', (e) => {
-      if (!isMouseDown) return;
-
-      const dx = e.clientX - mouseStartX;
-      scroller.scrollLeft = mouseStartScrollLeft - dx;
-    });
-
-    window.addEventListener('mouseup', () => {
-      if (!isMouseDown) return;
-      isMouseDown = false;
-      scroller.classList.remove('dragging-scroll');
-    });
-
-    scroller.addEventListener('mouseleave', () => {
-      if (!isMouseDown) return;
-      scroller.classList.remove('dragging-scroll');
-    });
   });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!activeDrag) return;
+
+    const dx = e.clientX - activeDrag.startX;
+    activeDrag.scroller.scrollLeft = activeDrag.startScrollLeft - dx;
+  });
+
+  window.addEventListener('mouseup', clearActiveDrag);
+  window.addEventListener('blur', clearActiveDrag);
 }
 
 function bindEvents() {
@@ -3203,7 +3167,6 @@ function loadSavedValues() {
   const initialSystem = ['default', 'custom'].includes(system) ? system : 'default';
 
   setActiveZoneSystem(initialSystem, false);
-  setZoneSubtab(initialSystem, false);
   setHrSubtab('default');
 }
 
