@@ -1042,7 +1042,7 @@ tr:last-child td { border-bottom: none; }
           <span class="muted-label">Current FTP</span>
           <div id="current-ftp-display-kj" class="value-display">250W</div>
         </div>
-        <div class="subnote-right">From Power Zones Tab</div>
+        <div class="subnote-right">Set in Power Zones</div>
       </div>
 
       <div class="row">
@@ -1077,7 +1077,7 @@ tr:last-child td { border-bottom: none; }
           <span class="muted-label">Current FTP</span>
           <div id="current-ftp-display-watts" class="value-display">250W</div>
         </div>
-        <div class="subnote-right">From Power Zones Tab</div>
+        <div class="subnote-right">Set in Power Zones</div>
       </div>
 
       <div class="row">
@@ -1137,17 +1137,15 @@ tr:last-child td { border-bottom: none; }
           <tbody id="default-power-table-body"></tbody>
         </table>
       </div>
-      <div class="help-text">Selection of Default or Custom Power Zones drives badge classification on Find Watts and Find kJ tabs.</div> 
-
-      <div class="help-text">Sweet Spot is shown as an independent reference band in the table and does not override primary zone classification.</div>
-
-      <div class="help-text">Power Zones increase by exactly 1 W between zones to ensure a continuous scale.</div>
+      <div class="help-text">The selected Power Zone system determines badge classification on the Find Watts and Find kJ tabs. Sweet Spot is shown as an independent reference band and does not override main zone classification.</div>
+      <div class="help-text">Power Zones progress continuously, with each zone starting exactly 1 W above the previous zone.</div>
     </div>
 
     <div id="custom-zones-table" class="card card-pad-8" role="tabpanel" aria-labelledby="sub-btn-custom-power" hidden>
       <div class="controls-row">
-        <button id="reset-custom-zones" class="secondary-btn" type="button">Reset to Default</button>
+       <button id="reset-custom-zones" class="secondary-btn" type="button">Reset Power Zones</button>
       </div>
+
 
       <div class="custom-swipe-note help-text">Swipe sideways to view all zones.</div>
       <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
@@ -1158,9 +1156,8 @@ tr:last-child td { border-bottom: none; }
         </table>
       </div>
 
-      <div class="help-text">Selection of Default or Custom Power Zones drives badge classification on Find Watts and Find kJ tabs.</div>
-      <div class="help-text">Sweet Spot is shown as an independent reference band in the table and does not override primary zone classification.</div>
-      <div class="help-text">Power Zones increase by exactly 1 W between zones to ensure a continuous scale.</div>
+      <div class="help-text">The selected Power Zone system determines badge classification on the Find Watts and Find kJ tabs. Sweet Spot is shown as an independent reference band and does not override main zone classification.</div>
+      <div class="help-text">Power Zones progress continuously, with each zone starting exactly 1 W above the previous zone.</div>
     </div>
   </div>
 
@@ -1199,12 +1196,12 @@ tr:last-child td { border-bottom: none; }
       </table>
     </div>
 
-    <div class="help-text">Each zone begins exactly 1 BPM above the previous zone to keep the scale continuous.</div>
+    <div class="help-text">Heart Rate zones progress continuously, with each zone starting exactly 1 BPM above the previous zone.</div>
   </div>
 
   <div id="hr-custom-panel" class="card card-pad-12" role="tabpanel" aria-labelledby="hr-sub-btn-custom" hidden>
     <div class="controls-row">
-      <button id="reset-custom-hr" class="secondary-btn" type="button">Reset to Default</button>
+      <button id="reset-custom-hr" class="secondary-btn" type="button">Reset HR Zones</button>
     </div>
 
     <div class="custom-swipe-note help-text">Swipe sideways to view all zones.</div>
@@ -1224,8 +1221,8 @@ tr:last-child td { border-bottom: none; }
       </table>
     </div>
 
-    <div class="help-text">Max HR values must stay at or below 100%. LTHR values are limited so the resulting BPM does not exceed your entered Max HR.</div>
-    <div class="help-text">Each zone must begin exactly 1 point above the previous zone to keep the scale continuous.</div>
+    <div class="help-text">Max HR values must stay at or below 100%. LTHR values are limited so calculated BPM does not exceed your entered Max HR.</div>
+    <div class="help-text">Each custom zone must start exactly 1 percentage point above the previous zone to keep the scale continuous.</div>
    </div>
  </div>
  </div>
