@@ -1511,6 +1511,11 @@ function normalizeHrAnchors(value) {
   const source = value && typeof value === 'object' ? value : {};
   const defaults = defaultHrPercentConfig;
 
+  function pick(raw, fallback, cap) {
+    if (raw == null || raw === '') return fallback;
+    return wholeNumber(Math.min(clampNonNegative(raw), cap));
+  }
+
   function normalizeMetric(metricName, cap) {
     const sourceMetric = source[metricName] && typeof source[metricName] === 'object' ? source[metricName] : {};
     const defaultMetric = defaults[metricName];
@@ -1518,46 +1523,22 @@ function normalizeHrAnchors(value) {
     return {
       z1: {
         min: null,
-        max: wholeNumber(Math.min(
-          clampNonNegative(sourceMetric.z1 && sourceMetric.z1.max) || defaultMetric.z1.max,
-          cap
-        ))
+        max: pick(sourceMetric.z1?.max, defaultMetric.z1.max, cap)
       },
       z2: {
-        min: wholeNumber(Math.min(
-          clampNonNegative(sourceMetric.z2 && sourceMetric.z2.min) || defaultMetric.z2.min,
-          cap
-        )),
-        max: wholeNumber(Math.min(
-          clampNonNegative(sourceMetric.z2 && sourceMetric.z2.max) || defaultMetric.z2.max,
-          cap
-        ))
+        min: pick(sourceMetric.z2?.min, defaultMetric.z2.min, cap),
+        max: pick(sourceMetric.z2?.max, defaultMetric.z2.max, cap)
       },
       z3: {
-        min: wholeNumber(Math.min(
-          clampNonNegative(sourceMetric.z3 && sourceMetric.z3.min) || defaultMetric.z3.min,
-          cap
-        )),
-        max: wholeNumber(Math.min(
-          clampNonNegative(sourceMetric.z3 && sourceMetric.z3.max) || defaultMetric.z3.max,
-          cap
-        ))
+        min: pick(sourceMetric.z3?.min, defaultMetric.z3.min, cap),
+        max: pick(sourceMetric.z3?.max, defaultMetric.z3.max, cap)
       },
       z4: {
-        min: wholeNumber(Math.min(
-          clampNonNegative(sourceMetric.z4 && sourceMetric.z4.min) || defaultMetric.z4.min,
-          cap
-        )),
-        max: wholeNumber(Math.min(
-          clampNonNegative(sourceMetric.z4 && sourceMetric.z4.max) || defaultMetric.z4.max,
-          cap
-        ))
+        min: pick(sourceMetric.z4?.min, defaultMetric.z4.min, cap),
+        max: pick(sourceMetric.z4?.max, defaultMetric.z4.max, cap)
       },
       z5: {
-        min: wholeNumber(Math.min(
-          clampNonNegative(sourceMetric.z5 && sourceMetric.z5.min) || defaultMetric.z5.min,
-          cap
-        )),
+        min: pick(sourceMetric.z5?.min, defaultMetric.z5.min, cap),
         max: null
       }
     };
@@ -1893,10 +1874,10 @@ function cacheDefaultPowerCells() {
 
   defaultZonesConfig.forEach(z => {
     powerCellCache.default[z.id] = {
-      pct: document.getElementById(`p-${z.id}-pct-range`),
-      range: document.getElementById(`p-${z.id}-range`),
-      targetPct: document.getElementById(`p-${z.id}-target-pct`),
-      target: document.getElementById(`p-${z.id}-target`)
+      pct: document.getElementById(powerCellId('p', z.id, 'pct-range')),
+      range: document.getElementById(powerCellId('p', z.id, 'range')),
+      targetPct: document.getElementById(powerCellId('p', z.id, 'target-pct')),
+      target: document.getElementById(powerCellId('p', z.id, 'target'))
     };
   });
 }
@@ -1906,9 +1887,9 @@ function cacheCustomPowerCells() {
 
   customZonesConfig.forEach(z => {
     powerCellCache.custom[z.id] = {
-      range: document.getElementById(`c-${z.id}-range`),
-      targetPct: document.getElementById(`c-${z.id}-target-pct`),
-      target: document.getElementById(`c-${z.id}-target`)
+      range: document.getElementById(powerCellId('c', z.id, 'range')),
+      targetPct: document.getElementById(powerCellId('c', z.id, 'target-pct')),
+      target: document.getElementById(powerCellId('c', z.id, 'target'))
     };
   });
 }
@@ -1933,6 +1914,15 @@ function setTabState(buttons, activeBtn) {
   });
 }
 
+function applyZonesViewState() {
+  setActiveZoneSystem(activeZoneSystem, false);
+}
+
+function applyHrViewState() {
+  updateHRZones();
+  updateCustomHRZones();
+}
+  
 function switchTab(type) {
   const tabs = [
     { key: 'kj', btn: els.btnKj, view: els.kjView },
@@ -1958,14 +1948,8 @@ function switchTab(type) {
 
   els.appTitle.textContent = titles[type] || 'Cycling Calculator';
 
-  if (type === 'zones') {
-    setActiveZoneSystem(activeZoneSystem, false);
-  }
-
-  if (type === 'hr') {
-    updateHRZones();
-    updateCustomHRZones();
-  }
+  if (type === 'zones') applyZonesViewState();
+  if (type === 'hr') applyHrViewState();
 }
 
 function toggleActiveSystem() {
@@ -2103,6 +2087,18 @@ function calcWatts() {
   recalculateAllBadges();
 }
 
+function powerCellId(prefix, zoneId, field) {
+  return `${prefix}-${zoneId}-${field}`;
+}
+
+function hrRangeId(prefix, zoneNum, metric) {
+  return `${prefix}hr${zoneNum}-${metric}-range`;
+}
+
+function hrPctRangeId(prefix, zoneNum, metric) {
+  return `${prefix}hr${zoneNum}-${metric}-pct-range`;
+}
+  
 function generateDefaultTables() {
   const zoneHeaderCells = defaultZonesConfig.map(z => {
     const shortLabel = z.id === 'ss' ? 'SS' : z.label.replace('Zone ', '');
@@ -2116,25 +2112,25 @@ function generateDefaultTables() {
 
   const rangePctCells = defaultZonesConfig.map(z => `
     <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
-      <div class="zone-value" id="p-${z.id}-pct-range">—</div>
+      <div class="zone-value" id="${powerCellId('p', z.id, 'pct-range')}">—</div>
     </td>
   `).join('');
 
   const rangeWattCells = defaultZonesConfig.map(z => `
     <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
-      <div class="zone-value" id="p-${z.id}-range">—</div>
+      <div class="zone-value" id="${powerCellId('p', z.id, 'range')}">—</div>
     </td>
   `).join('');
 
   const targetPctCells = defaultZonesConfig.map(z => `
     <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
-      <div class="zone-value" id="p-${z.id}-target-pct">${Math.round(z.target * 100)}%</div>
+      <div class="zone-value" id="${powerCellId('p', z.id, 'target-pct')}">${Math.round(z.target * 100)}%</div>
     </td>
   `).join('');
 
   const targetWattCells = defaultZonesConfig.map(z => `
     <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
-      <div class="zone-value-large" id="p-${z.id}-target">—</div>
+      <div class="zone-value-large" id="${powerCellId('p', z.id, 'target')}">—</div>
     </td>
   `).join('');
 
@@ -2213,19 +2209,19 @@ function generateCustomZonesTable() {
 
   const rangeWattCells = customZonesConfig.map(z => `
     <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
-      <div class="zone-value" id="c-${z.id}-range">—</div>
+      <div class="zone-value" id="${powerCellId('c', z.id, 'range')}">—</div>
     </td>
   `).join('');
 
   const targetPctCells = customZonesConfig.map(z => `
     <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
-      <div class="zone-value" id="c-${z.id}-target-pct">—</div>
+      <div class="zone-value" id="${powerCellId('c', z.id, 'target-pct')}">—</div>
      </td>
   `).join('');
 
   const targetWattCells = customZonesConfig.map(z => `
     <td class="zone-cell-matrix" style="background: ${zoneCellBg(z)};">
-      <div class="zone-value-large" id="c-${z.id}-target">—</div>
+      <div class="zone-value-large" id="${powerCellId('c', z.id, 'target')}">—</div>
     </td>
   `).join('');
 
@@ -2255,37 +2251,24 @@ function generateCustomZonesTable() {
   cacheCustomPowerCells();
 }
 
-function validateAndApplyCustomZones(changedInput = null) {
-  let nextRanges = displayRangesFromAnchors(customPowerAnchors);
+function buildCustomPowerCandidateFromInput(changedInput, currentAnchors) {
+  let nextRanges = displayRangesFromAnchors(currentAnchors);
 
-  if (changedInput) {
-    const zone = changedInput.dataset.zone;
-    const side = changedInput.dataset.side;
-    const value = wholeNumber(clampNonNegative(changedInput.value));
+  const zone = changedInput.dataset.zone;
+  const side = changedInput.dataset.side;
+  const value = wholeNumber(clampNonNegative(changedInput.value));
 
-    if (zone === 'ss') {
-      nextRanges.ss[side] = value;
-    } else {
-      nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
-    }
-
-    const candidateAnchors = anchorsFromSyncedDisplayRanges(nextRanges, customPowerAnchors);
-    const error = validatePowerAnchors(candidateAnchors);
-
-    els.customZoneError.textContent = error;
-    if (error) {
-      writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
-      return;
-    }
-
-    customPowerAnchors = candidateAnchors;
-    customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
-    saveCustomPowerAnchors();
-    writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
-    updateCustomPowerZoneTable(readNonNegativeOrNull(els.ftpIn) ?? 0);
-    recalculateAllBadges();
-    return;
+  if (zone === 'ss') {
+    nextRanges.ss[side] = value;
+  } else {
+    nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
   }
+
+  return anchorsFromSyncedDisplayRanges(nextRanges, currentAnchors);
+}
+
+function buildCustomPowerCandidateFromAllInputs(currentAnchors) {
+  let nextRanges = displayRangesFromAnchors(currentAnchors);
 
   document.querySelectorAll('.custom-zone-range-input').forEach(input => {
     const zone = input.dataset.zone;
@@ -2299,17 +2282,37 @@ function validateAndApplyCustomZones(changedInput = null) {
     }
   });
 
-  const candidateAnchors = anchorsFromSyncedDisplayRanges(nextRanges, customPowerAnchors);
-  const error = validatePowerAnchors(candidateAnchors);
+  return anchorsFromSyncedDisplayRanges(nextRanges, currentAnchors);
+}
 
-  els.customZoneError.textContent = error;
-  if (error) return;
-
-  customPowerAnchors = candidateAnchors;
+function commitCustomPowerAnchors(nextAnchors) {
+  customPowerAnchors = nextAnchors;
   customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
   saveCustomPowerAnchors();
   updateCustomPowerZoneTable(readNonNegativeOrNull(els.ftpIn) ?? 0);
   recalculateAllBadges();
+}
+
+function validateAndApplyCustomZones(changedInput = null) {
+  const candidateAnchors = changedInput
+    ? buildCustomPowerCandidateFromInput(changedInput, customPowerAnchors)
+    : buildCustomPowerCandidateFromAllInputs(customPowerAnchors);
+
+  const error = validatePowerAnchors(candidateAnchors);
+  els.customZoneError.textContent = error;
+
+  if (error) {
+    if (changedInput) {
+      writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
+    }
+    return;
+  }
+
+  commitCustomPowerAnchors(candidateAnchors);
+
+  if (changedInput) {
+    writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
+  }
 }
 
 function updateFtpDisplays(ftp) {
@@ -2384,13 +2387,13 @@ function buildHrDisplayMatrix(metric, prefix = '', cfg = defaultHrPercentConfig)
 
   const pctCells = hrZoneDefs.map((zone, i) => `
     <td class="zone-cell-matrix" style="background: ${hrCellBg(zone.colorVar)};">
-      <div class="zone-value" id="${prefix}hr${zone.num}-${metric}-pct-range">${pctRanges[i]}</div>
+      <div class="zone-value" id="${hrPctRangeId(prefix, zone.num, metric)}">${pctRanges[i]}</div>
     </td>
   `).join('');
 
   const bpmCells = hrZoneDefs.map(zone => `
     <td class="zone-cell-matrix" style="background: ${hrCellBg(zone.colorVar)};">
-      <div class="zone-value-large" id="${prefix}hr${zone.num}-${metric}-range">—</div>
+      <div class="zone-value-large" id="${hrRangeId(prefix, zone.num, metric)}">—</div>
     </td>
   `).join('');
 
@@ -2516,7 +2519,7 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
 
   const bpmCells = hrZoneDefs.map(zone => `
     <td class="zone-cell-matrix" style="background: ${hrCellBg(zone.colorVar)};">
-      <div class="zone-value-large" id="${prefix}hr${zone.num}-${metric}-range">—</div>
+      <div class="zone-value-large" id="${hrRangeId(prefix, zone.num, metric)}">—</div>
     </td>
   `).join('');
 
@@ -2734,8 +2737,8 @@ function applyHrRanges(prefix, maxHr, lthr, cfg) {
   const lthrBpm = bpmRangeTexts(cfg.lthr, lthr);
 
   for (let i = 0; i < 5; i++) {
-    const maxRangeEl = document.getElementById(`${prefix}hr${i + 1}-max-range`);
-    const lthrRangeEl = document.getElementById(`${prefix}hr${i + 1}-lthr-range`);
+    const maxRangeEl = document.getElementById(hrRangeId(prefix, i + 1, 'max'));
+    const lthrRangeEl = document.getElementById(hrRangeId(prefix, i + 1, 'lthr'));
 
     if (maxRangeEl) maxRangeEl.textContent = maxBpm[i];
     if (lthrRangeEl) lthrRangeEl.textContent = lthrBpm[i];
@@ -2754,9 +2757,12 @@ function updateHRZones() {
   const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
   const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 
-  els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
-  if (els.hrInputError.textContent) {
+  const baseError = validateHrBaseInputs(maxHr, lthr);
+  els.hrInputError.textContent = baseError;
+  if (baseError) {
     els.customHrError.textContent = '';
+    applyHrRanges('', 0, 0, defaultHrPercentConfig);
+    return;
   }
 
   applyHrRanges('', maxHr, lthr, defaultHrPercentConfig);
@@ -2766,21 +2772,35 @@ function updateCustomHRZones() {
   const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
   const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 
-  els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
-  if (els.hrInputError.textContent) {
+  const baseError = validateHrBaseInputs(maxHr, lthr);
+  els.hrInputError.textContent = baseError;
+  if (baseError) {
     els.customHrError.textContent = '';
+    applyHrRanges('c-', 0, 0, customHrAnchors);
+    return;
   }
 
   applyHrRanges('c-', maxHr, lthr, customHrAnchors);
+}
+
+  function renderCustomPowerZonesUI() {
+  generateCustomZonesTable();
+  bindCustomZoneInputs();
+  bindSelectOnFocusToAll(els.customZonesTable);
+}
+
+function renderCustomHrUI() {
+  renderHrTables();
+  resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
+  bindCustomHrInlineInputs();
+  bindSelectOnFocusToAll(els.hrCustomPanel);
 }
 
 function resetCustomZones() {
   customPowerAnchors = defaultPowerAnchors();
   customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
   saveCustomPowerAnchors();
-  generateCustomZonesTable();
-  bindCustomZoneInputs();
-  bindSelectOnFocusToAll(els.customZonesTable);
+  renderCustomPowerZonesUI();
   updateZones();
   els.customZoneError.textContent = '';
 }
@@ -2788,10 +2808,7 @@ function resetCustomZones() {
 function resetCustomHR() {
   customHrAnchors = deepClone(defaultHrPercentConfig);
   saveCustomHrAnchors();
-  renderHrTables();
-  resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
-  bindCustomHrInlineInputs();
-  bindSelectOnFocusToAll(els.hrCustomPanel);
+  renderCustomHrUI();
 
   const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
   const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
@@ -3101,15 +3118,13 @@ function bindEvents() {
   els.newFtpKj.addEventListener('input', syncProposed);
   els.newFtpWatts.addEventListener('input', syncProposed);
 
-  els.hrMaxIn.addEventListener('input', () => {
+  const refreshHrViews = () => {
     updateHRZones();
     updateCustomHRZones();
-  });
+  };
 
-  els.hrLthrIn.addEventListener('input', () => {
-    updateHRZones();
-    updateCustomHRZones();
-  });
+  els.hrMaxIn.addEventListener('input', refreshHrViews);
+  els.hrLthrIn.addEventListener('input', refreshHrViews);
 
   els.hrMaxIn.addEventListener('change', validateAndApplyCustomHR);
   els.hrLthrIn.addEventListener('change', validateAndApplyCustomHR);
