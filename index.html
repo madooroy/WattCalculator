@@ -310,6 +310,14 @@ input[type="number"] {
   font-family: inherit;
 }
 
+#kj-view .input-small,
+#watts-view .input-small {
+  width: 52px;
+  min-width: 52px;
+  min-height: 34px;
+  padding: 3px 2px;
+}
+
 .input-small,
 .numeric-input,
 .-zone-input,
@@ -328,10 +336,12 @@ input[type="number"] {
     font-size: 16px;
   }
 
-  .input-small {
-    width: 76px;
-    min-height: 40px;
-    padding: 4px 3px;
+  #kj-view .input-small,
+  #watts-view .input-small {
+    width: 52px;
+    min-width: 52px;
+    min-height: 34px;
+    padding: 3px 2px;
   }
 
   .table-scroll-wrapper .input-small,
@@ -909,8 +919,14 @@ tr:last-child td { border-bottom: none; }
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 3px;
+  flex-wrap: nowrap;
+}
+
+#kj-view .inline-fields span,
+#watts-view .inline-fields span {
+  font-size: 12px;
+  line-height: 1;
 }
 
 .hr-edit-grid {
@@ -989,6 +1005,11 @@ tr:last-child td { border-bottom: none; }
   .hr-edit-grid {
     grid-template-columns: 1fr;
   }
+
+  #kj-view .inline-fields,
+  #watts-view .inline-fields {
+    justify-content: flex-start;
+  }
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
@@ -1014,7 +1035,7 @@ tr:last-child td { border-bottom: none; }
     margin-bottom: 12px;
   }
 }
-</style>
+</style> 
 </head>
 <body>
 <div class="container">
@@ -1047,6 +1068,8 @@ tr:last-child td { border-bottom: none; }
         </div>
       </div>
     </div>
+
+    <div id="kj-time-error" class="error-text" aria-live="polite"></div>
 
     <div class="row row-stack">
       <div class="row-split">
@@ -1094,6 +1117,8 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
 
+    <div id="watts-time-error" class="error-text" aria-live="polite"></div>
+ 
     <div class="row row-stack">
       <div class="row-split">
         <span class="muted-label">Current FTP</span>
@@ -1292,9 +1317,7 @@ const STORAGE_KEYS = {
   UNIT: 'cycling_unit',
   NEW_FTP: 'cycling_new_ftp',
   FIND_KJ_AVG_WATTS: 'cycling_find_kj_avg_watts',
-  FIND_KJ_MINUTES: 'cycling_find_kj_minutes',
   FIND_WATTS_TOTAL_KJ: 'cycling_find_watts_total_kj',
-  FIND_WATTS_MINUTES: 'cycling_find_watts_minutes',
   FIND_KJ_HOURS: 'cycling_find_kj_hours',
   FIND_KJ_MINUTES_PART: 'cycling_find_kj_minutes_part',
   FIND_KJ_SECONDS: 'cycling_find_kj_seconds',
@@ -1343,6 +1366,29 @@ function readDurationMinutes(hoursEl, minutesEl, secondsEl) {
 
   const totalMinutes = (hours * 60) + minutes + (seconds / 60);
   return totalMinutes > 0 ? totalMinutes : null;
+}
+
+function getDurationValidationError(hoursEl, minutesEl, secondsEl) {
+  const hoursRaw = String(hoursEl?.value ?? '').trim();
+  const minutesRaw = String(minutesEl?.value ?? '').trim();
+  const secondsRaw = String(secondsEl?.value ?? '').trim();
+
+  const hours = hoursRaw === '' ? 0 : parseFloat(hoursRaw);
+  const minutes = minutesRaw === '' ? 0 : parseFloat(minutesRaw);
+  const seconds = secondsRaw === '' ? 0 : parseFloat(secondsRaw);
+
+  if (!Number.isFinite(hours) || hours < 0) return 'Hours must be 0 or greater.';
+  if (!Number.isFinite(minutes) || minutes < 0) return 'Minutes must be 0 or greater.';
+  if (!Number.isFinite(seconds) || seconds < 0) return 'Seconds must be 0 or greater.';
+
+  if (minutes >= 60) return 'Minutes must be between 0 and 59.';
+  if (seconds >= 60) return 'Seconds must be between 0 and 59.';
+
+  if (hours === 0 && minutes === 0 && seconds === 0) {
+    return 'Enter a time greater than 0.';
+  }
+
+  return '';
 }
   
 function kjFromWattsMinutes(watts, minutes) { return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0; }
@@ -2097,9 +2143,19 @@ function recalculateAllBadges() {
 
 function calcKJ() {
   const watts = readNonNegativeOrNull(els.wattsIn);
-  const min = readDurationMinutes(els.kjHoursIn, els.kjMinutesPartIn, els.kjSecondsIn);
+  const timeError = getDurationValidationError(
+    els.kjHoursIn,
+    els.kjMinutesPartIn,
+    els.kjSecondsIn
+  );
 
-  if (watts === null || min === null || watts <= 0) {
+  els.kjTimeError.textContent = timeError;
+
+  const min = timeError
+    ? null
+    : readDurationMinutes(els.kjHoursIn, els.kjMinutesPartIn, els.kjSecondsIn);
+
+  if (watts === null || watts <= 0 || min === null) {
     els.kjOut.textContent = '—';
     recalculateAllBadges();
     return;
@@ -2111,9 +2167,19 @@ function calcKJ() {
 
 function calcWatts() {
   const kj = readNonNegativeOrNull(els.kjIn);
-  const min = readDurationMinutes(els.wattsHoursIn, els.wattsMinutesPartIn, els.wattsSecondsIn);
+  const timeError = getDurationValidationError(
+    els.wattsHoursIn,
+    els.wattsMinutesPartIn,
+    els.wattsSecondsIn
+  );
 
-  if (kj === null || min === null || kj <= 0) {
+  els.wattsTimeError.textContent = timeError;
+
+  const min = timeError
+    ? null
+    : readDurationMinutes(els.wattsHoursIn, els.wattsMinutesPartIn, els.wattsSecondsIn);
+
+  if (kj === null || kj <= 0 || min === null) {
     els.wattsOut.textContent = '—';
     recalculateAllBadges();
     return;
@@ -2934,35 +3000,42 @@ function initCache() {
     btnWatts: document.getElementById('btn-watts'),
     btnZones: document.getElementById('btn-zones'),
     btnHr: document.getElementById('btn-hr'),
+
     kjView: document.getElementById('kj-view'),
     wattsView: document.getElementById('watts-view'),
     zonesView: document.getElementById('zones-view'),
     hrView: document.getElementById('hr-view'),
+
     wattsIn: document.getElementById('watts-in'),
     kjHoursIn: document.getElementById('kj-hours-in'),
     kjMinutesPartIn: document.getElementById('kj-minutes-part-in'),
     kjSecondsIn: document.getElementById('kj-seconds-in'),
+    kjTimeError: document.getElementById('kj-time-error'),
     newFtpKj: document.getElementById('proposed-ftp-kj'),
     kjOut: document.getElementById('kj-out'),
     toggleSystemKj: document.getElementById('toggle-system-kj'),
     kjCurrentBadge: document.getElementById('kj-current-badge'),
     kjNewBadge: document.getElementById('kj-new-badge'),
     currentFtpDisplayKj: document.getElementById('current-ftp-display-kj'),
+
     kjIn: document.getElementById('kj-in'),
     wattsHoursIn: document.getElementById('watts-hours-in'),
     wattsMinutesPartIn: document.getElementById('watts-minutes-part-in'),
     wattsSecondsIn: document.getElementById('watts-seconds-in'),
+    wattsTimeError: document.getElementById('watts-time-error'),
     newFtpWatts: document.getElementById('proposed-ftp-watts'),
     wattsOut: document.getElementById('watts-out'),
     toggleSystemWatts: document.getElementById('toggle-system-watts'),
     wattsCurrentBadge: document.getElementById('watts-current-badge'),
     wattsNewBadge: document.getElementById('watts-new-badge'),
     currentFtpDisplayWatts: document.getElementById('current-ftp-display-watts'),
+
     ftpIn: document.getElementById('ftp-in'),
     weightUnit: document.getElementById('weight-unit'),
     weightUnitLbl: document.getElementById('weight-unit-lbl'),
     weightIn: document.getElementById('weight-in'),
     wkgOut: document.getElementById('wkg-out'),
+
     subBtnDefaultPower: document.getElementById('sub-btn-default-power'),
     subBtnCustomPower: document.getElementById('sub-btn-custom-power'),
     defaultPowerZonesTable: document.getElementById('default-power-zones-table'),
@@ -2971,6 +3044,7 @@ function initCache() {
     customTableBody: document.getElementById('custom-table-body'),
     resetCustomZones: document.getElementById('reset-custom-zones'),
     customZoneError: document.getElementById('custom-zone-error'),
+
     hrMaxIn: document.getElementById('hr-max-in'),
     hrLthrIn: document.getElementById('hr-lthr-in'),
     hrSubBtnDefault: document.getElementById('hr-sub-btn-default'),
@@ -3063,8 +3137,6 @@ function syncHorizontalScroll(elA, elB) {
 
     source.addEventListener('touchstart', activate, { passive: true });
     source.addEventListener('pointerdown', activate, { passive: true });
-    source.addEventListener('mouseenter', activate, { passive: true });
-
     source.addEventListener('scroll', () => queueSync(source), { passive: true });
   };
 
