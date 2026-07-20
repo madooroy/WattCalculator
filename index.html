@@ -1094,8 +1094,12 @@ tr:last-child td { border-bottom: none; }
   }
 
   #zones-view,
-  #hr-view {
-    display: block !important;
+  #hr-view,
+  #default-power-zones-table,
+  #custom-zones-table,
+  #hr-default-panel,
+  #hr-custom-panel {
+    display: none !important;
   }
 
   .card {
@@ -1201,6 +1205,30 @@ tr:last-child td { border-bottom: none; }
     line-height: 1.1 !important;
   }
 
+  .power-matrix .matrix-input-wrap,
+  .power-matrix .matrix-input-dual,
+  .hr-matrix .matrix-input-wrap,
+  .hr-matrix .matrix-input-dual {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+  }
+
+  .power-matrix .matrix-input-wrap,
+  .power-matrix .matrix-input-dual,
+  .hr-matrix .matrix-input-wrap,
+  .hr-matrix .matrix-input-dual {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+  }
+
   .power-matrix .matrix-input-wrap .input-small,
   .power-matrix input.input-small,
   .hr-matrix input.input-small {
@@ -1211,27 +1239,71 @@ tr:last-child td { border-bottom: none; }
     box-shadow: none !important;
     padding: 0 !important;
     min-height: auto !important;
+    width: auto !important;
+    min-width: 24px !important;
+    max-width: 38px !important;
+    text-align: center !important;
+    font-size: 9pt !important;
   }
 
-  .print-mode-power-default #default-power-zones-table,
-  .print-mode-power-custom #custom-zones-table,
-  .print-mode-hr-default #hr-default-panel,
-  .print-mode-hr-custom #hr-custom-panel {
+  .power-matrix .matrix-input-wrap span,
+  .power-matrix .matrix-input-dual span,
+  .hr-matrix .matrix-input-wrap span,
+  .hr-matrix .matrix-input-dual span {
+    font-size: 8pt !important;
+    white-space: nowrap !important;
+  }
+
+  .power-matrix .matrix-input-wrap span,
+  .power-matrix .matrix-input-dual span,
+  .hr-matrix .matrix-input-wrap span,
+  .hr-matrix .matrix-input-dual span {
+    font-size: 8pt !important;
+    white-space: nowrap !important;
+  }
+
+  .print-mode-power-default #zones-view,
+  .print-mode-power-default #default-power-zones-table {
     display: block !important;
   }
 
   .print-mode-power-default #custom-zones-table,
+  .print-mode-power-default #hr-view,
   .print-mode-power-default #hr-default-panel,
-  .print-mode-power-default #hr-custom-panel,
+  .print-mode-power-default #hr-custom-panel {
+    display: none !important;
+  }
+
+  .print-mode-power-custom #zones-view,
+  .print-mode-power-custom #custom-zones-table {
+    display: block !important;
+  }
 
   .print-mode-power-custom #default-power-zones-table,
+  .print-mode-power-custom #hr-view,
   .print-mode-power-custom #hr-default-panel,
-  .print-mode-power-custom #hr-custom-panel,
+  .print-mode-power-custom #hr-custom-panel {
+    display: none !important;
+  }
 
+  .print-mode-hr-default #hr-view,
+  .print-mode-hr-default #hr-default-panel {
+    display: block !important;
+  }
+
+  .print-mode-hr-default #zones-view,
   .print-mode-hr-default #default-power-zones-table,
   .print-mode-hr-default #custom-zones-table,
-  .print-mode-hr-default #hr-custom-panel,
+  .print-mode-hr-default #hr-custom-panel {
+    display: none !important;
+  }
 
+  .print-mode-hr-custom #hr-view,
+  .print-mode-hr-custom #hr-custom-panel {
+    display: block !important;
+  }
+
+  .print-mode-hr-custom #zones-view,
   .print-mode-hr-custom #default-power-zones-table,
   .print-mode-hr-custom #custom-zones-table,
   .print-mode-hr-custom #hr-default-panel {
@@ -1241,8 +1313,11 @@ tr:last-child td { border-bottom: none; }
   .print-header,
   .print-header[hidden] {
     display: block !important;
-    margin-bottom: 12px;
-    padding-bottom: 10px;
+    visibility: visible !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 0 12px 0 !important;
+    padding: 0 0 10px 0 !important;
     border-bottom: 2px solid #000;
   }
 
@@ -3415,25 +3490,28 @@ function clearPrintHeaders() {
 }
 
 function runScopedPrint(mode) {
-  document.body.classList.add(mode);
+  document.body.className += ` ${mode}`;
 
   const cleanup = () => {
-    document.body.classList.remove(mode);
+    document.body.classList.remove(
+      'print-mode-power-default',
+      'print-mode-power-custom',
+      'print-mode-hr-default',
+      'print-mode-hr-custom'
+    );
     clearPrintHeaders();
     window.removeEventListener('afterprint', cleanup);
   };
 
   window.addEventListener('afterprint', cleanup);
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      window.print();
+  setTimeout(() => {
+    window.print();
 
-      setTimeout(() => {
-        cleanup();
-      }, 1000);
-    });
-  });
+    setTimeout(() => {
+      cleanup();
+    }, 1000);
+  }, 150);
 }
 
 function printPowerZones(system) {
