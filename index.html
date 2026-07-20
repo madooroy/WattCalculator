@@ -320,9 +320,9 @@ input[type="number"] {
 
 .input-small,
 .numeric-input,
-.-zone-input,
-.-hr-max,
-.-hr-lthr,
+.custom-zone-range-input,
+.custom-hr-max-inline,
+.custom-hr-lthr-inline,
 .table-scroll-wrapper .input-small,
 .hr-edit-grid .input-small,
 .power-matrix .input-small {
@@ -1216,18 +1216,6 @@ tr:last-child td { border-bottom: none; }
     width: 100% !important;
   }
 
-  .power-matrix .matrix-input-wrap,
-  .power-matrix .matrix-input-dual,
-  .hr-matrix .matrix-input-wrap,
-  .hr-matrix .matrix-input-dual {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 2px !important;
-    flex-wrap: nowrap !important;
-    width: 100% !important;
-  }
-
   .power-matrix .matrix-input-wrap .input-small,
   .power-matrix input.input-small,
   .hr-matrix input.input-small {
@@ -1243,14 +1231,6 @@ tr:last-child td { border-bottom: none; }
     max-width: 38px !important;
     text-align: center !important;
     font-size: 9pt !important;
-  }
-
-  .power-matrix .matrix-input-wrap span,
-  .power-matrix .matrix-input-dual span,
-  .hr-matrix .matrix-input-wrap span,
-  .hr-matrix .matrix-input-dual span {
-    font-size: 8pt !important;
-    white-space: nowrap !important;
   }
 
   .power-matrix .matrix-input-wrap span,
@@ -3493,7 +3473,12 @@ function clearPrintHeaders() {
 function runScopedPrint(mode) {
   document.body.setAttribute('data-print-mode', mode);
 
+  let cleanedUp = false;
+
   const cleanup = () => {
+    if (cleanedUp) return;
+    cleanedUp = true;
+
     document.body.removeAttribute('data-print-mode');
     clearPrintHeaders();
     window.removeEventListener('afterprint', cleanup);
