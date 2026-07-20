@@ -1684,6 +1684,7 @@ const powerCellCache = {
 };
 let activeZoneSystem = 'default';
 let activeHrSubtab = 'default';
+let activePrintSession = null;
 
 function deepClone(obj) {
   if (typeof structuredClone === 'function') return structuredClone(obj);
@@ -3514,27 +3515,47 @@ function clearPrintHeaders() {
 }
 
 function runScopedPrint(mode) {
+  if (activePrintSession?.cleanup) {
+    activePrintSession.cleanup();
+  }
+
   document.body.setAttribute('data-print-mode', mode);
 
   let cleanedUp = false;
+  let fallbackTimer = null;
 
   const cleanup = () => {
     if (cleanedUp) return;
     cleanedUp = true;
 
+    if (fallbackTimer) {
+      clearTimeout(fallbackTimer);
+      fallbackTimer = null;
+    }
+
     document.body.removeAttribute('data-print-mode');
     clearPrintHeaders();
     window.removeEventListener('afterprint', cleanup);
+
+    if (activePrintSession?.cleanup === cleanup) {
+      activePrintSession = null;
+    }
+  };
+
+  activePrintSession = {
+    mode,
+    cleanup
   };
 
   window.addEventListener('afterprint', cleanup);
 
-  setTimeout(() => {
-    window.print();
+  fallbackTimer = setTimeout(() => {
+    cleanup();
+  }, 60000);
 
-    setTimeout(() => {
-      cleanup();
-    }, 1500);
+  setTimeout(() => {
+    if (activePrintSession?.cleanup !== cleanup) return;
+    window.print();
   }, 200);
 }
 
