@@ -881,6 +881,10 @@ tr:last-child td { border-bottom: none; }
   margin-top: 8px;
 }
 
+ .result-note {
+  margin-top: 10px;
+}
+
 #custom-zones-table .help-text,
 #hr-custom-panel .help-text {
   font-size: 11px;
@@ -1094,6 +1098,7 @@ tr:last-child td { border-bottom: none; }
       <div class="calc-badge" id="kj-current-badge">Current FTP: —</div>
       <div class="calc-badge" id="kj-new-badge">New FTP: —</div>
     </div>
+    <div class="help-text text-center result-note">Calculated from average watts, not normalized power; for steady efforts the difference is often small.</div>
   </div>
 </div>  
 
@@ -1125,12 +1130,13 @@ tr:last-child td { border-bottom: none; }
 
   <div class="card result-box">
     <div class="result-val" id="time-out" aria-live="polite">—</div>
-    <div class="result-lbl">Ride Time</div>
+    <div class="result-lbl">Time</div>
     <button id="toggle-system-time" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
     <div class="badge-container">
       <div class="calc-badge" id="time-current-badge">Current FTP: —</div>
       <div class="calc-badge" id="time-new-badge">New FTP: —</div>
     </div>
+    <div class="help-text text-center result-note">Calculated from average watts, not normalized power; for steady efforts the difference is often small.</div>
   </div>
 </div>
 
@@ -1179,6 +1185,7 @@ tr:last-child td { border-bottom: none; }
       <div class="calc-badge" id="watts-current-badge">Current FTP: —</div>
       <div class="calc-badge" id="watts-new-badge">New FTP: —</div>
     </div>
+    <div class="help-text text-center result-note">Calculated from average watts, not normalized power; for steady efforts the difference is often small.</div>
   </div>
 </div>
 
