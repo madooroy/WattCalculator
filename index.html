@@ -1830,6 +1830,16 @@ function trainingStressScore(watts, ftp, minutes) {
 function safeStorageGet(key) {
   try { return localStorage.getItem(key); } catch { return null; }
 }
+
+function safeStorageGetJSON(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+  
 function safeStorageSet(key, value) {
   try { localStorage.setItem(key, value); } catch {}
 }
@@ -2155,21 +2165,16 @@ function validateHrAnchorSet(values, maxHr, lthr) {
 }
 
 function loadCustomPowerAnchors() {
-  try {
-    const raw = safeStorageGet(STORAGE_KEYS.CUSTOM_ZONES);
-    if (!raw) return defaultPowerAnchors();
+  const parsed = safeStorageGetJSON(STORAGE_KEYS.CUSTOM_ZONES);
+  if (!parsed) return defaultPowerAnchors();
 
-    const parsed = JSON.parse(raw);
-    const candidate = parsed && parsed.version === 2 && parsed.anchors
+  const candidate = parsed && parsed.version === 2 && parsed.anchors
+    ? normalizePowerAnchors(parsed.anchors)
+    : parsed && parsed.anchors
       ? normalizePowerAnchors(parsed.anchors)
-      : parsed && parsed.anchors
-        ? normalizePowerAnchors(parsed.anchors)
-        : normalizePowerAnchors(parsed);
+      : normalizePowerAnchors(parsed);
 
-    return validatePowerAnchors(candidate) ? defaultPowerAnchors() : candidate;
-  } catch {
-    return defaultPowerAnchors();
-  }
+  return validatePowerAnchors(candidate) ? defaultPowerAnchors() : candidate;
 }
 
 function saveCustomPowerAnchors() {
@@ -2177,21 +2182,16 @@ function saveCustomPowerAnchors() {
 }
 
 function loadCustomHrAnchors() {
-  try {
-    const raw = safeStorageGet(STORAGE_KEYS.CUSTOM_HR);
-    if (!raw) return deepClone(defaultHrPercentConfig);
+  const parsed = safeStorageGetJSON(STORAGE_KEYS.CUSTOM_HR);
+  if (!parsed) return deepClone(defaultHrPercentConfig);
 
-    const parsed = JSON.parse(raw);
-    const candidate = parsed && parsed.version === 3 && parsed.anchors
+  const candidate = parsed && parsed.version === 3 && parsed.anchors
+    ? normalizeHrAnchors(parsed.anchors)
+    : parsed && parsed.anchors
       ? normalizeHrAnchors(parsed.anchors)
-      : parsed && parsed.anchors
-        ? normalizeHrAnchors(parsed.anchors)
-        : normalizeHrAnchors(parsed);
+      : normalizeHrAnchors(parsed);
 
-    return validateHrAnchorSet(candidate, 0, 0) ? deepClone(defaultHrPercentConfig) : candidate;
-  } catch {
-    return deepClone(defaultHrPercentConfig);
-  }
+  return validateHrAnchorSet(candidate, 0, 0) ? deepClone(defaultHrPercentConfig) : candidate;
 }
 
 function saveCustomHrAnchors() {
@@ -3247,9 +3247,9 @@ function bpmRangeTexts(metricCfg, base) {
   }
 
   const z1Max = wholeNumber(base * (metricCfg.z1.max / 100));
-  const z2Max = wholeNumber(base * (metricCfg.z2.max / 100));
-  const z3Max = wholeNumber(base * (metricCfg.z3.max / 100));
-  const z4Max = wholeNumber(base * (metricCfg.z4.max / 100));
+  const z2Max = Math.max(z1Max + 1, wholeNumber(base * (metricCfg.z2.max / 100)));
+  const z3Max = Math.max(z2Max + 1, wholeNumber(base * (metricCfg.z3.max / 100)));
+  const z4Max = Math.max(z3Max + 1, wholeNumber(base * (metricCfg.z4.max / 100)));
 
   return [
     `≤ ${z1Max}`,
@@ -3407,15 +3407,19 @@ function persistOnInput(el, key, decimals = 0) {
   if (!el) return;
 
   el.addEventListener('input', () => {
-    const raw = String(el.value || '').trim();
+    const raw = String(el.value ?? '').trim();
+
     if (raw === '') {
       safeStorageRemove(key);
       return;
     }
 
     const n = clampNonNegative(raw);
-    const val = decimals > 0 ? String(Number(n).toFixed(decimals)) : String(wholeNumber(n));
-    safeStorageSet(key, val);
+    const normalized = decimals > 0
+      ? Number(n).toFixed(decimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1')
+      : String(wholeNumber(n));
+
+    safeStorageSet(key, normalized);
   });
 }
 
