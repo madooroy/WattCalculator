@@ -1055,7 +1055,7 @@ tr:last-child td { border-bottom: none; }
   }
 
   @page {
-    size: auto;
+    size: landscape;
     margin: 0.5in;
   }
 
@@ -1093,6 +1093,11 @@ tr:last-child td { border-bottom: none; }
     display: none !important;
   }
 
+  #zones-view,
+  #hr-view {
+    display: block !important;
+  }
+
   .card {
     box-shadow: none !important;
     border: 1px solid var(--border) !important;
@@ -1115,6 +1120,7 @@ tr:last-child td { border-bottom: none; }
     width: 100% !important;
     min-width: 0 !important;
     table-layout: fixed !important;
+    border-collapse: collapse !important;
   }
 
   .power-matrix th,
@@ -1123,7 +1129,13 @@ tr:last-child td { border-bottom: none; }
   .hr-matrix td {
     border: 1px solid #cfcfcf !important;
     white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    hyphens: auto;
     color: #000 !important;
+    padding: 6px 4px !important;
+    vertical-align: middle !important;
+    line-height: 1.15 !important;
   }
 
   .power-matrix .row-label,
@@ -1133,6 +1145,13 @@ tr:last-child td { border-bottom: none; }
     z-index: auto !important;
     background: #fff !important;
     color: #000 !important;
+    width: 90px !important;
+    min-width: 90px !important;
+    max-width: 90px !important;
+    font-size: 10pt !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
   }
 
   .zone-cell-matrix,
@@ -1144,8 +1163,42 @@ tr:last-child td { border-bottom: none; }
     -webkit-text-fill-color: #000 !important;
   }
 
+  .zone-cell-matrix {
+    overflow: hidden !important;
+  }
+
   .zone-sub {
     opacity: 1 !important;
+  }
+
+  .power-matrix .zone-top {
+    font-size: 16pt !important;
+    line-height: 1 !important;
+  }
+
+  .power-matrix .zone-top.ss {
+    font-size: 11pt !important;
+  }
+
+  .power-matrix .zone-sub,
+  .hr-matrix .zone-sub {
+    display: block !important;
+    max-width: 100% !important;
+    font-size: 7.5pt !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .power-matrix .zone-value {
+    font-size: 9pt !important;
+    line-height: 1.1 !important;
+  }
+
+  .power-matrix .zone-value-large {
+    font-size: 10pt !important;
+    line-height: 1.1 !important;
   }
 
   .power-matrix .matrix-input-wrap .input-small,
@@ -1168,14 +1221,19 @@ tr:last-child td { border-bottom: none; }
   }
 
   .print-mode-power-default #custom-zones-table,
-  .print-mode-power-default #hr-view,
-  .print-mode-power-default #zones-view > .card:not(#default-power-zones-table),
+  .print-mode-power-default #hr-default-panel,
+  .print-mode-power-default #hr-custom-panel,
+
   .print-mode-power-custom #default-power-zones-table,
-  .print-mode-power-custom #hr-view,
-  .print-mode-power-custom #zones-view > .card:not(#custom-zones-table),
-  .print-mode-hr-default #zones-view,
+  .print-mode-power-custom #hr-default-panel,
+  .print-mode-power-custom #hr-custom-panel,
+
+  .print-mode-hr-default #default-power-zones-table,
+  .print-mode-hr-default #custom-zones-table,
   .print-mode-hr-default #hr-custom-panel,
-  .print-mode-hr-custom #zones-view,
+
+  .print-mode-hr-custom #default-power-zones-table,
+  .print-mode-hr-custom #custom-zones-table,
   .print-mode-hr-custom #hr-default-panel {
     display: none !important;
   }
@@ -3366,11 +3424,16 @@ function runScopedPrint(mode) {
   };
 
   window.addEventListener('afterprint', cleanup);
-  window.print();
 
-  setTimeout(() => {
-    cleanup();
-  }, 1000);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.print();
+
+      setTimeout(() => {
+        cleanup();
+      }, 1000);
+    });
+  });
 }
 
 function printPowerZones(system) {
