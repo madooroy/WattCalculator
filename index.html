@@ -1261,51 +1261,51 @@ tr:last-child td { border-bottom: none; }
     white-space: nowrap !important;
   }
 
-  .print-mode-power-default #zones-view,
-  .print-mode-power-default #default-power-zones-table {
+  body[data-print-mode="power-default"] #zones-view,
+  body[data-print-mode="power-default"] #default-power-zones-table {
     display: block !important;
   }
 
-  .print-mode-power-default #custom-zones-table,
-  .print-mode-power-default #hr-view,
-  .print-mode-power-default #hr-default-panel,
-  .print-mode-power-default #hr-custom-panel {
+  body[data-print-mode="power-default"] #custom-zones-table,
+  body[data-print-mode="power-default"] #hr-view,
+  body[data-print-mode="power-default"] #hr-default-panel,
+  body[data-print-mode="power-default"] #hr-custom-panel {
     display: none !important;
   }
 
-  .print-mode-power-custom #zones-view,
-  .print-mode-power-custom #custom-zones-table {
+  body[data-print-mode="power-custom"] #zones-view,
+  body[data-print-mode="power-custom"] #custom-zones-table {
     display: block !important;
   }
 
-  .print-mode-power-custom #default-power-zones-table,
-  .print-mode-power-custom #hr-view,
-  .print-mode-power-custom #hr-default-panel,
-  .print-mode-power-custom #hr-custom-panel {
+  body[data-print-mode="power-custom"] #default-power-zones-table,
+  body[data-print-mode="power-custom"] #hr-view,
+  body[data-print-mode="power-custom"] #hr-default-panel,
+  body[data-print-mode="power-custom"] #hr-custom-panel {
     display: none !important;
   }
 
-  .print-mode-hr-default #hr-view,
-  .print-mode-hr-default #hr-default-panel {
+  body[data-print-mode="hr-default"] #hr-view,
+  body[data-print-mode="hr-default"] #hr-default-panel {
     display: block !important;
   }
 
-  .print-mode-hr-default #zones-view,
-  .print-mode-hr-default #default-power-zones-table,
-  .print-mode-hr-default #custom-zones-table,
-  .print-mode-hr-default #hr-custom-panel {
+  body[data-print-mode="hr-default"] #zones-view,
+  body[data-print-mode="hr-default"] #default-power-zones-table,
+  body[data-print-mode="hr-default"] #custom-zones-table,
+  body[data-print-mode="hr-default"] #hr-custom-panel {
     display: none !important;
   }
 
-  .print-mode-hr-custom #hr-view,
-  .print-mode-hr-custom #hr-custom-panel {
+  body[data-print-mode="hr-custom"] #hr-view,
+  body[data-print-mode="hr-custom"] #hr-custom-panel {
     display: block !important;
   }
 
-  .print-mode-hr-custom #zones-view,
-  .print-mode-hr-custom #default-power-zones-table,
-  .print-mode-hr-custom #custom-zones-table,
-  .print-mode-hr-custom #hr-default-panel {
+  body[data-print-mode="hr-custom"] #zones-view,
+  body[data-print-mode="hr-custom"] #default-power-zones-table,
+  body[data-print-mode="hr-custom"] #custom-zones-table,
+  body[data-print-mode="hr-custom"] #hr-default-panel {
     display: none !important;
   }
 
@@ -3491,15 +3491,10 @@ function clearPrintHeaders() {
 }
 
 function runScopedPrint(mode) {
-  document.body.className += ` ${mode}`;
+  document.body.setAttribute('data-print-mode', mode);
 
   const cleanup = () => {
-    document.body.classList.remove(
-      'print-mode-power-default',
-      'print-mode-power-custom',
-      'print-mode-hr-default',
-      'print-mode-hr-custom'
-    );
+    document.body.removeAttribute('data-print-mode');
     clearPrintHeaders();
     window.removeEventListener('afterprint', cleanup);
   };
@@ -3511,8 +3506,8 @@ function runScopedPrint(mode) {
 
     setTimeout(() => {
       cleanup();
-    }, 1000);
-  }, 150);
+    }, 1500);
+  }, 200);
 }
 
 function printPowerZones(system) {
@@ -3534,7 +3529,7 @@ function printPowerZones(system) {
     { label: 'W/kg', value: wkg }
   ]);
 
-  runScopedPrint(system === 'custom' ? 'print-mode-power-custom' : 'print-mode-power-default');
+  runScopedPrint(system === 'custom' ? 'power-custom' : 'power-default');
 }
 
 function printHrZones(system) {
@@ -3551,7 +3546,7 @@ function printHrZones(system) {
     { label: 'LTHR', value: lthr > 0 ? `${wholeNumber(lthr)} BPM` : '—' }
   ]);
 
-  runScopedPrint(system === 'custom' ? 'print-mode-hr-custom' : 'print-mode-hr-default');
+  runScopedPrint(system === 'custom' ? 'hr-custom' : 'hr-default');
 }
   
 function initCache() {
