@@ -1041,12 +1041,13 @@ tr:last-child td { border-bottom: none; }
 <div class="container">
   <h1 id="app-title">Calculate Watts</h1>
 
-   <div class="tabs" role="tablist" aria-label="Calculator sections">
-     <button id="btn-watts" class="tab active" role="tab" aria-selected="true" aria-controls="watts-view" data-tab="watts" type="button" tabindex="0">Find Watts</button>
-     <button id="btn-kj" class="tab" role="tab" aria-selected="false" aria-controls="kj-view" data-tab="kj" type="button" tabindex="-1">Find kJ</button>
-     <button id="btn-zones" class="tab" role="tab" aria-selected="false" aria-controls="zones-view" data-tab="zones" type="button" tabindex="-1">Power Zones</button>
-     <button id="btn-hr" class="tab" role="tab" aria-selected="false" aria-controls="hr-view" data-tab="hr" type="button" tabindex="-1">HR Zones</button>
-  </div>
+ <div class="tabs" role="tablist" aria-label="Calculator sections">
+   <button id="btn-watts" class="tab active" role="tab" aria-selected="true" aria-controls="watts-view" data-tab="watts" type="button" tabindex="0">Find Watts</button>
+   <button id="btn-kj" class="tab" role="tab" aria-selected="false" aria-controls="kj-view" data-tab="kj" type="button" tabindex="-1">Find kJ</button>
+   <button id="btn-time" class="tab" role="tab" aria-selected="false" aria-controls="time-view" data-tab="time" type="button" tabindex="-1">Find Time</button>
+   <button id="btn-zones" class="tab" role="tab" aria-selected="false" aria-controls="zones-view" data-tab="zones" type="button" tabindex="-1">Power Zones</button>
+   <button id="btn-hr" class="tab" role="tab" aria-selected="false" aria-controls="hr-view" data-tab="hr" type="button" tabindex="-1">HR Zones</button>
+ </div>
   
 <div id="kj-view" class="view" role="tabpanel" aria-labelledby="btn-kj" hidden>
   <div class="card">
@@ -1092,6 +1093,43 @@ tr:last-child td { border-bottom: none; }
     <div class="badge-container">
       <div class="calc-badge" id="kj-current-badge">Current FTP: —</div>
       <div class="calc-badge" id="kj-new-badge">New FTP: —</div>
+    </div>
+  </div>
+</div>  
+
+  <div id="time-view" class="view" role="tabpanel" aria-labelledby="btn-time" hidden>
+  <div class="card">
+    <div class="row">
+      <label for="time-kj-in">Total Kilojoules</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="time-kj-in" value="500" min="1" step="1" autocomplete="off">
+    </div>
+
+    <div class="row">
+      <label for="time-watts-in">Average Watts</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="time-watts-in" value="150" min="1" step="1" autocomplete="off">
+    </div>
+
+    <div class="row row-stack">
+      <div class="row-split">
+        <span class="muted-label">Current FTP</span>
+        <div id="current-ftp-display-time" class="value-display">250W</div>
+      </div>
+      <div class="subnote-right">Set in Power Zones</div>
+    </div>
+
+    <div class="row">
+      <label for="proposed-ftp-time">New FTP for Comparison</label>
+      <input class="input-boxed" type="number" inputmode="numeric" enterkeyhint="done" id="proposed-ftp-time" value="250" min="1" step="1" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="card result-box">
+    <div class="result-val" id="time-out" aria-live="polite">—</div>
+    <div class="result-lbl">Ride Time</div>
+    <button id="toggle-system-time" class="system-toggle-btn" type="button" aria-pressed="false">Zones: Default Power Zones</button>
+    <div class="badge-container">
+      <div class="calc-badge" id="time-current-badge">Current FTP: —</div>
+      <div class="calc-badge" id="time-new-badge">New FTP: —</div>
     </div>
   </div>
 </div>
@@ -1318,6 +1356,8 @@ const STORAGE_KEYS = {
   NEW_FTP: 'cycling_new_ftp',
   FIND_KJ_AVG_WATTS: 'cycling_find_kj_avg_watts',
   FIND_WATTS_TOTAL_KJ: 'cycling_find_watts_total_kj',
+  FIND_TIME_TOTAL_KJ: 'cycling_find_time_total_kj',
+  FIND_TIME_AVG_WATTS: 'cycling_find_time_avg_watts',
   FIND_KJ_HOURS: 'cycling_find_kj_hours',
   FIND_KJ_MINUTES_PART: 'cycling_find_kj_minutes_part',
   FIND_KJ_SECONDS: 'cycling_find_kj_seconds',
@@ -1441,6 +1481,29 @@ function calcWatts() {
   }
 
   els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));
+  recalculateAllBadges();
+}
+
+function calcTime() {
+  const kj = readNonNegativeOrNull(els.timeKjIn);
+  const watts = readNonNegativeOrNull(els.timeWattsIn);
+
+  if (kj === null || kj <= 0 || watts === null || watts <= 0) {
+    els.timeOut.textContent = '—';
+    recalculateAllBadges();
+    return;
+  }
+
+  const totalSeconds = Math.ceil((kj * 1000) / watts);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const hh = String(hours);
+  const mm = String(minutes).padStart(2, '0');
+  const ss = String(seconds).padStart(2, '0');
+
+  els.timeOut.textContent = `${hh}:${mm}:${ss}`;
   recalculateAllBadges();
 }
   
@@ -2060,8 +2123,9 @@ function applyHrViewState() {
   
 function switchTab(type) {
   const tabs = [
-    { key: 'kj', btn: els.btnKj, view: els.kjView },
     { key: 'watts', btn: els.btnWatts, view: els.wattsView },
+    { key: 'kj', btn: els.btnKj, view: els.kjView },
+    { key: 'time', btn: els.btnTime, view: els.timeView },
     { key: 'zones', btn: els.btnZones, view: els.zonesView },
     { key: 'hr', btn: els.btnHr, view: els.hrView }
   ];
@@ -2076,6 +2140,7 @@ function switchTab(type) {
 
   const titles = {
     kj: 'Calculate kJ',
+    time: 'Calculate Time',
     watts: 'Calculate Watts',
     zones: 'Power Zones',
     hr: 'Heart Rate Zones'
@@ -2107,8 +2172,11 @@ function setActiveZoneSystem(val, persist = true) {
   const buttonText = labelMap[val];
   els.toggleSystemKj.textContent = buttonText;
   els.toggleSystemWatts.textContent = buttonText;
+  els.toggleSystemTime.textContent = buttonText;
+
   els.toggleSystemKj.setAttribute('aria-pressed', String(isCustom));
   els.toggleSystemWatts.setAttribute('aria-pressed', String(isCustom));
+  els.toggleSystemTime.setAttribute('aria-pressed', String(isCustom));
 
   setTabState(
     [els.subBtnDefaultPower, els.subBtnCustomPower],
@@ -2152,6 +2220,7 @@ function setNewFTP(val, persist = true) {
   const clean = String(wholeNumber(clampNonNegative(val)));
   els.newFtpKj.value = clean;
   els.newFtpWatts.value = clean;
+  els.newFtpTime.value = clean;
   if (persist) savePrimitive(STORAGE_KEYS.NEW_FTP, clean);
   recalculateAllBadges();
 }
@@ -2188,8 +2257,14 @@ function recalculateAllBadges() {
     ? Math.ceil(wattsFromKjMinutes(wattsKj, wattsMin))
     : 0;
 
+  const timeWatts = readNonNegativeOrNull(els.timeWattsIn);
+
   updateBadgeUI(els.kjCurrentBadge, 'Current FTP', kjWatts ?? 0, currentFTP);
   updateBadgeUI(els.kjNewBadge, 'New FTP', kjWatts ?? 0, newFTP);
+
+  updateBadgeUI(els.timeCurrentBadge, 'Current FTP', timeWatts ?? 0, currentFTP);
+  updateBadgeUI(els.timeNewBadge, 'New FTP', timeWatts ?? 0, newFTP);
+
   updateBadgeUI(els.wattsCurrentBadge, 'Current FTP', calculatedWatts, currentFTP);
   updateBadgeUI(els.wattsNewBadge, 'New FTP', calculatedWatts, newFTP);
 }
@@ -2425,6 +2500,7 @@ function validateAndApplyCustomZones(changedInput = null) {
 function updateFtpDisplays(ftp) {
   els.currentFtpDisplayKj.textContent = `${wholeNumber(ftp)}W`;
   els.currentFtpDisplayWatts.textContent = `${wholeNumber(ftp)}W`;
+  els.currentFtpDisplayTime.textContent = `${wholeNumber(ftp)}W`;
 }
 
 function updateWkg(ftp, weight, unit) {
@@ -3005,11 +3081,13 @@ function initCache() {
     appTitle: document.getElementById('app-title'),
     btnKj: document.getElementById('btn-kj'),
     btnWatts: document.getElementById('btn-watts'),
+    btnTime: document.getElementById('btn-time'),
     btnZones: document.getElementById('btn-zones'),
     btnHr: document.getElementById('btn-hr'),
 
     kjView: document.getElementById('kj-view'),
     wattsView: document.getElementById('watts-view'),
+    timeView: document.getElementById('time-view'),
     zonesView: document.getElementById('zones-view'),
     hrView: document.getElementById('hr-view'),
 
@@ -3024,6 +3102,15 @@ function initCache() {
     kjCurrentBadge: document.getElementById('kj-current-badge'),
     kjNewBadge: document.getElementById('kj-new-badge'),
     currentFtpDisplayKj: document.getElementById('current-ftp-display-kj'),
+
+    timeKjIn: document.getElementById('time-kj-in'),
+    timeWattsIn: document.getElementById('time-watts-in'),
+    newFtpTime: document.getElementById('proposed-ftp-time'),
+    timeOut: document.getElementById('time-out'),
+    toggleSystemTime: document.getElementById('toggle-system-time'),
+    timeCurrentBadge: document.getElementById('time-current-badge'),
+    timeNewBadge: document.getElementById('time-new-badge'),
+    currentFtpDisplayTime: document.getElementById('current-ftp-display-time'),
 
     kjIn: document.getElementById('kj-in'),
     wattsHoursIn: document.getElementById('watts-hours-in'),
@@ -3218,12 +3305,16 @@ function bindEvents() {
 
   els.toggleSystemKj.addEventListener('click', toggleActiveSystem);
   els.toggleSystemWatts.addEventListener('click', toggleActiveSystem);
+  els.toggleSystemTime.addEventListener('click', toggleActiveSystem);
 
   els.resetCustomZones.addEventListener('click', resetCustomZones);
   els.resetCustomHr.addEventListener('click', resetCustomHR);
 
   els.wattsIn.addEventListener('input', calcKJ);
   els.kjIn.addEventListener('input', calcWatts);
+  els.timeKjIn.addEventListener('input', calcTime);
+  els.timeWattsIn.addEventListener('input', calcTime);
+
   els.kjHoursIn.addEventListener('input', calcKJ);
   els.kjMinutesPartIn.addEventListener('input', calcKJ);
   els.kjSecondsIn.addEventListener('input', calcKJ);
@@ -3243,6 +3334,7 @@ function bindEvents() {
   const syncProposed = (e) => setNewFTP(e.target.value, false);
   els.newFtpKj.addEventListener('input', syncProposed);
   els.newFtpWatts.addEventListener('input', syncProposed);
+  els.newFtpTime.addEventListener('input', syncProposed);
 
   const refreshHrViews = () => {
     updateHRZones();
@@ -3267,6 +3359,7 @@ function bindEvents() {
   });
   persistOnCommit(els.newFtpKj, STORAGE_KEYS.NEW_FTP, 0, clean => setNewFTP(clean, false));
   persistOnCommit(els.newFtpWatts, STORAGE_KEYS.NEW_FTP, 0, clean => setNewFTP(clean, false));
+  persistOnCommit(els.newFtpTime, STORAGE_KEYS.NEW_FTP, 0, clean => setNewFTP(clean, false));
 
   persistOnCommit(els.kjHoursIn, STORAGE_KEYS.FIND_KJ_HOURS, 0, calcKJ);
   persistOnCommit(els.kjMinutesPartIn, STORAGE_KEYS.FIND_KJ_MINUTES_PART, 0, calcKJ);
@@ -3282,9 +3375,12 @@ function bindEvents() {
   persistOnInput(els.hrLthrIn, STORAGE_KEYS.HR_LTHR);
   persistOnInput(els.newFtpKj, STORAGE_KEYS.NEW_FTP);
   persistOnInput(els.newFtpWatts, STORAGE_KEYS.NEW_FTP);
+  persistOnInput(els.newFtpTime, STORAGE_KEYS.NEW_FTP);
 
   persistOnInput(els.wattsIn, STORAGE_KEYS.FIND_KJ_AVG_WATTS);
   persistOnInput(els.kjIn, STORAGE_KEYS.FIND_WATTS_TOTAL_KJ);
+  persistOnInput(els.timeKjIn, STORAGE_KEYS.FIND_TIME_TOTAL_KJ);
+  persistOnInput(els.timeWattsIn, STORAGE_KEYS.FIND_TIME_AVG_WATTS);
 
   persistOnInput(els.kjHoursIn, STORAGE_KEYS.FIND_KJ_HOURS);
   persistOnInput(els.kjMinutesPartIn, STORAGE_KEYS.FIND_KJ_MINUTES_PART);
@@ -3303,6 +3399,8 @@ function loadSavedValues() {
     [STORAGE_KEYS.HR_LTHR, els.hrLthrIn, v => String(wholeNumber(clampNonNegative(v)))],
     [STORAGE_KEYS.FIND_KJ_AVG_WATTS, els.wattsIn, v => String(wholeNumber(clampNonNegative(v)))],
     [STORAGE_KEYS.FIND_WATTS_TOTAL_KJ, els.kjIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_TIME_TOTAL_KJ, els.timeKjIn, v => String(wholeNumber(clampNonNegative(v)))],
+    [STORAGE_KEYS.FIND_TIME_AVG_WATTS, els.timeWattsIn, v => String(wholeNumber(clampNonNegative(v)))],
     [STORAGE_KEYS.FIND_KJ_HOURS, els.kjHoursIn, v => String(wholeNumber(clampNonNegative(v)))],
     [STORAGE_KEYS.FIND_KJ_MINUTES_PART, els.kjMinutesPartIn, v => String(wholeNumber(clampNonNegative(v)))],
     [STORAGE_KEYS.FIND_KJ_SECONDS, els.kjSecondsIn, v => String(wholeNumber(clampNonNegative(v)))],
@@ -3352,6 +3450,7 @@ window.addEventListener('DOMContentLoaded', () => {
   updateCustomHRZones();
   calcKJ();
   calcWatts();
+  calcTime();
 });
 </script>
 </body>
