@@ -1039,6 +1039,176 @@ tr:last-child td { border-bottom: none; }
     margin-bottom: 12px;
   }
 }
+
+.print-header {
+  display: none;
+}
+
+@media print {
+  :root {
+    --bg: #ffffff;
+    --card: #ffffff;
+    --text: #000000;
+    --muted: #444444;
+    --border: #cfcfcf;
+    --table-border: #d9d9d9;
+  }
+
+  @page {
+    size: auto;
+    margin: 0.5in;
+  }
+
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  body {
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 12pt;
+  }
+
+  .container {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  h1,
+  .tabs,
+  .sub-tabs,
+  .row,
+  .result-box,
+  .system-toggle-btn,
+  .help-text,
+  .error-text,
+  #kj-view,
+  #time-view,
+  #watts-view {
+    display: none !important;
+  }
+
+  .controls-row {
+    display: none !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 0 !important;
+    padding: 12px !important;
+    margin: 0 0 12px 0 !important;
+    background: #fff !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .power-matrix-scroll,
+  .table-scroll-wrapper {
+    overflow: visible !important;
+  }
+
+  .power-matrix,
+  .hr-matrix,
+  table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+  }
+
+  .power-matrix th,
+  .power-matrix td,
+  .hr-matrix th,
+  .hr-matrix td {
+    border: 1px solid #cfcfcf !important;
+    white-space: normal !important;
+    color: #000 !important;
+  }
+
+  .power-matrix .row-label,
+  .hr-matrix .row-label {
+    position: static !important;
+    left: auto !important;
+    z-index: auto !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .zone-cell-matrix,
+  .zone-value,
+  .zone-value-large,
+  .zone-top,
+  .zone-sub {
+    color: #000 !important;
+    -webkit-text-fill-color: #000 !important;
+  }
+
+  .zone-sub {
+    opacity: 1 !important;
+  }
+
+  .power-matrix .matrix-input-wrap .input-small,
+  .power-matrix input.input-small,
+  .hr-matrix input.input-small {
+    border: none !important;
+    background: transparent !important;
+    color: #000 !important;
+    -webkit-text-fill-color: #000 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-height: auto !important;
+  }
+
+  .print-mode-power-default #default-power-zones-table,
+  .print-mode-power-custom #custom-zones-table,
+  .print-mode-hr-default #hr-default-panel,
+  .print-mode-hr-custom #hr-custom-panel {
+    display: block !important;
+  }
+
+  .print-mode-power-default #custom-zones-table,
+  .print-mode-power-default #hr-view,
+  .print-mode-power-default #zones-view > .card:not(#default-power-zones-table),
+  .print-mode-power-custom #default-power-zones-table,
+  .print-mode-power-custom #hr-view,
+  .print-mode-power-custom #zones-view > .card:not(#custom-zones-table),
+  .print-mode-hr-default #zones-view,
+  .print-mode-hr-default #hr-custom-panel,
+  .print-mode-hr-custom #zones-view,
+  .print-mode-hr-custom #hr-default-panel {
+    display: none !important;
+  }
+
+  .print-header,
+  .print-header[hidden] {
+    display: block !important;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #000;
+  }
+
+  .print-header-title {
+    font-size: 18pt;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .print-header-meta {
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  .print-header-meta span {
+    display: inline-block;
+    margin-right: 16px;
+    margin-bottom: 4px;
+  }
+
+  [hidden]:not(.print-header) {
+    display: none !important;
+  }
+}
 </style> 
 </head>
 <body>
@@ -1222,22 +1392,28 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div id="default-power-zones-table" class="card card-pad-8" role="tabpanel" aria-labelledby="sub-btn-default-power">
-      <div class="help-text">Swipe sideways to view all zones.</div>
-      
-      <div class="table-scroll-wrapper power-matrix-scroll">
-        <table class="power-matrix">
-          <tbody id="default-power-table-body"></tbody>
-        </table>
-      </div>
-      <div class="help-text">The selected Power Zone system determines badge classification on the Find Watts and Find kJ tabs. Sweet Spot is shown as an independent reference band and does not override main zone classification.</div>
-      <div class="help-text">Power Zones progress continuously, with each zone starting exactly 1 W above the previous zone.</div>
-    </div>
+      <div class="controls-row">
+       <button id="print-default-power-zones" class="secondary-btn" type="button">Print Power Zones</button>
+     </div>
+
+     <div id="print-header-custom-power" class="print-header" hidden></div>
+
+     <div class="help-text">Swipe sideways to view all zones.</div>
+  
+     <div class="table-scroll-wrapper power-matrix-scroll">
+       <table class="power-matrix">
+         <tbody id="default-power-table-body"></tbody>
+       </table>
+     </div>
+       <div class="help-text">The selected Power Zone system determines badge classification on the Find Watts, Find kJ, and Find Time tabs. Sweet Spot is shown as an independent reference band and does not override main zone classification.</div>
+       <div class="help-text">Power Zones progress continuously, with each zone starting exactly 1 W above the previous zone.</div>
+     </div>
 
     <div id="custom-zones-table" class="card card-pad-8" role="tabpanel" aria-labelledby="sub-btn-custom-power" hidden>
       <div class="controls-row">
        <button id="reset-custom-zones" class="secondary-btn" type="button">Reset Power Zones</button>
-      </div>
-
+       <button id="print-custom-power-zones" class="secondary-btn" type="button">Print Power Zones</button>
+    </div>
 
       <div class="custom-swipe-note help-text">Swipe sideways to view all zones.</div>
       <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
@@ -1248,7 +1424,7 @@ tr:last-child td { border-bottom: none; }
         </table>
       </div>
 
-      <div class="help-text">The selected Power Zone system determines badge classification on the Find Watts and Find kJ tabs. Sweet Spot is shown as an independent reference band and does not override main zone classification.</div>
+      <div class="help-text">The selected Power Zone system determines badge classification on the Find Watts, Find kJ, and Find Time tabs. Sweet Spot is shown as an independent reference band and does not override main zone classification.</div>
       <div class="help-text">Power Zones progress continuously, with each zone starting exactly 1 W above the previous zone.</div>
     </div>
   </div>
@@ -1272,7 +1448,13 @@ tr:last-child td { border-bottom: none; }
   </div>
 
   <div id="hr-default-panel" class="card card-pad-8" role="tabpanel" aria-labelledby="hr-sub-btn-default">
-    <div class="help-text">Swipe sideways to view all zones.</div>
+   <div class="controls-row">
+     <button id="print-default-hr-zones" class="secondary-btn" type="button">Print HR Zones</button>
+   </div>
+
+   <div id="print-header-default-hr" class="print-header" hidden></div>
+    
+   <div class="help-text">Swipe sideways to view all zones.</div>
 
     <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
     <div id="hr-default-max-scroll" class="table-scroll-wrapper power-matrix-scroll">
@@ -1292,10 +1474,13 @@ tr:last-child td { border-bottom: none; }
   </div>
 
   <div id="hr-custom-panel" class="card card-pad-12" role="tabpanel" aria-labelledby="hr-sub-btn-custom" hidden>
-    <div class="controls-row">
+     <div class="controls-row">
       <button id="reset-custom-hr" class="secondary-btn" type="button">Reset HR Zones</button>
-    </div>
+      <button id="print-custom-hr-zones" class="secondary-btn" type="button">Print HR Zones</button>
+  </div>
 
+    <div id="print-header-custom-hr" class="print-header" hidden></div>
+    
     <div class="custom-swipe-note help-text">Swipe sideways to view all zones.</div>
     <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
 
@@ -3119,7 +3304,114 @@ function persistOnInput(el, key, decimals = 0) {
     safeStorageSet(key, val);
   });
 }
- 
+
+function getEnteredFtp() {
+  return readNonNegativeOrNull(els.ftpIn) ?? 0;
+}
+
+function getEnteredWeight() {
+  return readNonNegativeOrNull(els.weightIn) ?? 0;
+}
+
+function getEnteredWeightUnit() {
+  return els.weightUnit?.value || 'lbs';
+}
+
+function getEnteredMaxHr() {
+  return readNonNegativeOrNull(els.hrMaxIn) ?? 0;
+}
+
+function getEnteredLthr() {
+  return readNonNegativeOrNull(els.hrLthrIn) ?? 0;
+}
+
+function buildPrintHeader(title, items) {
+  const meta = items
+    .filter(item => item && item.value !== '' && item.value !== '—')
+    .map(item => `<span><strong>${item.label}:</strong> ${item.value}</span>`)
+    .join('');
+
+  return `
+    <div class="print-header-title">${title}</div>
+    <div class="print-header-meta">${meta}</div>
+  `;
+}
+
+function setPrintHeaderContent(el, title, items) {
+  if (!el) return;
+  el.innerHTML = buildPrintHeader(title, items);
+  el.hidden = false;
+}
+
+function clearPrintHeaders() {
+  [
+    els.printHeaderDefaultPower,
+    els.printHeaderCustomPower,
+    els.printHeaderDefaultHr,
+    els.printHeaderCustomHr
+  ].forEach(el => {
+    if (!el) return;
+    el.innerHTML = '';
+    el.hidden = true;
+  });
+}
+
+function runScopedPrint(mode) {
+  document.body.classList.add(mode);
+
+  const cleanup = () => {
+    document.body.classList.remove(mode);
+    clearPrintHeaders();
+    window.removeEventListener('afterprint', cleanup);
+  };
+
+  window.addEventListener('afterprint', cleanup);
+  window.print();
+
+  setTimeout(() => {
+    cleanup();
+  }, 1000);
+}
+
+function printPowerZones(system) {
+  const ftp = getEnteredFtp();
+  const weight = getEnteredWeight();
+  const unit = getEnteredWeightUnit();
+  const wkg = (ftp > 0 && weight > 0)
+    ? (ftp / (unit === 'lbs' ? weight / 2.20462 : weight)).toFixed(2)
+    : '—';
+
+  const title = system === 'custom' ? 'Custom Power Zones' : 'Default Power Zones';
+  const headerEl = system === 'custom'
+    ? els.printHeaderCustomPower
+    : els.printHeaderDefaultPower;
+
+  setPrintHeaderContent(headerEl, title, [
+    { label: 'FTP', value: ftp > 0 ? `${wholeNumber(ftp)} W` : '—' },
+    { label: 'Weight', value: weight > 0 ? `${weight} ${unit}` : '—' },
+    { label: 'W/kg', value: wkg }
+  ]);
+
+  runScopedPrint(system === 'custom' ? 'print-mode-power-custom' : 'print-mode-power-default');
+}
+
+function printHrZones(system) {
+  const maxHr = getEnteredMaxHr();
+  const lthr = getEnteredLthr();
+
+  const title = system === 'custom' ? 'Custom Heart Rate Zones' : 'Default Heart Rate Zones';
+  const headerEl = system === 'custom'
+    ? els.printHeaderCustomHr
+    : els.printHeaderDefaultHr;
+
+  setPrintHeaderContent(headerEl, title, [
+    { label: 'Max HR', value: maxHr > 0 ? `${wholeNumber(maxHr)} BPM` : '—' },
+    { label: 'LTHR', value: lthr > 0 ? `${wholeNumber(lthr)} BPM` : '—' }
+  ]);
+
+  runScopedPrint(system === 'custom' ? 'print-mode-hr-custom' : 'print-mode-hr-default');
+}
+  
 function initCache() {
   Object.assign(els, {
     appTitle: document.getElementById('app-title'),
@@ -3182,6 +3474,10 @@ function initCache() {
     customTableBody: document.getElementById('custom-table-body'),
     resetCustomZones: document.getElementById('reset-custom-zones'),
     customZoneError: document.getElementById('custom-zone-error'),
+    printDefaultPowerZones: document.getElementById('print-default-power-zones'),
+    printCustomPowerZones: document.getElementById('print-custom-power-zones'),
+    printHeaderDefaultPower: document.getElementById('print-header-default-power'),
+    printHeaderCustomPower: document.getElementById('print-header-custom-power'),
 
     hrMaxIn: document.getElementById('hr-max-in'),
     hrLthrIn: document.getElementById('hr-lthr-in'),
@@ -3195,7 +3491,11 @@ function initCache() {
     hrCustomLthrScroll: document.getElementById('hr-custom-lthr-scroll'),
     resetCustomHr: document.getElementById('reset-custom-hr'),
     customHrError: document.getElementById('custom-hr-error'),
-    hrInputError: document.getElementById('hr-input-error')
+    hrInputError: document.getElementById('hr-input-error'),
+    printDefaultHrZones: document.getElementById('print-default-hr-zones'),
+    printCustomHrZones: document.getElementById('print-custom-hr-zones'),
+    printHeaderDefaultHr: document.getElementById('print-header-default-hr'),
+    printHeaderCustomHr: document.getElementById('print-header-custom-hr')
   });
 }
 
@@ -3353,6 +3653,11 @@ function bindEvents() {
 
   els.resetCustomZones.addEventListener('click', resetCustomZones);
   els.resetCustomHr.addEventListener('click', resetCustomHR);
+
+  els.printDefaultPowerZones.addEventListener('click', () => printPowerZones('default'));
+  els.printCustomPowerZones.addEventListener('click', () => printPowerZones('custom'));
+  els.printDefaultHrZones.addEventListener('click', () => printHrZones('default'));
+  els.printCustomHrZones.addEventListener('click', () => printHrZones('custom'));
 
   els.wattsIn.addEventListener('input', calcKJ);
   els.kjIn.addEventListener('input', calcWatts);
