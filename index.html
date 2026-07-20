@@ -2254,6 +2254,40 @@ function getMainZoneWattRanges(ftp, system = activeZoneSystem) {
   return out;
 }
 
+function getMainZonePctDisplayRanges(system = activeZoneSystem) {
+  const zones = getZonesConfigForSystem(system).filter(z => z.id !== 'ss');
+  const out = [];
+  let previousMaxPct = null;
+
+  for (const z of zones) {
+    const rawMaxPct = z.max === null ? null : Math.round(z.max * 100);
+
+    let minPctDisplay;
+    let maxPctDisplay;
+
+    if (z.id === 'z1') {
+      minPctDisplay = null;
+      maxPctDisplay = rawMaxPct;
+    } else if (z.max === null) {
+      minPctDisplay = previousMaxPct + 1;
+      maxPctDisplay = null;
+    } else {
+      minPctDisplay = previousMaxPct + 1;
+      maxPctDisplay = rawMaxPct;
+    }
+
+    out.push({
+      id: z.id,
+      minPctDisplay,
+      maxPctDisplay
+    });
+
+    if (maxPctDisplay !== null) previousMaxPct = maxPctDisplay;
+  }
+
+  return out;
+}
+  
 function getZoneForWatts(watts, ftp, system = activeZoneSystem) {
   if (!(watts > 0) || !(ftp > 0)) return null;
 
@@ -2319,13 +2353,12 @@ function getOutputZone(watts, ftp) {
 }
 
 function getZoneRangeInfo(zone, ftp, system = activeZoneSystem) {
-  const minPct = Math.round(zone.min * 100);
-  const maxPct = zone.max === null ? null : Math.round(zone.max * 100);
-
   let pctText = '';
   let wattsText = '';
 
   if (zone.id === 'ss') {
+    const minPct = Math.round(zone.min * 100);
+    const maxPct = zone.max === null ? null : Math.round(zone.max * 100);
     const minW = wholeNumber(ftp * zone.min);
     const maxW = wholeNumber(ftp * zone.max);
 
@@ -2333,9 +2366,12 @@ function getZoneRangeInfo(zone, ftp, system = activeZoneSystem) {
     wattsText = `${minW}–${maxW}`;
   } else {
     const mainRanges = getMainZoneWattRanges(ftp, system);
-    const wattRange = mainRanges.find(z => z.id === zone.id);
+    const pctRanges = getMainZonePctDisplayRanges(system);
 
-    if (!wattRange) {
+    const wattRange = mainRanges.find(z => z.id === zone.id);
+    const pctRange = pctRanges.find(z => z.id === zone.id);
+
+    if (!wattRange || !pctRange) {
       return {
         pctText: '—',
         wattsText: '—',
@@ -2343,14 +2379,14 @@ function getZoneRangeInfo(zone, ftp, system = activeZoneSystem) {
       };
     }
 
-    if (zone.max === null) {
-      pctText = `≥ ${minPct + 1}%`;
+    if (pctRange.maxPctDisplay === null) {
+      pctText = `≥ ${pctRange.minPctDisplay}%`;
       wattsText = `≥ ${wattRange.minW}`;
-    } else if (zone.min === 0) {
-      pctText = `≤ ${maxPct}%`;
+    } else if (pctRange.minPctDisplay === null) {
+      pctText = `≤ ${pctRange.maxPctDisplay}%`;
       wattsText = `≤ ${wattRange.maxW}`;
     } else {
-      pctText = `${minPct + 1}%–${maxPct}%`;
+      pctText = `${pctRange.minPctDisplay}%–${pctRange.maxPctDisplay}%`;
       wattsText = `${wattRange.minW}–${wattRange.maxW}`;
     }
   }
@@ -2363,17 +2399,20 @@ function getZoneRangeInfo(zone, ftp, system = activeZoneSystem) {
 }
 
 function getCustomZoneTargetInfo(zone, ftp) {
-  const minPct = Math.round(zone.min * 100);
-  const maxPct = zone.max === null ? null : Math.round(zone.max * 100);
+  const displayRanges = displayRangesFromAnchors(customPowerAnchors);
+  const range = displayRanges[zone.id];
 
   let targetPctValue;
 
   if (zone.id === 'z1') {
-    targetPctValue = Math.max(1, maxPct - 10);
+    targetPctValue = Math.max(1, Math.max(1, range.max - 10));
+    targetPctValue = Math.min(targetPctValue, range.max);
   } else if (zone.id === 'z7') {
-    targetPctValue = minPct + 10;
+    targetPctValue = range.min + 10;
+    targetPctValue = Math.max(targetPctValue, range.min);
   } else {
-    targetPctValue = Math.round((minPct + maxPct) / 2);
+    targetPctValue = Math.round((range.min + range.max) / 2);
+    targetPctValue = Math.max(range.min, Math.min(targetPctValue, range.max));
   }
 
   const targetWatts = wholeNumber(ftp * (targetPctValue / 100));
