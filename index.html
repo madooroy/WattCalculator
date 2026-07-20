@@ -1510,6 +1510,17 @@ function calcTime() {
 function kjFromWattsMinutes(watts, minutes) { return minutes > 0 && watts > 0 ? (watts * minutes * 60) / 1000 : 0; }
 function wattsFromKjMinutes(kj, minutes) { return minutes > 0 && kj > 0 ? (kj * 1000) / (minutes * 60) : 0; }
 
+function intensityFactor(watts, ftp) {
+  return watts > 0 && ftp > 0 ? watts / ftp : 0;
+}
+
+function trainingStressScore(watts, ftp, minutes) {
+  if (!(watts > 0) || !(ftp > 0) || !(minutes > 0)) return 0;
+  const ifValue = intensityFactor(watts, ftp);
+  const hours = minutes / 60;
+  return hours * ifValue * ifValue * 100;
+}
+
 function safeStorageGet(key) {
   try { return localStorage.getItem(key); } catch { return null; }
 }
@@ -2225,7 +2236,7 @@ function setNewFTP(val, persist = true) {
   recalculateAllBadges();
 }
 
-function updateBadgeUI(badgeEl, prefix, watts, ftp) {
+function updateBadgeUI(badgeEl, prefix, watts, ftp, minutes = 0) {
   const details = getOutputZoneDetails(watts, ftp);
   const pctText = (ftp > 0 && watts > 0)
     ? ` (${((watts / ftp) * 100).toFixed(1)}% of ${wholeNumber(ftp)}W)`
@@ -2233,40 +2244,66 @@ function updateBadgeUI(badgeEl, prefix, watts, ftp) {
       ? ` (${wholeNumber(ftp)}W)`
       : '';
 
-  badgeEl.innerHTML = details.sweetSpot
-    ? `${prefix}: ${details.label}${pctText}<span class="badge-subline">Sweet Spot</span>`
-    : `${prefix}: ${details.label}${pctText}`;
+  const ifValue = intensityFactor(watts, ftp);
+  const tssValue = trainingStressScore(watts, ftp, minutes);
 
+  const metricsSubline = (ftp > 0 && watts > 0 && minutes > 0)
+    ? `<span class="badge-subline">IF ${ifValue.toFixed(2)} · TSS ${Math.round(tssValue)}</span>`
+    : '';
+
+  const sweetSpotSubline = details.sweetSpot
+    ? `<span class="badge-subline">Sweet Spot</span>`
+    : '';
+
+  badgeEl.innerHTML = `${prefix}: ${details.label}${pctText}${metricsSubline}${sweetSpotSubline}`;
   badgeEl.style.backgroundColor = details.color;
 }
 
 function recalculateAllBadges() {
   const currentFTP = readNonNegativeOrNull(els.ftpIn) ?? 0;
   const newFTP = readNonNegativeOrNull(els.newFtpKj) ?? 0;
-  const kjWatts = readNonNegativeOrNull(els.wattsIn);
+
+  const kjWatts = readNonNegativeOrNull(els.wattsIn) ?? 0;
+  const kjMinutes = readDurationMinutes(
+    els.kjHoursIn,
+    els.kjMinutesPartIn,
+    els.kjSecondsIn
+  ) ?? 0;
 
   const wattsKj = readNonNegativeOrNull(els.kjIn);
-  const wattsMin = readDurationMinutes(els.wattsHoursIn, els.wattsMinutesPartIn, els.wattsSecondsIn);
+  const wattsMinutes = readDurationMinutes(
+    els.wattsHoursIn,
+    els.wattsMinutesPartIn,
+    els.wattsSecondsIn
+  ) ?? 0;
 
   const calculatedWatts = (
     wattsKj !== null &&
-    wattsMin !== null &&
-    wattsKj > 0 &&
-    wattsMin > 0
+    wattsMinutes > 0 &&
+    wattsKj > 0
   )
-    ? Math.ceil(wattsFromKjMinutes(wattsKj, wattsMin))
+    ? Math.ceil(wattsFromKjMinutes(wattsKj, wattsMinutes))
     : 0;
 
-  const timeWatts = readNonNegativeOrNull(els.timeWattsIn);
+  const timeKj = readNonNegativeOrNull(els.timeKjIn);
+  const timeWatts = readNonNegativeOrNull(els.timeWattsIn) ?? 0;
 
-  updateBadgeUI(els.kjCurrentBadge, 'Current FTP', kjWatts ?? 0, currentFTP);
-  updateBadgeUI(els.kjNewBadge, 'New FTP', kjWatts ?? 0, newFTP);
+  const timeMinutes = (
+    timeKj !== null &&
+    timeWatts > 0 &&
+    timeKj > 0
+  )
+    ? ((timeKj * 1000) / timeWatts) / 60
+    : 0;
 
-  updateBadgeUI(els.timeCurrentBadge, 'Current FTP', timeWatts ?? 0, currentFTP);
-  updateBadgeUI(els.timeNewBadge, 'New FTP', timeWatts ?? 0, newFTP);
+  updateBadgeUI(els.kjCurrentBadge, 'Current FTP', kjWatts, currentFTP, kjMinutes);
+  updateBadgeUI(els.kjNewBadge, 'New FTP', kjWatts, newFTP, kjMinutes);
 
-  updateBadgeUI(els.wattsCurrentBadge, 'Current FTP', calculatedWatts, currentFTP);
-  updateBadgeUI(els.wattsNewBadge, 'New FTP', calculatedWatts, newFTP);
+  updateBadgeUI(els.timeCurrentBadge, 'Current FTP', timeWatts, currentFTP, timeMinutes);
+  updateBadgeUI(els.timeNewBadge, 'New FTP', timeWatts, newFTP, timeMinutes);
+
+  updateBadgeUI(els.wattsCurrentBadge, 'Current FTP', calculatedWatts, currentFTP, wattsMinutes);
+  updateBadgeUI(els.wattsNewBadge, 'New FTP', calculatedWatts, newFTP, wattsMinutes);
 }
 
 function powerCellId(prefix, zoneId, field) {
