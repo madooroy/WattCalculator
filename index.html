@@ -1114,6 +1114,10 @@ body.exporting-image .print-header[hidden] {
   border-bottom: 2px solid #000;
   color: #000 !important;
 }
+
+body.exporting-image .export-hide {
+  display: none !important;
+}
   
 .secondary-btn:disabled {
   opacity: 0.5;
@@ -1132,6 +1136,10 @@ body.exporting-image .print-header[hidden] {
 
   @page {
     margin: 0.5in;
+  }
+
+  .export-hide {
+    display: none !important;
   }
 
   .export-actions,
@@ -1635,7 +1643,7 @@ body.exporting-image .print-header[hidden] {
 
      <div id="print-header-default-power" class="print-header" hidden></div>
 
-     <div class="help-text">Swipe sideways to view all zones.</div>
+     <div class="help-text export-hide">Swipe sideways to view all zones.</div>
   
      <div class="table-scroll-wrapper power-matrix-scroll">
       <table class="power-matrix">
@@ -1658,7 +1666,7 @@ body.exporting-image .print-header[hidden] {
 
     <div id="print-header-custom-power" class="print-header" hidden></div>
 
-    <div class="custom-swipe-note help-text">Swipe sideways to view all zones.</div>
+    <div class="custom-swipe-note help-text export-hide">Swipe sideways to view all zones.</div>
     <div id="custom-zone-error" class="error-text" aria-live="polite"></div>
   
     <div class="table-scroll-wrapper power-matrix-scroll">
@@ -1701,7 +1709,7 @@ body.exporting-image .print-header[hidden] {
 
    <div id="print-header-default-hr" class="print-header" hidden></div>
 
-   <div class="help-text">Swipe sideways to view all zones.</div>
+   <div class="help-text export-hide">Swipe sideways to view all zones.</div>
 
     <div class="hr-group-title mt-4 mb-8">Max Heart Rate Zones</div>
     <div id="hr-default-max-scroll" class="table-scroll-wrapper power-matrix-scroll">
@@ -1732,7 +1740,7 @@ body.exporting-image .print-header[hidden] {
 
     <div id="print-header-custom-hr" class="print-header" hidden></div>
    
-    <div class="custom-swipe-note help-text">Swipe sideways to view all zones.</div>
+    <div class="custom-swipe-note help-text export-hide">Swipe sideways to view all zones.</div>
     <div id="custom-hr-error" class="error-text" aria-live="polite"></div>
 
     <div class="hr-group-title mt-4 mb-8">Custom Max Heart Rate Zones</div>
