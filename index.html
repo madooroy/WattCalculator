@@ -2694,8 +2694,19 @@ function switchTab(type) {
 
   els.appTitle.textContent = titles[type] || 'Cycling Calculator';
 
-  if (type === 'zones') applyZonesViewState();
-  if (type === 'hr') applyHrViewState();
+  if (type === 'zones') {
+    applyZonesViewState();
+  }
+
+  if (type === 'hr') {
+    renderHrTables();
+    bindCustomHrInlineInputs();
+    setHrSubtab(activeHrSubtab || 'default');
+    updateHRZones();
+    updateCustomHRZones();
+    resetPairedHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
+    resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
+  }
 }
 
 function toggleActiveSystem() {
