@@ -3637,11 +3637,11 @@ function persistOnInput(el, key, decimals = 0) {
 }
 
 function getEnteredFtp() {
-  return readNonNegativeOrNull(els.ftpIn) ?? 0;
+  return wholeNumber(clampNonNegative(els.ftpIn?.value));
 }
 
 function getEnteredWeight() {
-  return readNonNegativeOrNull(els.weightIn) ?? 0;
+  return clampNonNegative(els.weightIn?.value);
 }
 
 function getEnteredWeightUnit() {
@@ -3649,11 +3649,11 @@ function getEnteredWeightUnit() {
 }
 
 function getEnteredMaxHr() {
-  return readNonNegativeOrNull(els.hrMaxIn) ?? 0;
+  return wholeNumber(clampNonNegative(els.hrMaxIn?.value));
 }
 
 function getEnteredLthr() {
-  return readNonNegativeOrNull(els.hrLthrIn) ?? 0;
+  return wholeNumber(clampNonNegative(els.hrLthrIn?.value));
 }
 
 function buildPrintHeader(title, items) {
