@@ -1066,6 +1066,47 @@ body.exporting-image .controls-row,
 body.exporting-image .no-export {
   display: none !important;
 }
+
+.export-clone-host {
+  position: fixed;
+  left: -100000px;
+  top: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.export-clone-host .card,
+.export-clone-host.card {
+  width: max-content !important;
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+.export-clone-host .table-scroll-wrapper,
+.export-clone-host .power-matrix-scroll,
+.export-clone-host #hr-default-max-scroll,
+.export-clone-host #hr-default-lthr-scroll,
+.export-clone-host #hr-custom-max-scroll,
+.export-clone-host #hr-custom-lthr-scroll {
+  overflow: visible !important;
+  width: max-content !important;
+  max-width: none !important;
+}
+
+.export-clone-host .power-matrix,
+.export-clone-host .hr-matrix,
+.export-clone-host table {
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  table-layout: auto !important;
+}
+
+.export-clone-host .row-label {
+  position: static !important;
+  left: auto !important;
+}
   
 .print-header {
   display: none;
@@ -1100,6 +1141,14 @@ body.exporting-image .print-header[hidden] {
 
   @page {
     margin: 0.5in;
+  }
+
+  body[data-print-orientation="portrait"] {
+    size: portrait;
+  }
+
+  body[data-print-orientation="landscape"] {
+    size: landscape;
   }
 
   @page portrait-page {
@@ -3818,18 +3867,50 @@ function setExportButtonsDisabled(disabled) {
   });
 }
 
+function buildExportClone(type, system) {
+  const source = getExportCard(type, system);
+  if (!source) return null;
+
+  const host = document.createElement('div');
+  host.className = 'export-clone-host';
+
+  const clone = source.cloneNode(true);
+
+  clone.querySelectorAll('.controls-row, .export-actions, .export-help-text, .no-export').forEach(el => {
+    el.remove();
+  });
+
+  clone.querySelectorAll('[hidden]').forEach(el => {
+    el.hidden = false;
+  });
+
+  const printHeader = clone.querySelector('.print-header');
+  if (printHeader) {
+    printHeader.hidden = false;
+    printHeader.style.display = 'block';
+  }
+
+  host.appendChild(clone);
+  document.body.appendChild(host);
+
+  return { host, clone };
+}
+
+function destroyExportClone(exportClone) {
+  if (!exportClone || !exportClone.host) return;
+  exportClone.host.remove();
+}
+  
 async function saveZonesImage(type, system) {
   if (typeof html2canvas === 'undefined') return;
   if (isPrintLaunching) return;
-
-  const card = getExportCard(type, system);
-  if (!card) return;
 
   setPrintButtonsDisabled(true);
   setExportButtonsDisabled(true);
   document.body.classList.add('exporting-image');
 
   const filename = `${buildExportFilename(type, system)}.png`;
+  let exportClone = null;
 
   try {
     setImageExportHeader(type, system);
@@ -3841,17 +3922,16 @@ async function saveZonesImage(type, system) {
       updateCustomHRZones();
     }
 
-    forcePrintLayoutFlush();
+    exportClone = buildExportClone(type, system);
+    if (!exportClone) throw new Error('Unable to build export clone.');
 
-    const canvas = await html2canvas(card, {
+    const target = exportClone.clone;
+
+    const canvas = await html2canvas(target, {
       backgroundColor: '#ffffff',
-      scale: Math.max(2, window.devicePixelRatio || 1),
+      scale: 2,
       useCORS: true,
-      logging: false,
-      scrollX: 0,
-      scrollY: -window.scrollY,
-      windowWidth: document.documentElement.scrollWidth,
-      windowHeight: document.documentElement.scrollHeight
+      logging: false
     });
 
     await new Promise(resolve => {
@@ -3863,6 +3943,7 @@ async function saveZonesImage(type, system) {
   } catch (error) {
     console.error('Save image failed:', error);
   } finally {
+    destroyExportClone(exportClone);
     clearPrintHeaders();
     document.body.classList.remove('exporting-image');
     setPrintButtonsDisabled(false);
