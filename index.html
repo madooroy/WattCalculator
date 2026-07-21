@@ -3805,13 +3805,9 @@ function setImageExportHeader(type, system) {
 
 function setExportButtonsDisabled(disabled) {
   [
-    els.downloadDefaultPowerPdf,
     els.saveDefaultPowerImage,
-    els.downloadCustomPowerPdf,
     els.saveCustomPowerImage,
-    els.downloadDefaultHrPdf,
     els.saveDefaultHrImage,
-    els.downloadCustomHrPdf,
     els.saveCustomHrImage
   ].forEach(btn => {
     if (!btn) return;
