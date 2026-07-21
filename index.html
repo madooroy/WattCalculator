@@ -3812,19 +3812,6 @@ function setImageExportHeader(type, system) {
   return headerEl;
 }
 
-function setExportButtonsDisabled(disabled) {
-  [
-    els.saveDefaultPowerImage,
-    els.saveCustomPowerImage,
-    els.saveDefaultHrImage,
-    els.saveCustomHrImage
-  ].forEach(btn => {
-    if (!btn) return;
-    btn.disabled = disabled;
-    btn.setAttribute('aria-disabled', String(disabled));
-  });
-}
-
 function buildExportClone(type, system) {
   const source = getExportCard(type, system);
   if (!source) return null;
@@ -3864,7 +3851,6 @@ async function saveZonesImage(type, system) {
   if (isPrintLaunching) return;
 
   setPrintButtonsDisabled(true);
-  setExportButtonsDisabled(true);
   document.body.classList.add('exporting-image');
 
   const filename = `${buildExportFilename(type, system)}.png`;
@@ -3905,7 +3891,6 @@ async function saveZonesImage(type, system) {
     clearPrintHeaders();
     document.body.classList.remove('exporting-image');
     setPrintButtonsDisabled(false);
-    setExportButtonsDisabled(false);
   }
 }
 
