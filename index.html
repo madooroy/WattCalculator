@@ -3637,11 +3637,11 @@ function persistOnInput(el, key, decimals = 0) {
 }
 
 function getEnteredFtp() {
-  return wholeNumber(clampNonNegative(els.ftpIn?.value));
+  return readNonNegativeOrNull(els.ftpIn) ?? 0;
 }
 
 function getEnteredWeight() {
-  return clampNonNegative(els.weightIn?.value);
+  return readNonNegativeOrNull(els.weightIn) ?? 0;
 }
 
 function getEnteredWeightUnit() {
@@ -3649,13 +3649,31 @@ function getEnteredWeightUnit() {
 }
 
 function getEnteredMaxHr() {
-  return wholeNumber(clampNonNegative(els.hrMaxIn?.value));
+  return readNonNegativeOrNull(els.hrMaxIn) ?? 0;
 }
 
 function getEnteredLthr() {
-  return wholeNumber(clampNonNegative(els.hrLthrIn?.value));
+  return readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 }
 
+function commitHeaderSourceInputs() {
+  [els.ftpIn, els.hrMaxIn, els.hrLthrIn].forEach(el => {
+    if (!el) return;
+    sanitizeInput(el, 0);
+  });
+
+  if (els.weightIn) {
+    const raw = String(els.weightIn.value ?? '').trim();
+
+    if (raw === '') return;
+
+    const value = clampNonNegative(raw);
+    els.weightIn.value = String(value)
+      .replace(/\.0+$/, '')
+      .replace(/(\.\d*[1-9])0+$/, '$1');
+  }
+}
+  
 function buildPrintHeader(title, items) {
   const meta = items
     .filter(item => item && item.value !== '' && item.value !== '—')
@@ -3856,6 +3874,8 @@ async function saveZonesImage(type, system) {
   if (typeof html2canvas === 'undefined') return;
   if (isPrintLaunching) return;
 
+  commitHeaderSourceInputs();
+
   setPrintButtonsDisabled(true);
   document.body.classList.add('exporting-image');
 
@@ -4011,6 +4031,7 @@ function runScopedPrint(mode) {
 }
 
 function printPowerZones(system) {
+  commitHeaderSourceInputs();
   const ftp = getEnteredFtp();
   const weight = getEnteredWeight();
   const unit = getEnteredWeightUnit();
@@ -4033,6 +4054,7 @@ function printPowerZones(system) {
 }
 
 function printHrZones(system) {
+  commitHeaderSourceInputs();
   const maxHr = getEnteredMaxHr();
   const lthr = getEnteredLthr();
 
