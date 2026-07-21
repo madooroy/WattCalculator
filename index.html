@@ -1048,20 +1048,11 @@ tr:last-child td { border-bottom: none; }
   flex-wrap: wrap;
 }
 
-.export-help-text {
-  font-size: 11px;
-  color: var(--muted);
-  line-height: 1.3;
-  margin-top: 0;
-  margin-bottom: 10px;
-}
-
 .export-capture {
   background: #fff;
 }
 
 body.exporting-image .export-actions,
-body.exporting-image .export-help-text,
 body.exporting-image .controls-row,
 body.exporting-image .no-export {
   display: none !important;
@@ -1143,34 +1134,7 @@ body.exporting-image .print-header[hidden] {
     margin: 0.5in;
   }
 
-  body[data-print-orientation="portrait"] {
-    size: portrait;
-  }
-
-  body[data-print-orientation="landscape"] {
-    size: landscape;
-  }
-
-  @page portrait-page {
-    size: portrait;
-    margin: 0.5in;
-  }
-
-  @page landscape-page {
-    size: landscape;
-    margin: 0.5in;
-  }
-
-  body[data-print-orientation="portrait"] {
-    page: portrait-page;
-  }
-
-  body[data-print-orientation="landscape"] {
-    page: landscape-page;
-  }
-
   .export-actions,
-  .export-help-text,
   .no-export {
     display: none !important;
   }
@@ -1666,11 +1630,8 @@ body.exporting-image .print-header[hidden] {
      </div>
 
      <div class="export-actions">
-      <button id="download-default-power-pdf" class="secondary-btn" type="button">Download PDF (Landscape)</button>
       <button id="save-default-power-image" class="secondary-btn" type="button">Save Image</button>
      </div>
-
-     <div class="export-help-text">PDF uses your browser’s print dialog. Choose “Save as PDF” for best results.</div>
 
      <div id="print-header-default-power" class="print-header" hidden></div>
 
@@ -1692,11 +1653,8 @@ body.exporting-image .print-header[hidden] {
     </div>
 
     <div class="export-actions">
-      <button id="download-custom-power-pdf" class="secondary-btn" type="button">Download PDF (Landscape)</button>
       <button id="save-custom-power-image" class="secondary-btn" type="button">Save Image</button>
     </div>
-
-    <div class="export-help-text">PDF uses your browser’s print dialog. Choose “Save as PDF” for best results.</div>
 
     <div id="print-header-custom-power" class="print-header" hidden></div>
 
@@ -1738,11 +1696,8 @@ body.exporting-image .print-header[hidden] {
    </div>
 
    <div class="export-actions">
-     <button id="download-default-hr-pdf" class="secondary-btn" type="button">Download PDF (Landscape)</button>
      <button id="save-default-hr-image" class="secondary-btn" type="button">Save Image</button>
    </div>
-
-   <div class="export-help-text">PDF uses your browser’s print dialog. Choose “Save as PDF” for best results.</div>
 
    <div id="print-header-default-hr" class="print-header" hidden></div>
 
@@ -1772,11 +1727,8 @@ body.exporting-image .print-header[hidden] {
   </div>
 
     <div class="export-actions">
-      <button id="download-custom-hr-pdf" class="secondary-btn" type="button">Download PDF (Landscape)</button>
       <button id="save-custom-hr-image" class="secondary-btn" type="button">Save Image</button>
     </div>
-
-    <div class="export-help-text">PDF uses your browser’s print dialog. Choose “Save as PDF” for best results.</div>
 
     <div id="print-header-custom-hr" class="print-header" hidden></div>
    
@@ -2661,10 +2613,11 @@ function applyZonesViewState() {
 function applyHrViewState() {
   renderHrTables();
   bindCustomHrInlineInputs();
-  resetPairedHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
-  resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
+  setHrSubtab(activeHrSubtab || 'default');
   updateHRZones();
   updateCustomHRZones();
+  resetPairedHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
+  resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
 }
   
 function switchTab(type) {
@@ -2696,6 +2649,7 @@ function switchTab(type) {
 
   if (type === 'zones') {
     applyZonesViewState();
+    return;
   }
 
   if (type === 'hr') {
@@ -2706,6 +2660,7 @@ function switchTab(type) {
     updateCustomHRZones();
     resetPairedHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
     resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
+    return;
   }
 }
 
@@ -3723,13 +3678,9 @@ function setPrintButtonsDisabled(disabled) {
     els.printCustomPowerZones,
     els.printDefaultHrZones,
     els.printCustomHrZones,
-    els.downloadDefaultPowerPdf,
     els.saveDefaultPowerImage,
-    els.downloadCustomPowerPdf,
     els.saveCustomPowerImage,
-    els.downloadDefaultHrPdf,
     els.saveDefaultHrImage,
-    els.downloadCustomHrPdf,
     els.saveCustomHrImage
   ].forEach(btn => {
     if (!btn) return;
@@ -3773,19 +3724,6 @@ function forcePrintLayoutFlush() {
     el.style.backfaceVisibility = '';
     el.style.webkitBackfaceVisibility = '';
   });
-}
-
-function setPrintOrientation(orientation) {
-  if (orientation === 'portrait' || orientation === 'landscape') {
-    document.body.setAttribute('data-print-orientation', orientation);
-    return;
-  }
-
-  document.body.removeAttribute('data-print-orientation');
-}
-
-function clearPrintOrientation() {
-  document.body.removeAttribute('data-print-orientation');
 }
 
 function buildExportDateStamp() {
@@ -3966,67 +3904,6 @@ async function saveZonesImage(type, system) {
   }
 }
 
-function downloadPowerZonesPdfLandscape(system) {
-  const ftp = getEnteredFtp();
-  const weight = getEnteredWeight();
-  const unit = getEnteredWeightUnit();
-  const wkg = (ftp > 0 && weight > 0)
-    ? (ftp / (unit === 'lbs' ? weight / 2.20462 : weight)).toFixed(2)
-    : '—';
-
-  const title = system === 'custom' ? 'Custom Power Zones' : 'Default Power Zones';
-  const headerEl = system === 'custom'
-    ? els.printHeaderCustomPower
-    : els.printHeaderDefaultPower;
-
-  setPrintHeaderContent(headerEl, title, [
-    { label: 'FTP', value: ftp > 0 ? `${wholeNumber(ftp)} W` : '—' },
-    { label: 'Weight', value: weight > 0 ? `${weight} ${unit}` : '—' },
-    { label: 'W/kg', value: wkg }
-  ]);
-
-  document.body.classList.add('exporting-pdf-download');
-  runScopedPrint(system === 'custom' ? 'power-custom' : 'power-default', 'landscape');
-
-  if (activePrintSession) {
-    const originalCleanup = activePrintSession.cleanup;
-    activePrintSession.cleanup = () => {
-      document.body.classList.remove('exporting-pdf-download');
-      originalCleanup();
-    };
-  } else {
-    document.body.classList.remove('exporting-pdf-download');
-  }
-}
-
-function downloadHrZonesPdfLandscape(system) {
-  const maxHr = getEnteredMaxHr();
-  const lthr = getEnteredLthr();
-
-  const title = system === 'custom' ? 'Custom Heart Rate Zones' : 'Default Heart Rate Zones';
-  const headerEl = system === 'custom'
-    ? els.printHeaderCustomHr
-    : els.printHeaderDefaultHr;
-
-  setPrintHeaderContent(headerEl, title, [
-    { label: 'Max HR', value: maxHr > 0 ? `${wholeNumber(maxHr)} BPM` : '—' },
-    { label: 'LTHR', value: lthr > 0 ? `${wholeNumber(lthr)} BPM` : '—' }
-  ]);
-
-  document.body.classList.add('exporting-pdf-download');
-  runScopedPrint(system === 'custom' ? 'hr-custom' : 'hr-default', 'landscape');
-
-  if (activePrintSession) {
-    const originalCleanup = activePrintSession.cleanup;
-    activePrintSession.cleanup = () => {
-      document.body.classList.remove('exporting-pdf-download');
-      originalCleanup();
-    };
-  } else {
-    document.body.classList.remove('exporting-pdf-download');
-  }
-}
-  
 function preparePrintDom(mode) {
   const showPowerDefault = mode === 'power-default';
   const showPowerCustom = mode === 'power-custom';
@@ -4048,7 +3925,7 @@ function preparePrintDom(mode) {
   forcePrintLayoutFlush();
 }
 
-function runScopedPrint(mode, orientation = null) {
+function runScopedPrint(mode) {
   if (isPrintLaunching) return;
 
   if (activePrintSession?.cleanup) {
@@ -4059,18 +3936,10 @@ function runScopedPrint(mode, orientation = null) {
   setPrintButtonsDisabled(true);
 
   const previousPrintMode = document.body.getAttribute('data-print-mode');
-  const previousPrintOrientation = document.body.getAttribute('data-print-orientation');
   const previousTitle = document.title;
   const previousVisibleView = document.querySelector('.view:not([hidden])') || els.wattsView;
 
   document.body.setAttribute('data-print-mode', mode);
-
-  if (orientation) {
-    setPrintOrientation(orientation);
-  } else {
-    clearPrintOrientation();
-  }
-
   preparePrintDom(mode);
 
   let cleanedUp = false;
@@ -4089,12 +3958,6 @@ function runScopedPrint(mode, orientation = null) {
       document.body.removeAttribute('data-print-mode');
     } else {
       document.body.setAttribute('data-print-mode', previousPrintMode);
-    }
-
-    if (previousPrintOrientation === null) {
-      clearPrintOrientation();
-    } else {
-      document.body.setAttribute('data-print-orientation', previousPrintOrientation);
     }
 
     document.title = previousTitle;
@@ -4154,6 +4017,20 @@ function runScopedPrint(mode, orientation = null) {
   }
 }
 
+  if (mode === 'power-default') document.title = buildExportFilename('power', 'default');
+  else if (mode === 'power-custom') document.title = buildExportFilename('power', 'custom');
+  else if (mode === 'hr-default') document.title = buildExportFilename('hr', 'default');
+  else if (mode === 'hr-custom') document.title = buildExportFilename('hr', 'custom');
+
+  forcePrintLayoutFlush();
+
+  try {
+    window.print();
+  } catch {
+    cleanup();
+  }
+}
+
 function printPowerZones(system) {
   const ftp = getEnteredFtp();
   const weight = getEnteredWeight();
@@ -4173,7 +4050,7 @@ function printPowerZones(system) {
     { label: 'W/kg', value: wkg }
   ]);
 
-  runScopedPrint(system === 'custom' ? 'power-custom' : 'power-default', null);
+  runScopedPrint(system === 'custom' ? 'power-custom' : 'power-default');
 }
 
 function printHrZones(system) {
@@ -4190,7 +4067,7 @@ function printHrZones(system) {
     { label: 'LTHR', value: lthr > 0 ? `${wholeNumber(lthr)} BPM` : '—' }
   ]);
 
-  runScopedPrint(system === 'custom' ? 'hr-custom' : 'hr-default', null);
+  runScopedPrint(system === 'custom' ? 'hr-custom' : 'hr-default');
 }
   
 function initCache() {
@@ -4257,9 +4134,7 @@ function initCache() {
     customZoneError: document.getElementById('custom-zone-error'),
     printDefaultPowerZones: document.getElementById('print-default-power-zones'),
     printCustomPowerZones: document.getElementById('print-custom-power-zones'),
-    downloadDefaultPowerPdf: document.getElementById('download-default-power-pdf'),
     saveDefaultPowerImage: document.getElementById('save-default-power-image'),
-    downloadCustomPowerPdf: document.getElementById('download-custom-power-pdf'),
     saveCustomPowerImage: document.getElementById('save-custom-power-image'),
     printHeaderDefaultPower: document.getElementById('print-header-default-power'),
     printHeaderCustomPower: document.getElementById('print-header-custom-power'),
@@ -4279,13 +4154,10 @@ function initCache() {
     hrInputError: document.getElementById('hr-input-error'),    
     printDefaultHrZones: document.getElementById('print-default-hr-zones'),
     printCustomHrZones: document.getElementById('print-custom-hr-zones'),
-    downloadDefaultHrPdf: document.getElementById('download-default-hr-pdf'),
     saveDefaultHrImage: document.getElementById('save-default-hr-image'),
-    downloadCustomHrPdf: document.getElementById('download-custom-hr-pdf'),
     saveCustomHrImage: document.getElementById('save-custom-hr-image'),
     printHeaderDefaultHr: document.getElementById('print-header-default-hr'),
     printHeaderCustomHr: document.getElementById('print-header-custom-hr')
-
   });
 }
 
@@ -4449,16 +4321,9 @@ function bindEvents() {
   els.printDefaultHrZones.addEventListener('click', () => printHrZones('default'));
   els.printCustomHrZones.addEventListener('click', () => printHrZones('custom'));
 
-  els.downloadDefaultPowerPdf.addEventListener('click', () => downloadPowerZonesPdfLandscape('default'));
   els.saveDefaultPowerImage.addEventListener('click', () => saveZonesImage('power', 'default'));
-
-  els.downloadCustomPowerPdf.addEventListener('click', () => downloadPowerZonesPdfLandscape('custom'));
   els.saveCustomPowerImage.addEventListener('click', () => saveZonesImage('power', 'custom'));
-
-  els.downloadDefaultHrPdf.addEventListener('click', () => downloadHrZonesPdfLandscape('default'));
   els.saveDefaultHrImage.addEventListener('click', () => saveZonesImage('hr', 'default'));
-
-  els.downloadCustomHrPdf.addEventListener('click', () => downloadHrZonesPdfLandscape('custom'));
   els.saveCustomHrImage.addEventListener('click', () => saveZonesImage('hr', 'custom'));
 
   els.wattsIn.addEventListener('input', calcKJ);
