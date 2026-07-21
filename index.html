@@ -3988,30 +3988,13 @@ function runScopedPrint(mode) {
     isPrintLaunching = false;
   };
 
-  activePrintSession = {
-    mode,
-    cleanup
-  };
+  activePrintSession = { mode, cleanup };
 
   window.addEventListener('afterprint', cleanup);
 
   fallbackTimer = setTimeout(() => {
     cleanup();
   }, 60000);
-
-  if (mode === 'power-default') document.title = buildExportFilename('power', 'default');
-  else if (mode === 'power-custom') document.title = buildExportFilename('power', 'custom');
-  else if (mode === 'hr-default') document.title = buildExportFilename('hr', 'default');
-  else if (mode === 'hr-custom') document.title = buildExportFilename('hr', 'custom');
-
-  forcePrintLayoutFlush();
-
-  try {
-    window.print();
-  } catch {
-    cleanup();
-  }
-}
 
   if (mode === 'power-default') document.title = buildExportFilename('power', 'default');
   else if (mode === 'power-custom') document.title = buildExportFilename('power', 'custom');
