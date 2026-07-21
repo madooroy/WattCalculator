@@ -2200,11 +2200,14 @@ function saveCustomHrAnchors() {
 }
 
 let customPowerAnchors = loadCustomPowerAnchors();
-let customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
 let customHrAnchors = loadCustomHrAnchors();
 
+function getCustomZonesConfig() {
+  return zonesFromPowerAnchors(customPowerAnchors);
+}
+
 function getZonesConfigForSystem(system) {
-  return system === 'custom' ? customZonesConfig : defaultZonesConfig;
+  return system === 'custom' ? getCustomZonesConfig() : defaultZonesConfig;
 }
 
 function getPowerColor(zone) {
@@ -2348,11 +2351,6 @@ function getOutputZoneDetails(watts, ftp) {
   };
 }
 
-function getOutputZone(watts, ftp) {
-  const details = getOutputZoneDetails(watts, ftp);
-  return { label: details.label, color: details.color };
-}
-
 function getZoneRangeInfo(zone, ftp, system = activeZoneSystem) {
   let pctText = '';
   let wattsText = '';
@@ -2440,7 +2438,7 @@ function cacheDefaultPowerCells() {
 function cacheCustomPowerCells() {
   powerCellCache.custom = {};
 
-  customZonesConfig.forEach(z => {
+  getCustomZonesConfig().forEach(z => {
     powerCellCache.custom[z.id] = {
       range: document.getElementById(powerCellId('c', z.id, 'range')),
       targetPct: document.getElementById(powerCellId('c', z.id, 'target-pct')),
@@ -2544,7 +2542,6 @@ function setActiveZoneSystem(val, persist = true) {
   els.customZonesTable.hidden = !isCustom;
 
   updateZones();
-  recalculateAllBadges();
 }
 
 function setZoneSubtab(val, persist = true) {
@@ -2727,6 +2724,7 @@ function generateDefaultTables() {
 
 function generateCustomZonesTable() {
   const displayRanges = displayRangesFromAnchors(customPowerAnchors);
+  const customZonesConfig = getCustomZonesConfig();
 
   const zoneHeaderCells = customZonesConfig.map(z => {
     const shortLabel = z.id === 'ss' ? 'SS' : z.label.replace('Zone ', '');
@@ -2852,10 +2850,8 @@ function buildCustomPowerCandidateFromAllInputs(currentAnchors) {
 
 function commitCustomPowerAnchors(nextAnchors) {
   customPowerAnchors = nextAnchors;
-  customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
   saveCustomPowerAnchors();
-  updateCustomPowerZoneTable(readNonNegativeOrNull(els.ftpIn) ?? 0);
-  recalculateAllBadges();
+  updateZones();
 }
 
 function validateAndApplyCustomZones(changedInput = null) {
@@ -2905,7 +2901,7 @@ function updateDefaultPowerZoneTable(ftp) {
 }
 
 function updateCustomPowerZoneTable(ftp) {
-  customZonesConfig.forEach(z => {
+   getCustomZonesConfig().forEach(z => {
     const info = getZoneRangeInfo(z, ftp, 'custom');
     const targetInfo = getCustomZoneTargetInfo(z, ftp);
     const cellSet = powerCellCache.custom[z.id];
@@ -3351,22 +3347,19 @@ function updateCustomHRZones() {
   applyHrRanges('c-', maxHr, lthr, customHrAnchors);
 }
 
-  function renderCustomPowerZonesUI() {
+function renderCustomPowerZonesUI() {
   generateCustomZonesTable();
-  bindCustomZoneInputs();
   bindSelectOnFocusToAll(els.customZonesTable);
 }
 
 function renderCustomHrUI() {
   renderHrTables();
   resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
-  bindCustomHrInlineInputs();
   bindSelectOnFocusToAll(els.hrCustomPanel);
 }
 
 function resetCustomZones() {
   customPowerAnchors = defaultPowerAnchors();
-  customZonesConfig = zonesFromPowerAnchors(customPowerAnchors);
   saveCustomPowerAnchors();
   renderCustomPowerZonesUI();
   updateZones();
@@ -3435,6 +3428,14 @@ function bindSelectOnFocusToInputList(selector, root = document) {
 
 function persistOnCommit(el, key, decimals = 0, afterSave) {
   const handler = () => {
+    const raw = String(el.value ?? '').trim();
+
+    if (raw === '') {
+      safeStorageRemove(key);
+      if (afterSave) afterSave(null);
+      return;
+    }
+
     const clean = sanitizeInput(el, decimals);
     savePrimitive(key, clean);
     if (afterSave) afterSave(clean);
