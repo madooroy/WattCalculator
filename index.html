@@ -3675,7 +3675,7 @@ function buildPrintHeader(title, items) {
   const meta = items
     .filter(item => item && item.value !== '' && item.value !== '—')
     .map(item => `<span><strong>${item.label}:</strong> ${item.value}</span>`)
-    .join('');
+    .join(' ');
 
   return `
     <div class="print-header-title">${title}</div>
