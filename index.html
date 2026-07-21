@@ -1044,6 +1044,11 @@ tr:last-child td { border-bottom: none; }
   display: none;
 }
 
+.secondary-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 @media print {
   :root {
     --bg: #ffffff;
@@ -1061,6 +1066,13 @@ tr:last-child td { border-bottom: none; }
   html, body {
     background: #fff !important;
     color: #000 !important;
+  }
+
+  html, body, .container, .card, table, th, td,
+  .zone-cell-matrix, .zone-top, .zone-sub, .zone-value, .zone-value-large {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 
   body {
@@ -1099,6 +1111,10 @@ tr:last-child td { border-bottom: none; }
   #hr-default-panel,
   #hr-custom-panel {
     display: none !important;
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    contain: none !important;
   }
 
   .card {
@@ -1115,6 +1131,9 @@ tr:last-child td { border-bottom: none; }
   .power-matrix-scroll,
   .table-scroll-wrapper {
     overflow: visible !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .power-matrix,
@@ -1122,8 +1141,24 @@ tr:last-child td { border-bottom: none; }
   table {
     width: 100% !important;
     min-width: 0 !important;
+    max-width: 100% !important;
     table-layout: fixed !important;
     border-collapse: collapse !important;
+    display: table !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tbody {
+    display: table-row-group;
+  }
+
+  tr {
+    display: table-row;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .power-matrix th,
@@ -1157,6 +1192,18 @@ tr:last-child td { border-bottom: none; }
     overflow-wrap: anywhere !important;
   }
 
+  .power-matrix th,
+  .power-matrix td,
+  .hr-matrix th,
+  .hr-matrix td,
+  .power-matrix .row-label,
+  .hr-matrix .row-label {
+    position: static !important;
+    transform: none !important;
+    filter: none !important;
+    contain: none !important;
+  }
+
   .zone-cell-matrix,
   .zone-value,
   .zone-value-large,
@@ -1168,6 +1215,10 @@ tr:last-child td { border-bottom: none; }
 
   .zone-cell-matrix {
     overflow: hidden !important;
+    background-clip: padding-box !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 
   .zone-sub {
@@ -1242,8 +1293,19 @@ tr:last-child td { border-bottom: none; }
   }
 
   body[data-print-mode="power-default"] #zones-view,
-  body[data-print-mode="power-default"] #default-power-zones-table {
+  body[data-print-mode="power-default"] #default-power-zones-table,
+  body[data-print-mode="power-custom"] #zones-view,
+  body[data-print-mode="power-custom"] #custom-zones-table,
+  body[data-print-mode="hr-default"] #hr-view,
+  body[data-print-mode="hr-default"] #hr-default-panel,
+  body[data-print-mode="hr-custom"] #hr-view,
+  body[data-print-mode="hr-custom"] #hr-custom-panel {
     display: block !important;
+    visibility: visible !important;
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+    opacity: 1 !important;
   }
 
   body[data-print-mode="power-default"] #custom-zones-table,
@@ -1253,11 +1315,6 @@ tr:last-child td { border-bottom: none; }
     display: none !important;
   }
 
-  body[data-print-mode="power-custom"] #zones-view,
-  body[data-print-mode="power-custom"] #custom-zones-table {
-    display: block !important;
-  }
-
   body[data-print-mode="power-custom"] #default-power-zones-table,
   body[data-print-mode="power-custom"] #hr-view,
   body[data-print-mode="power-custom"] #hr-default-panel,
@@ -1265,21 +1322,11 @@ tr:last-child td { border-bottom: none; }
     display: none !important;
   }
 
-  body[data-print-mode="hr-default"] #hr-view,
-  body[data-print-mode="hr-default"] #hr-default-panel {
-    display: block !important;
-  }
-
   body[data-print-mode="hr-default"] #zones-view,
   body[data-print-mode="hr-default"] #default-power-zones-table,
   body[data-print-mode="hr-default"] #custom-zones-table,
   body[data-print-mode="hr-default"] #hr-custom-panel {
     display: none !important;
-  }
-
-  body[data-print-mode="hr-custom"] #hr-view,
-  body[data-print-mode="hr-custom"] #hr-custom-panel {
-    display: block !important;
   }
 
   body[data-print-mode="hr-custom"] #zones-view,
@@ -1685,6 +1732,8 @@ const powerCellCache = {
 let activeZoneSystem = 'default';
 let activeHrSubtab = 'default';
 let activePrintSession = null;
+let isPrintLaunching = false;
+
 
 function deepClone(obj) {
   if (typeof structuredClone === 'function') return structuredClone(obj);
@@ -3515,12 +3564,78 @@ function clearPrintHeaders() {
   });
 }
 
+function setPrintButtonsDisabled(disabled) {
+  [
+    els.printDefaultPowerZones,
+    els.printCustomPowerZones,
+    els.printDefaultHrZones,
+    els.printCustomHrZones
+  ].forEach(btn => {
+    if (!btn) return;
+    btn.disabled = disabled;
+    btn.setAttribute('aria-disabled', String(disabled));
+  });
+}
+
+function forcePrintLayoutFlush() {
+  const targets = [
+    els.zonesView,
+    els.hrView,
+    els.defaultPowerZonesTable,
+    els.customZonesTable,
+    els.hrDefaultPanel,
+    els.hrCustomPanel
+  ].filter(Boolean);
+
+  targets.forEach(el => {
+    el.style.transform = 'translateZ(0)';
+  });
+
+  void document.body.offsetHeight;
+  void document.documentElement.offsetHeight;
+
+  targets.forEach(el => {
+    el.style.transform = '';
+  });
+}
+
+function preparePrintDom(mode) {
+  const showPowerDefault = mode === 'power-default';
+  const showPowerCustom = mode === 'power-custom';
+  const showHrDefault = mode === 'hr-default';
+  const showHrCustom = mode === 'hr-custom';
+
+  els.kjView.hidden = true;
+  els.wattsView.hidden = true;
+  els.timeView.hidden = true;
+
+  els.zonesView.hidden = !(showPowerDefault || showPowerCustom);
+  els.hrView.hidden = !(showHrDefault || showHrCustom);
+
+  els.defaultPowerZonesTable.hidden = !showPowerDefault;
+  els.customZonesTable.hidden = !showPowerCustom;
+  els.hrDefaultPanel.hidden = !showHrDefault;
+  els.hrCustomPanel.hidden = !showHrCustom;
+
+  forcePrintLayoutFlush();
+}
+
 function runScopedPrint(mode) {
+  if (isPrintLaunching) return;
+
   if (activePrintSession?.cleanup) {
     activePrintSession.cleanup();
   }
 
+  isPrintLaunching = true;
+  setPrintButtonsDisabled(true);
+
+  const previousPrintMode = document.body.getAttribute('data-print-mode');
+  const previousTitle = document.title;
+  const previousVisibleView = document.querySelector('.view:not([hidden])');
+
   document.body.setAttribute('data-print-mode', mode);
+  preparePrintDom(mode);
 
   let cleanedUp = false;
   let fallbackTimer = null;
@@ -3534,13 +3649,40 @@ function runScopedPrint(mode) {
       fallbackTimer = null;
     }
 
-    document.body.removeAttribute('data-print-mode');
+    if (previousPrintMode === null) {
+      document.body.removeAttribute('data-print-mode');
+    } else {
+      document.body.setAttribute('data-print-mode', previousPrintMode);
+    }
+
+    document.title = previousTitle;
     clearPrintHeaders();
+
+    els.kjView.hidden = previousVisibleView !== els.kjView;
+    els.wattsView.hidden = previousVisibleView !== els.wattsView;
+    els.timeView.hidden = previousVisibleView !== els.timeView;
+    els.zonesView.hidden = previousVisibleView !== els.zonesView;
+    els.hrView.hidden = previousVisibleView !== els.hrView;
+
+    if (!els.zonesView.hidden) {
+      els.defaultPowerZonesTable.hidden = activeZoneSystem !== 'default';
+      els.customZonesTable.hidden = activeZoneSystem !== 'custom';
+    }
+
+    if (!els.hrView.hidden) {
+      els.hrDefaultPanel.hidden = activeHrSubtab !== 'default';
+      els.hrCustomPanel.hidden = activeHrSubtab !== 'custom';
+    }
+
+    forcePrintLayoutFlush();
+    setPrintButtonsDisabled(false);
     window.removeEventListener('afterprint', cleanup);
 
     if (activePrintSession?.cleanup === cleanup) {
       activePrintSession = null;
     }
+
+    isPrintLaunching = false;
   };
 
   activePrintSession = {
@@ -3554,10 +3696,24 @@ function runScopedPrint(mode) {
     cleanup();
   }, 60000);
 
-  setTimeout(() => {
-    if (activePrintSession?.cleanup !== cleanup) return;
-    window.print();
-  }, 200);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (activePrintSession?.cleanup !== cleanup) return;
+
+      if (mode === 'power-default') document.title = 'Default Power Zones';
+      else if (mode === 'power-custom') document.title = 'Custom Power Zones';
+      else if (mode === 'hr-default') document.title = 'Default Heart Rate Zones';
+      else if (mode === 'hr-custom') document.title = 'Custom Heart Rate Zones';
+
+      forcePrintLayoutFlush();
+
+      try {
+        window.print();
+      } catch {
+        cleanup();
+      }
+    });
+  });
 }
 
 function printPowerZones(system) {
