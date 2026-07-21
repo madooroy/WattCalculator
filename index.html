@@ -1087,17 +1087,17 @@ body.exporting-image .no-export {
 .export-clone-host #hr-custom-max-scroll,
 .export-clone-host #hr-custom-lthr-scroll {
   overflow: visible !important;
-  width: 100% !important;
+  width: max-content !important;
   max-width: none !important;
 }
 
 .export-clone-host .power-matrix,
 .export-clone-host .hr-matrix,
 .export-clone-host table {
-  width: 100% !important;
+  width: max-content !important;
   min-width: 0 !important;
   max-width: none !important;
-  table-layout: fixed !important;
+  table-layout: auto !important;
 }
 
 .export-clone-host .row-label {
@@ -3677,16 +3677,6 @@ function getCurrentHeaderSnapshot() {
 
   return { ftp, weight, unit, maxHr, lthr };
 }
-
-function getCurrentHeaderSnapshot() {
-  return {
-    ftp: readNonNegativeOrNull(els.ftpIn) ?? 0,
-    weight: readNonNegativeOrNull(els.weightIn) ?? 0,
-    unit: els.weightUnit?.value || 'lbs',
-    maxHr: readNonNegativeOrNull(els.hrMaxIn) ?? 0,
-    lthr: readNonNegativeOrNull(els.hrLthrIn) ?? 0
-  };
-}
   
 function buildPrintHeader(title, items) {
   const meta = items
@@ -3813,11 +3803,11 @@ function getExportCard(type, system) {
   return system === 'custom' ? els.hrCustomPanel : els.hrDefaultPanel;
 }
 
-function setImageExportHeader(type, system, snapshot) {
+function setImageExportHeader(type, system) {
   if (type === 'power') {
-    const ftp = snapshot.ftp;
-    const weight = snapshot.weight;
-    const unit = snapshot.unit;
+    const ftp = getEnteredFtp();
+    const weight = getEnteredWeight();
+    const unit = getEnteredWeightUnit();
     const wkg = (ftp > 0 && weight > 0)
       ? (ftp / (unit === 'lbs' ? weight / 2.20462 : weight)).toFixed(2)
       : '—';
@@ -3835,8 +3825,8 @@ function setImageExportHeader(type, system, snapshot) {
     return headerEl;
   }
 
-  const maxHr = snapshot.maxHr;
-  const lthr = snapshot.lthr;
+  const maxHr = getEnteredMaxHr();
+  const lthr = getEnteredLthr();
 
   const headerEl = system === 'custom'
     ? els.printHeaderCustomHr
@@ -3888,8 +3878,6 @@ async function saveZonesImage(type, system) {
   if (typeof html2canvas === 'undefined') return;
   if (isPrintLaunching) return;
 
-  const snapshot = getCurrentHeaderSnapshot();
-
   const previousVisibleView = document.querySelector('.view:not([hidden])') || els.wattsView;
 
   setPrintButtonsDisabled(true);
@@ -3899,7 +3887,7 @@ async function saveZonesImage(type, system) {
   let exportClone = null;
 
   try {
-    setImageExportHeader(type, system, snapshot);
+    setImageExportHeader(type, system);
 
     if (type === 'power') {
       updateZones();
