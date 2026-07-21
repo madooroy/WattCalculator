@@ -3645,7 +3645,7 @@ function runScopedPrint(mode) {
 
   const previousPrintMode = document.body.getAttribute('data-print-mode');
   const previousTitle = document.title;
-  const previousVisibleView = document.querySelector('.view:not([hidden])');
+  const previousVisibleView = document.querySelector('.view:not([hidden])') || els.wattsView;
 
   document.body.setAttribute('data-print-mode', mode);
   preparePrintDom(mode);
@@ -3709,30 +3709,18 @@ function runScopedPrint(mode) {
     cleanup();
   }, 60000);
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      if (activePrintSession?.cleanup !== cleanup) return;
+  if (mode === 'power-default') document.title = 'Default Power Zones';
+  else if (mode === 'power-custom') document.title = 'Custom Power Zones';
+  else if (mode === 'hr-default') document.title = 'Default Heart Rate Zones';
+  else if (mode === 'hr-custom') document.title = 'Custom Heart Rate Zones';
 
-      if (mode === 'power-default') document.title = 'Default Power Zones';
-      else if (mode === 'power-custom') document.title = 'Custom Power Zones';
-      else if (mode === 'hr-default') document.title = 'Default Heart Rate Zones';
-      else if (mode === 'hr-custom') document.title = 'Custom Heart Rate Zones';
+  forcePrintLayoutFlush();
 
-      forcePrintLayoutFlush();
-
-      setTimeout(() => {
-        if (activePrintSession?.cleanup !== cleanup) return;
-
-        forcePrintLayoutFlush();
-
-        try {
-          window.print();
-        } catch {
-          cleanup();
-        }
-      }, 120);
-    });
-  });
+  try {
+    window.print();
+  } catch {
+    cleanup();
+  }
 }
 
 function printPowerZones(system) {
