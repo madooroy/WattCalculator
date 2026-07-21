@@ -4404,13 +4404,15 @@ function loadSavedValues() {
     [STORAGE_KEYS.FIND_WATTS_SECONDS, els.wattsSecondsIn, v => String(wholeNumber(clampNonNegative(v)))]
   ];
 
-  mappings.forEach(([key, el, transform]) => {
-    const value = safeStorageGet(key);
-    if (value !== null) el.value = transform(value);
-  });
+   mappings.forEach(([key, el, transform]) => {
+     const value = safeStorageGet(key);
+     if (value !== null && el) el.value = transform(value);
+   });
 
   const unit = safeStorageGet(STORAGE_KEYS.UNIT);
-  if (unit === 'lbs' || unit === 'kg') els.weightUnit.value = unit;
+  if ((unit === 'lbs' || unit === 'kg') && els.weightUnit) {
+    els.weightUnit.value = unit;
+  }
 
   setNewFTP(safeStorageGet(STORAGE_KEYS.NEW_FTP) || '250', false);
   syncDropdowns();
