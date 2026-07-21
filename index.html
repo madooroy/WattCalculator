@@ -1136,6 +1136,14 @@ tr:last-child td { border-bottom: none; }
     max-width: 100% !important;
   }
 
+  .power-matrix-scroll,
+  .table-scroll-wrapper,
+  .power-matrix,
+  .hr-matrix {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
   .power-matrix,
   .hr-matrix,
   table {
@@ -1144,19 +1152,9 @@ tr:last-child td { border-bottom: none; }
     max-width: 100% !important;
     table-layout: fixed !important;
     border-collapse: collapse !important;
-    display: table !important;
-  }
-
-  thead {
-    display: table-header-group;
-  }
-
-  tbody {
-    display: table-row-group;
   }
 
   tr {
-    display: table-row;
     break-inside: avoid;
     page-break-inside: avoid;
   }
@@ -1214,7 +1212,7 @@ tr:last-child td { border-bottom: none; }
   }
 
   .zone-cell-matrix {
-    overflow: hidden !important;
+    overflow: visible !important;
     background-clip: padding-box !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -1375,10 +1373,10 @@ tr:last-child td { border-bottom: none; }
   <h1 id="app-title">Calculate Watts</h1>
 
  <div class="tabs" role="tablist" aria-label="Calculator sections">
-   <button id="btn-watts" class="tab active" role="tab" aria-selected="true" aria-controls="watts-view" data-tab="watts" type="button" tabindex="0">Find Watts</button>
-   <button id="btn-kj" class="tab" role="tab" aria-selected="false" aria-controls="kj-view" data-tab="kj" type="button" tabindex="-1">Find kJ</button>
-   <button id="btn-time" class="tab" role="tab" aria-selected="false" aria-controls="time-view" data-tab="time" type="button" tabindex="-1">Find Time</button>
-   <button id="btn-zones" class="tab" role="tab" aria-selected="false" aria-controls="zones-view" data-tab="zones" type="button" tabindex="-1">Power Zones</button>
+    <button id="btn-watts" class="tab active" role="tab" aria-selected="true" aria-controls="watts-view" data-tab="watts" type="button" tabindex="0">Find<br>Watts</button>
+    <button id="btn-kj" class="tab" role="tab" aria-selected="false" aria-controls="kj-view" data-tab="kj" type="button" tabindex="-1">Find<br>kJ</button>
+    <button id="btn-time" class="tab" role="tab" aria-selected="false" aria-controls="time-view" data-tab="time" type="button" tabindex="-1">Find<br>Time</button>
+    <button id="btn-zones" class="tab" role="tab" aria-selected="false" aria-controls="zones-view" data-tab="zones" type="button" tabindex="-1">Power Zones</button>
    <button id="btn-hr" class="tab" role="tab" aria-selected="false" aria-controls="hr-view" data-tab="hr" type="button" tabindex="-1">HR Zones</button>
  </div>
   
@@ -3584,18 +3582,33 @@ function forcePrintLayoutFlush() {
     els.defaultPowerZonesTable,
     els.customZonesTable,
     els.hrDefaultPanel,
-    els.hrCustomPanel
+    els.hrCustomPanel,
+    els.hrDefaultMaxScroll,
+    els.hrDefaultLthrScroll,
+    els.hrCustomMaxScroll,
+    els.hrCustomLthrScroll
   ].filter(Boolean);
 
   targets.forEach(el => {
     el.style.transform = 'translateZ(0)';
+    el.style.webkitTransform = 'translateZ(0)';
+    el.style.backfaceVisibility = 'hidden';
+    el.style.webkitBackfaceVisibility = 'hidden';
   });
 
   void document.body.offsetHeight;
   void document.documentElement.offsetHeight;
 
   targets.forEach(el => {
+    void el.offsetHeight;
+    void el.offsetWidth;
+  });
+
+  targets.forEach(el => {
     el.style.transform = '';
+    el.style.webkitTransform = '';
+    el.style.backfaceVisibility = '';
+    el.style.webkitBackfaceVisibility = '';
   });
 }
 
@@ -3707,11 +3720,17 @@ function runScopedPrint(mode) {
 
       forcePrintLayoutFlush();
 
-      try {
-        window.print();
-      } catch {
-        cleanup();
-      }
+      setTimeout(() => {
+        if (activePrintSession?.cleanup !== cleanup) return;
+
+        forcePrintLayoutFlush();
+
+        try {
+          window.print();
+        } catch {
+          cleanup();
+        }
+      }, 120);
     });
   });
 }
