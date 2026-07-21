@@ -4582,7 +4582,9 @@ window.addEventListener('DOMContentLoaded', () => {
   enableDirectionalTableScroll();
 
   updateZones();
-  setHrSubtab(activeHrSubtab);
+  setHrSubtab('default');
+  updateHRZones();
+  updateCustomHRZones();
   calcKJ();
   calcWatts();
   calcTime();
