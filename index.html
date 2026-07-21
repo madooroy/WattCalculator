@@ -3685,6 +3685,8 @@ function runScopedPrint(mode) {
     if (!els.hrView.hidden) {
       els.hrDefaultPanel.hidden = activeHrSubtab !== 'default';
       els.hrCustomPanel.hidden = activeHrSubtab !== 'custom';
+      updateHRZones();
+      updateCustomHRZones();
     }
 
     forcePrintLayoutFlush();
