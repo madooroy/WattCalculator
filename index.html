@@ -3668,6 +3668,16 @@ function getEnteredLthr() {
   return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
+function getCurrentHeaderSnapshot() {
+  const ftp = readNonNegativeOrNull(els.ftpIn) ?? 0;
+  const weight = readNonNegativeOrNull(els.weightIn) ?? 0;
+  const unit = els.weightUnit?.value || 'lbs';
+  const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
+  const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
+
+  return { ftp, weight, unit, maxHr, lthr };
+}
+  
 function buildPrintHeader(title, items) {
   const meta = items
     .filter(item => item && item.value !== '' && item.value !== '—')
@@ -3868,6 +3878,8 @@ async function saveZonesImage(type, system) {
   if (typeof html2canvas === 'undefined') return;
   if (isPrintLaunching) return;
 
+  const previousVisibleView = document.querySelector('.view:not([hidden])') || els.wattsView;
+
   setPrintButtonsDisabled(true);
   document.body.classList.add('exporting-image');
 
@@ -3909,6 +3921,22 @@ async function saveZonesImage(type, system) {
     clearPrintHeaders();
     document.body.classList.remove('exporting-image');
     setPrintButtonsDisabled(false);
+
+    els.kjView.hidden = previousVisibleView !== els.kjView;
+    els.wattsView.hidden = previousVisibleView !== els.wattsView;
+    els.timeView.hidden = previousVisibleView !== els.timeView;
+    els.zonesView.hidden = previousVisibleView !== els.zonesView;
+    els.hrView.hidden = previousVisibleView !== els.hrView;
+
+    if (!els.zonesView.hidden) {
+      els.defaultPowerZonesTable.hidden = activeZoneSystem !== 'default';
+      els.customZonesTable.hidden = activeZoneSystem !== 'custom';
+    }
+
+    if (!els.hrView.hidden) {
+      els.hrDefaultPanel.hidden = activeHrSubtab !== 'default';
+      els.hrCustomPanel.hidden = activeHrSubtab !== 'custom';
+    }
   }
 }
 
@@ -4023,9 +4051,8 @@ function runScopedPrint(mode) {
 }
 
 function printPowerZones(system) {
-  const ftp = getEnteredFtp();
-  const weight = getEnteredWeight();
-  const unit = getEnteredWeightUnit();
+  const { ftp, weight, unit } = getCurrentHeaderSnapshot();
+
   const wkg = (ftp > 0 && weight > 0)
     ? (ftp / (unit === 'lbs' ? weight / 2.20462 : weight)).toFixed(2)
     : '—';
@@ -4045,8 +4072,7 @@ function printPowerZones(system) {
 }
 
 function printHrZones(system) {
-  const maxHr = getEnteredMaxHr();
-  const lthr = getEnteredLthr();
+  const { maxHr, lthr } = getCurrentHeaderSnapshot();
 
   const title = system === 'custom' ? 'Custom Heart Rate Zones' : 'Default Heart Rate Zones';
   const headerEl = system === 'custom'
