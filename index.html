@@ -3939,72 +3939,98 @@ function loadHtml2Canvas() {
 
   return html2canvasLoader;
 }
-  
+
+function preloadHtml2Canvas() {
+  setTimeout(() => {
+    loadHtml2Canvas().catch(() => {});
+  }, 1200);
+}
+
 async function saveZonesImage(type, system) {
   if (isPrintLaunching) return;
 
-  const html2canvas = await loadHtml2Canvas();
-  if (!html2canvas) return;
+  const triggerBtn =
+    type === 'power'
+      ? (system === 'custom' ? els.saveCustomPowerImage : els.saveDefaultPowerImage)
+      : (system === 'custom' ? els.saveCustomHrImage : els.saveDefaultHrImage);
 
-  const previousVisibleView = document.querySelector('.view:not([hidden])') || els.wattsView;
+  if (triggerBtn?.disabled) return;
 
-  setPrintButtonsDisabled(true);
-  document.body.classList.add('exporting-image');
-
-  const filename = `${buildExportFilename(type, system)}.png`;
-  let exportClone = null;
+  let html2canvasFn;
 
   try {
-    setImageExportHeader(type, system);
+    setPrintButtonsDisabled(true);
+    if (triggerBtn) triggerBtn.textContent = 'Preparing...';
 
-    if (type === 'power') {
-      updateZones();
-    } else {
-      updateHRZones();
-      updateCustomHRZones();
+    html2canvasFn = await loadHtml2Canvas();
+    if (!html2canvasFn) throw new Error('html2canvas unavailable');
+
+    document.body.classList.add('exporting-image');
+
+    const previousVisibleView = document.querySelector('.view:not([hidden])') || els.wattsView;
+    const filename = `${buildExportFilename(type, system)}.png`;
+    let exportClone = null;
+
+    try {
+      if (triggerBtn) triggerBtn.textContent = 'Saving...';
+
+      setImageExportHeader(type, system);
+
+      if (type === 'power') {
+        updateZones();
+      } else {
+        updateHRZones();
+        updateCustomHRZones();
+      }
+
+      exportClone = buildExportClone(type, system);
+      if (!exportClone) throw new Error('Unable to build export clone.');
+
+      const target = exportClone.clone;
+
+      const canvas = await html2canvasFn(target, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+
+      await new Promise(resolve => {
+        canvas.toBlob(blob => {
+          if (blob) downloadBlob(blob, filename);
+          resolve();
+        }, 'image/png');
+      });
+    } finally {
+      destroyExportClone(exportClone);
+      clearPrintHeaders();
+      document.body.classList.remove('exporting-image');
+
+      els.kjView.hidden = previousVisibleView !== els.kjView;
+      els.wattsView.hidden = previousVisibleView !== els.wattsView;
+      els.timeView.hidden = previousVisibleView !== els.timeView;
+      els.zonesView.hidden = previousVisibleView !== els.zonesView;
+      els.hrView.hidden = previousVisibleView !== els.hrView;
+
+      if (!els.zonesView.hidden) {
+        els.defaultPowerZonesTable.hidden = activeZoneSystem !== 'default';
+        els.customZonesTable.hidden = activeZoneSystem !== 'custom';
+      }
+
+      if (!els.hrView.hidden) {
+        els.hrDefaultPanel.hidden = activeHrSubtab !== 'default';
+        els.hrCustomPanel.hidden = activeHrSubtab !== 'custom';
+      }
     }
-
-    exportClone = buildExportClone(type, system);
-    if (!exportClone) throw new Error('Unable to build export clone.');
-
-    const target = exportClone.clone;
-
-    const canvas = await html2canvas(target, {
-      backgroundColor: '#ffffff',
-      scale: 2,
-      useCORS: true,
-      logging: false
-    });
-
-    await new Promise(resolve => {
-      canvas.toBlob(blob => {
-        if (blob) downloadBlob(blob, filename);
-        resolve();
-      }, 'image/png');
-    });
   } catch (error) {
     console.error('Save image failed:', error);
   } finally {
-    destroyExportClone(exportClone);
-    clearPrintHeaders();
-    document.body.classList.remove('exporting-image');
     setPrintButtonsDisabled(false);
 
-    els.kjView.hidden = previousVisibleView !== els.kjView;
-    els.wattsView.hidden = previousVisibleView !== els.wattsView;
-    els.timeView.hidden = previousVisibleView !== els.timeView;
-    els.zonesView.hidden = previousVisibleView !== els.zonesView;
-    els.hrView.hidden = previousVisibleView !== els.hrView;
-
-    if (!els.zonesView.hidden) {
-      els.defaultPowerZonesTable.hidden = activeZoneSystem !== 'default';
-      els.customZonesTable.hidden = activeZoneSystem !== 'custom';
-    }
-
-    if (!els.hrView.hidden) {
-      els.hrDefaultPanel.hidden = activeHrSubtab !== 'default';
-      els.hrCustomPanel.hidden = activeHrSubtab !== 'custom';
-    }
+    if (els.saveDefaultPowerImage) els.saveDefaultPowerImage.textContent = 'Save Image';
+    if (els.saveCustomPowerImage) els.saveCustomPowerImage.textContent = 'Save Image';
+    if (els.saveDefaultHrImage) els.saveDefaultHrImage.textContent = 'Save Image';
+    if (els.saveCustomHrImage) els.saveCustomHrImage.textContent = 'Save Image';
   }
 }
 
@@ -4557,8 +4583,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
     setHrSubtab('default');
     updateHRZones();
-    updateCustomHRZones();
+    updateCustomHRZones(); 
   });
+
+  preloadHtml2Canvas();
 });
 </script>
 </body>
