@@ -878,8 +878,22 @@ tr:last-child td { border-bottom: none; }
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
   flex-wrap: wrap;
+}
+
+.secondary-btn {
+  background: var(--border);
+  color: var(--text);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  min-height: 36px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .help-text {
@@ -891,6 +905,7 @@ tr:last-child td { border-bottom: none; }
 
 .result-box .help-text {
   text-align: left;
+  padding: 0 8px;
 }
 
 .result-note {
@@ -909,6 +924,17 @@ tr:last-child td { border-bottom: none; }
   line-height: 1.4;
   margin: 0 0 12px 0;
   text-align: left;
+}
+
+#default-power-zones-table .controls-row,
+#custom-zones-table .controls-row,
+#hr-default-panel .controls-row,
+#hr-custom-panel .controls-row,
+#default-power-zones-table .export-actions,
+#custom-zones-table .export-actions,
+#hr-default-panel .export-actions,
+#hr-custom-panel .export-actions {
+  margin-bottom: 10px;
 }
 
 #hr-custom-panel .error-text {
