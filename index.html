@@ -1819,7 +1819,6 @@ body.exporting-image .export-hide {
    </div>
  </div>
  </div>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
 const defaultZonesConfig = [
   { id: 'z1', label: 'Zone 1', desc: 'Active Recovery', min: 0.00, max: 0.55, target: 0.45, colorVar: 'z1' },
@@ -3923,10 +3922,29 @@ function destroyExportClone(exportClone) {
   if (!exportClone || !exportClone.host) return;
   exportClone.host.remove();
 }
+
+let html2canvasLoader = null;
+
+function loadHtml2Canvas() {
+  if (window.html2canvas) return Promise.resolve(window.html2canvas);
+  if (html2canvasLoader) return html2canvasLoader;
+
+  html2canvasLoader = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    script.onload = () => resolve(window.html2canvas);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+
+  return html2canvasLoader;
+}
   
 async function saveZonesImage(type, system) {
-  if (typeof html2canvas === 'undefined') return;
   if (isPrintLaunching) return;
+
+  const html2canvas = await loadHtml2Canvas();
+  if (!html2canvas) return;
 
   const previousVisibleView = document.querySelector('.view:not([hidden])') || els.wattsView;
 
@@ -4515,28 +4533,32 @@ function loadSavedValues() {
 window.addEventListener('DOMContentLoaded', () => {
   initCache();
   generateDefaultTables();
-  generateCustomZonesTable();
-  renderHrTables();
-
-  syncHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
-  syncHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
-  resetPairedHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
-  resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
 
   bindEvents();
-  bindCustomZoneInputs();
-  bindCustomHrInlineInputs();
   loadSavedValues();
 
-  enableDirectionalTableScroll();
-
   updateZones();
-  setHrSubtab('default');
-  updateHRZones();
-  updateCustomHRZones();
   calcKJ();
   calcWatts();
   calcTime();
+
+  requestAnimationFrame(() => {
+    generateCustomZonesTable();
+    renderHrTables();
+    bindCustomZoneInputs();
+    bindCustomHrInlineInputs();
+
+    syncHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
+    syncHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
+    resetPairedHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
+    resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
+
+    enableDirectionalTableScroll();
+
+    setHrSubtab('default');
+    updateHRZones();
+    updateCustomHRZones();
+  });
 });
 </script>
 </body>
