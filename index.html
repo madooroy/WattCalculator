@@ -873,11 +873,13 @@ tr:last-child td { border-bottom: none; }
   font-weight: bold;
 }
 
-.controls-row {
+.controls-row,
+.export-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
 .help-text {
@@ -887,26 +889,33 @@ tr:last-child td { border-bottom: none; }
   margin-top: 8px;
 }
 
- .result-note {
+.result-box .help-text {
+  text-align: left;
+}
+
+.result-note {
   margin-top: 10px;
 }
 
 #custom-zones-table .help-text,
 #hr-custom-panel .help-text {
-  font-size: 11px;
-  line-height: 1.3;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
-.custom-swipe-note {
-  margin-top: 0;
-  margin-bottom: 12px;
+.help-text.export-hide,
+.custom-swipe-note.help-text {
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0 0 12px 0;
+  text-align: left;
 }
 
 #hr-custom-panel .error-text {
   margin-top: 0;
   margin-bottom: 8px;
 }
-  
+
 #default-power-zones-table > .help-text:first-child,
 #custom-zones-table > .help-text:first-of-type,
 #hr-default-panel > .help-text:first-child,
@@ -1044,14 +1053,6 @@ tr:last-child td { border-bottom: none; }
     padding: 12px;
     margin-bottom: 12px;
   }
-}
-
-.export-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
 }
 
 .export-capture {
