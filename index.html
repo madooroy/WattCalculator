@@ -925,9 +925,45 @@ tr:last-child td { border-bottom: none; }
   margin-bottom: 10px;
 }
 
+#hr-default-panel,
+#hr-custom-panel {
+  padding: 8px;
+}
+
+#hr-default-panel .controls-row,
+#hr-custom-panel .controls-row,
+#hr-default-panel .export-actions,
+#hr-custom-panel .export-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0 0 10px 0;
+  flex-wrap: wrap;
+}
+
+#hr-default-panel .help-text.export-hide,
+#hr-custom-panel .help-text.export-hide,
+#hr-default-panel .custom-swipe-note.help-text,
+#hr-custom-panel .custom-swipe-note.help-text {
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0 0 12px 0;
+  text-align: left;
+}
+
+#hr-default-panel .table-scroll-wrapper,
+#hr-custom-panel .table-scroll-wrapper {
+  margin: 0;
+}
+
+#hr-default-panel .hr-group-title,
+#hr-custom-panel .hr-group-title {
+  margin-left: 0;
+  margin-right: 0;
+}
+
 #hr-custom-panel .error-text {
-  margin-top: 0;
-  margin-bottom: 8px;
+  margin: 0 0 8px 0;
 }
 
 #default-power-zones-table > .help-text:first-child,
