@@ -3910,6 +3910,9 @@ function buildExportClone(type, system) {
   if (printHeader) {
     printHeader.hidden = false;
     printHeader.style.display = 'block';
+    printHeader.style.visibility = 'visible';
+    printHeader.style.height = 'auto';
+    printHeader.style.overflow = 'visible';
   }
 
   host.appendChild(clone);
@@ -3957,6 +3960,7 @@ async function saveZonesImage(type, system) {
   if (triggerBtn?.disabled) return;
 
   let html2canvasFn;
+  let exportClone = null;
 
   try {
     setPrintButtonsDisabled(true);
@@ -3965,66 +3969,45 @@ async function saveZonesImage(type, system) {
     html2canvasFn = await loadHtml2Canvas();
     if (!html2canvasFn) throw new Error('html2canvas unavailable');
 
-    document.body.classList.add('exporting-image');
-
-    const previousVisibleView = document.querySelector('.view:not([hidden])') || els.wattsView;
     const filename = `${buildExportFilename(type, system)}.png`;
-    let exportClone = null;
 
-    try {
-      if (triggerBtn) triggerBtn.textContent = 'Saving...';
+    setImageExportHeader(type, system);
 
-      setImageExportHeader(type, system);
-
-      if (type === 'power') {
-        updateZones();
-      } else {
-        updateHRZones();
-        updateCustomHRZones();
-      }
-
-      exportClone = buildExportClone(type, system);
-      if (!exportClone) throw new Error('Unable to build export clone.');
-
-      const target = exportClone.clone;
-
-      const canvas = await html2canvasFn(target, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-        logging: false
-      });
-
-      await new Promise(resolve => {
-        canvas.toBlob(blob => {
-          if (blob) downloadBlob(blob, filename);
-          resolve();
-        }, 'image/png');
-      });
-    } finally {
-      destroyExportClone(exportClone);
-      clearPrintHeaders();
-      document.body.classList.remove('exporting-image');
-
-      els.kjView.hidden = previousVisibleView !== els.kjView;
-      els.wattsView.hidden = previousVisibleView !== els.wattsView;
-      els.timeView.hidden = previousVisibleView !== els.timeView;
-      els.zonesView.hidden = previousVisibleView !== els.zonesView;
-      els.hrView.hidden = previousVisibleView !== els.hrView;
-
-      if (!els.zonesView.hidden) {
-        els.defaultPowerZonesTable.hidden = activeZoneSystem !== 'default';
-        els.customZonesTable.hidden = activeZoneSystem !== 'custom';
-      }
-
-      if (!els.hrView.hidden) {
-        els.hrDefaultPanel.hidden = activeHrSubtab !== 'default';
-        els.hrCustomPanel.hidden = activeHrSubtab !== 'custom';
-      }
+    if (type === 'power') {
+      updateZones();
+    } else {
+      updateHRZones();
+      updateCustomHRZones();
     }
+
+    exportClone = buildExportClone(type, system);
+    if (!exportClone) throw new Error('Unable to build export clone.');
+
+    const target = exportClone.clone;
+    if (triggerBtn) triggerBtn.textContent = 'Saving...';
+
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    const canvas = await html2canvasFn(target, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false
+    });
+
+    const blob = await new Promise(resolve => {
+      canvas.toBlob(resolve, 'image/png');
+    });
+
+    if (!blob) throw new Error('Image export failed.');
+
+    downloadBlob(blob, filename);
   } catch (error) {
     console.error('Save image failed:', error);
   } finally {
+    destroyExportClone(exportClone);
+    clearPrintHeaders();
     setPrintButtonsDisabled(false);
 
     if (els.saveDefaultPowerImage) els.saveDefaultPowerImage.textContent = 'Save Image';
