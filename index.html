@@ -291,9 +291,13 @@ input[type="number"] {
   appearance: textfield;
 }
 
+.input-boxed,
+.input-small {
+  min-height: 44px;
+}
+
 .input-small {
   width: 84px;
-  min-height: 40px;
   text-align: center;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -308,14 +312,6 @@ input[type="number"] {
   font-weight: bold;
   font-size: 16px;
   font-family: inherit;
-}
-
-#kj-view .input-small,
-#watts-view .input-small {
-  width: 52px;
-  min-width: 52px;
-  min-height: 34px;
-  padding: 3px 2px;
 }
 
 .input-small,
@@ -334,14 +330,6 @@ input[type="number"] {
   .input-small,
   .numeric-input {
     font-size: 16px;
-  }
-
-  #kj-view .input-small,
-  #watts-view .input-small {
-    width: 52px;
-    min-width: 52px;
-    min-height: 34px;
-    padding: 3px 2px;
   }
 
   .table-scroll-wrapper .input-small,
@@ -950,9 +938,8 @@ tr:last-child td { border-bottom: none; }
   margin-bottom: 12px;
 }
 
-#custom-zones-table .controls-row,
-#hr-custom-panel .controls-row {
-  margin-bottom: 8px;
+#hr-custom-panel .export-actions {
+  margin-bottom: 10px;
 }
 
 #hr-custom-panel .hr-group-title:first-of-type {
