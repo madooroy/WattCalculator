@@ -1899,6 +1899,28 @@ function hasInputValue(el) {
   return String(el?.value ?? '').trim() !== '';
 }
 
+function blurActiveInput() {
+  const active = document.activeElement;
+  if (active && typeof active.blur === 'function') {
+    active.blur();
+  }
+}
+
+async function commitVisibleCustomEdits() {
+  blurActiveInput();
+
+  await new Promise(resolve => requestAnimationFrame(resolve));
+  await new Promise(resolve => setTimeout(resolve, 30));
+
+  if (!els.customZonesTable.hidden) {
+    validateAndApplyCustomZones();
+  }
+
+  if (!els.hrCustomPanel.hidden) {
+    validateAndApplyCustomHR();
+  }
+}
+  
 function readNonNegativeOrNull(el) {
   const raw = String(el?.value ?? '').trim();
   if (raw === '') return null;
@@ -3952,6 +3974,8 @@ function preloadHtml2Canvas() {
 async function saveZonesImage(type, system) {
   if (isPrintLaunching) return;
 
+  await commitVisibleCustomEdits();
+
   const triggerBtn =
     type === 'power'
       ? (system === 'custom' ? els.saveCustomPowerImage : els.saveDefaultPowerImage)
@@ -4127,7 +4151,9 @@ function runScopedPrint(mode) {
   }
 }
 
-function printPowerZones(system) {
+async function printPowerZones(system) {
+  await commitVisibleCustomEdits();
+
   const { ftp, weight, unit } = getCurrentHeaderSnapshot();
 
   const wkg = (ftp > 0 && weight > 0)
@@ -4148,7 +4174,9 @@ function printPowerZones(system) {
   runScopedPrint(system === 'custom' ? 'power-custom' : 'power-default');
 }
 
-function printHrZones(system) {
+async function printHrZones(system) {
+  await commitVisibleCustomEdits();
+
   const { maxHr, lthr } = getCurrentHeaderSnapshot();
 
   const title = system === 'custom' ? 'Custom Heart Rate Zones' : 'Default Heart Rate Zones';
