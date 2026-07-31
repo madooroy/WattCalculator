@@ -3211,14 +3211,12 @@ function updateCustomPowerZoneTable(ftp) {
 }
 
 function updateZones() {
-  const ftp = readNonNegativeOrNull(els.ftpIn) ?? 0;
-  const weight = readNonNegativeOrNull(els.weightIn) ?? 0;
-  const unit = els.weightUnit.value;
+  const state = getAppState();
 
-  updateFtpDisplays(ftp);
-  updateWkg(ftp, weight, unit);
-  updateDefaultPowerZoneTable(ftp);
-  updateCustomPowerZoneTable(ftp);
+  updateFtpDisplays(state.power.ftp);
+  updateWkg(state.power.ftp, state.power.weight, state.power.weightUnit);
+  updateDefaultPowerZoneTable(state.power.ftp);
+  updateCustomPowerZoneTable(state.power.ftp);
   recalculateAllBadges();
 }
 
@@ -3612,10 +3610,11 @@ function validateHrBaseInputs(maxHr, lthr) {
 }
  
 function updateHRZones() {
-  const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
-  const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
+  const state = getAppState();
+  const maxHr = state.hr.max;
+  const lthr = state.hr.lthr;
+  const baseError = state.hr.baseError;
 
-  const baseError = validateHrBaseInputs(maxHr, lthr);
   els.hrInputError.textContent = baseError;
   if (baseError) {
     els.customHrError.textContent = '';
@@ -3627,10 +3626,11 @@ function updateHRZones() {
 }
 
 function updateCustomHRZones() {
-  const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
-  const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
+  const state = getAppState();
+  const maxHr = state.hr.max;
+  const lthr = state.hr.lthr;
+  const baseError = state.hr.baseError;
 
-  const baseError = validateHrBaseInputs(maxHr, lthr);
   els.hrInputError.textContent = baseError;
   if (baseError) {
     els.customHrError.textContent = '';
@@ -3760,47 +3760,153 @@ function persistOnInput(el, key, decimals = 0) {
   });
 }
 
-function getEnteredFtp() {
-  const raw = String(els.ftpIn?.value ?? '').trim();
-  if (raw === '') return 0;
-  const n = parseFloat(raw);
-  return Number.isFinite(n) && n >= 0 ? n : 0;
-}
-
-function getEnteredWeight() {
-  const raw = String(els.weightIn?.value ?? '').trim();
-  if (raw === '') return 0;
-  const n = parseFloat(raw);
-  return Number.isFinite(n) && n >= 0 ? n : 0;
-}
-
-function getEnteredWeightUnit() {
-  return els.weightUnit?.value || 'lbs';
-}
-
-function getEnteredMaxHr() {
-  const raw = String(els.hrMaxIn?.value ?? '').trim();
-  if (raw === '') return 0;
-  const n = parseFloat(raw);
-  return Number.isFinite(n) && n >= 0 ? n : 0;
-}
-
-function getEnteredLthr() {
-  const raw = String(els.hrLthrIn?.value ?? '').trim();
-  if (raw === '') return 0;
-  const n = parseFloat(raw);
-  return Number.isFinite(n) && n >= 0 ? n : 0;
-}
-
 function getCurrentHeaderSnapshot() {
+  return getAppState().headers;
+}
+
+function getAppState() {
   const ftp = readNonNegativeOrNull(els.ftpIn) ?? 0;
   const weight = readNonNegativeOrNull(els.weightIn) ?? 0;
-  const unit = els.weightUnit?.value || 'lbs';
-  const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
-  const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
+  const weightUnit = els.weightUnit?.value || 'lbs';
+  const newFtp = readNonNegativeOrNull(els.newFtpKj) ?? 0;
 
-  return { ftp, weight, unit, maxHr, lthr };
+  const hrMax = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
+  const hrLthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
+
+  const kjCalcDurationError = getDurationValidationError(
+    els.kjHoursIn,
+    els.kjMinutesPartIn,
+    els.kjSecondsIn
+  );
+
+  const wattsCalcDurationError = getDurationValidationError(
+    els.wattsHoursIn,
+    els.wattsMinutesPartIn,
+    els.wattsSecondsIn
+  );
+
+  const kjCalcMinutes = kjCalcDurationError
+    ? 0
+    : (readDurationMinutes(
+        els.kjHoursIn,
+        els.kjMinutesPartIn,
+        els.kjSecondsIn
+      ) ?? 0);
+
+  const wattsCalcMinutes = wattsCalcDurationError
+    ? 0
+    : (readDurationMinutes(
+        els.wattsHoursIn,
+        els.wattsMinutesPartIn,
+        els.wattsSecondsIn
+      ) ?? 0);
+
+  const findKjWatts = readNonNegativeOrNull(els.wattsIn) ?? 0;
+  const findWattsKj = readNonNegativeOrNull(els.kjIn) ?? 0;
+  const findTimeKj = readNonNegativeOrNull(els.timeKjIn) ?? 0;
+  const findTimeWatts = readNonNegativeOrNull(els.timeWattsIn) ?? 0;
+
+  const calculatedKj = (findKjWatts > 0 && kjCalcMinutes > 0)
+    ? Math.floor(kjFromWattsMinutes(findKjWatts, kjCalcMinutes))
+    : 0;
+
+  const calculatedWatts = (findWattsKj > 0 && wattsCalcMinutes > 0)
+    ? Math.ceil(wattsFromKjMinutes(findWattsKj, wattsCalcMinutes))
+    : 0;
+
+  const calculatedTimeSeconds = (findTimeKj > 0 && findTimeWatts > 0)
+    ? Math.ceil((findTimeKj * 1000) / findTimeWatts)
+    : 0;
+
+  const calculatedTimeMinutes = (findTimeKj > 0 && findTimeWatts > 0)
+    ? ((findTimeKj * 1000) / findTimeWatts) / 60
+    : 0;
+
+  const weightKg = weight > 0
+    ? (weightUnit === 'lbs' ? weight / 2.20462 : weight)
+    : 0;
+
+  const wkg = (ftp > 0 && weightKg > 0)
+    ? ftp / weightKg
+    : 0;
+
+  const hrBaseError = validateHrBaseInputs(hrMax, hrLthr);
+
+  return {
+    ui: {
+      activeZoneSystem,
+      activeHrSubtab,
+      isPrintLaunching,
+      activePrintMode: document.body.getAttribute('data-print-mode') || '',
+      visibleView:
+        !els.wattsView.hidden ? 'watts' :
+        !els.kjView.hidden ? 'kj' :
+        !els.timeView.hidden ? 'time' :
+        !els.zonesView.hidden ? 'zones' :
+        !els.hrView.hidden ? 'hr' : ''
+    },
+
+    power: {
+      ftp,
+      newFtp,
+      weight,
+      weightUnit,
+      weightKg,
+      wkg,
+      activeSystem: activeZoneSystem,
+      defaultZonesConfig,
+      customPowerAnchors,
+      customZonesConfig: getCustomZonesConfig()
+    },
+
+    hr: {
+      max: hrMax,
+      lthr: hrLthr,
+      baseError: hrBaseError,
+      activeSubtab: activeHrSubtab,
+      defaultConfig: defaultHrPercentConfig,
+      customAnchors: customHrAnchors
+    },
+
+    calculators: {
+      kj: {
+        watts: findKjWatts,
+        durationMinutes: kjCalcMinutes,
+        durationError: kjCalcDurationError,
+        outputKj: calculatedKj,
+        currentBadgeWatts: findKjWatts,
+        currentBadgeMinutes: kjCalcMinutes
+      },
+
+      watts: {
+        kj: findWattsKj,
+        durationMinutes: wattsCalcMinutes,
+        durationError: wattsCalcDurationError,
+        outputWatts: calculatedWatts,
+        currentBadgeWatts: calculatedWatts,
+        currentBadgeMinutes: wattsCalcMinutes
+      },
+
+      time: {
+        kj: findTimeKj,
+        watts: findTimeWatts,
+        outputSeconds: calculatedTimeSeconds,
+        outputMinutes: calculatedTimeMinutes,
+        currentBadgeWatts: findTimeWatts,
+        currentBadgeMinutes: calculatedTimeMinutes
+      }
+    },
+
+    headers: {
+      ftp,
+      weight,
+      unit: weightUnit,
+      maxHr: hrMax,
+      lthr: hrLthr
+    }
+  };
 }
+  
   
 function buildPrintHeader(title, items) {
   const meta = items
@@ -3897,15 +4003,13 @@ function buildExportDateStamp() {
 
 function buildExportFilename(type, system) {
   const date = buildExportDateStamp();
+  const state = getAppState();
 
   if (type === 'power') {
-    const ftp = getEnteredFtp();
-    return `${system}-power-zones-ftp-${wholeNumber(ftp || 0)}-${date}`;
+    return `${system}-power-zones-ftp-${wholeNumber(state.power.ftp || 0)}-${date}`;
   }
 
-  const maxHr = getEnteredMaxHr();
-  const lthr = getEnteredLthr();
-  return `${system}-hr-zones-max-${wholeNumber(maxHr || 0)}-lthr-${wholeNumber(lthr || 0)}-${date}`;
+  return `${system}-hr-zones-max-${wholeNumber(state.hr.max || 0)}-lthr-${wholeNumber(state.hr.lthr || 0)}-${date}`;
 }
 
 function downloadBlob(blob, filename) {
@@ -3928,37 +4032,29 @@ function getExportCard(type, system) {
 }
 
 function setImageExportHeader(type, system) {
-  if (type === 'power') {
-    const ftp = getEnteredFtp();
-    const weight = getEnteredWeight();
-    const unit = getEnteredWeightUnit();
-    const wkg = (ftp > 0 && weight > 0)
-      ? (ftp / (unit === 'lbs' ? weight / 2.20462 : weight)).toFixed(2)
-      : '—';
+  const state = getAppState();
 
+  if (type === 'power') {
     const headerEl = system === 'custom'
       ? els.printHeaderCustomPower
       : els.printHeaderDefaultPower;
 
     setPrintHeaderContent(headerEl, system === 'custom' ? 'Custom Power Zones' : 'Default Power Zones', [
-      { label: 'FTP', value: ftp > 0 ? `${wholeNumber(ftp)} W` : '—' },
-      { label: 'Weight', value: weight > 0 ? `${weight} ${unit}` : '—' },
-      { label: 'W/kg', value: wkg }
+      { label: 'FTP', value: state.power.ftp > 0 ? `${wholeNumber(state.power.ftp)} W` : '—' },
+      { label: 'Weight', value: state.power.weight > 0 ? `${state.power.weight} ${state.power.weightUnit}` : '—' },
+      { label: 'W/kg', value: state.power.wkg > 0 ? state.power.wkg.toFixed(2) : '—' }
     ]);
 
     return headerEl;
   }
-
-  const maxHr = getEnteredMaxHr();
-  const lthr = getEnteredLthr();
 
   const headerEl = system === 'custom'
     ? els.printHeaderCustomHr
     : els.printHeaderDefaultHr;
 
   setPrintHeaderContent(headerEl, system === 'custom' ? 'Custom Heart Rate Zones' : 'Default Heart Rate Zones', [
-    { label: 'Max HR', value: maxHr > 0 ? `${wholeNumber(maxHr)} BPM` : '—' },
-    { label: 'LTHR', value: lthr > 0 ? `${wholeNumber(lthr)} BPM` : '—' }
+    { label: 'Max HR', value: state.hr.max > 0 ? `${wholeNumber(state.hr.max)} BPM` : '—' },
+    { label: 'LTHR', value: state.hr.lthr > 0 ? `${wholeNumber(state.hr.lthr)} BPM` : '—' }
   ]);
 
   return headerEl;
