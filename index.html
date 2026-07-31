@@ -1891,7 +1891,7 @@ let activeZoneSystem = 'default';
 let activeHrSubtab = 'default';
 let activePrintSession = null;
 let isPrintLaunching = false;
-
+let lastChangedCustomPowerInput = null;
 
 function deepClone(obj) {
   if (typeof structuredClone === 'function') return structuredClone(obj);
@@ -2222,29 +2222,36 @@ function readCustomPowerRangesFromInputs() {
   return current;
 }
 
-function normalizeMainPowerDisplayRanges(rawRanges) {
-  const out = deepClone(rawRanges);
-  const order = mainZoneOrder();
+function buildDeterministicPowerRangesFromInputs(changedInput, currentAnchors) {
+  let nextRanges = displayRangesFromAnchors(currentAnchors);
 
-  for (let i = 0; i < order.length; i++) {
-    const zoneId = order[i];
+  const zone = changedInput.dataset.zone;
+  const side = changedInput.dataset.side;
+  const value = wholeNumber(clampNonNegative(changedInput.value));
 
-    if (zoneId === 'z1') {
-      out.z1.min = null;
-      continue;
-    }
-
-    const prev = order[i - 1];
-    out[zoneId].min = out[prev].max + 1;
+  if (zone === 'ss') {
+    nextRanges.ss[side] = value;
+    return nextRanges;
   }
 
-  out.z7.max = null;
-  return out;
-}
+  nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
 
-function buildCustomPowerCandidateFromRanges(rawRanges, fallbackAnchors = customPowerAnchors) {
-  const normalized = normalizeMainPowerDisplayRanges(rawRanges);
-  return anchorsFromSyncedDisplayRanges(normalized, fallbackAnchors);
+  document.querySelectorAll('.custom-zone-range-input').forEach(input => {
+    const inputZone = input.dataset.zone;
+    const inputSide = input.dataset.side;
+
+    if (inputZone === zone && inputSide === side) return;
+    if (inputZone === 'ss') return;
+
+    if (
+      (side === 'min' && inputZone === mainZoneOrder()[mainZoneOrder().indexOf(zone) - 1] && inputSide === 'max') ||
+      (side === 'max' && inputZone === mainZoneOrder()[mainZoneOrder().indexOf(zone) + 1] && inputSide === 'min')
+    ) {
+      return;
+    }
+  });
+
+  return nextRanges;
 }
   
 function zonesFromPowerAnchors(anchors) {
@@ -3130,22 +3137,13 @@ function generateCustomZonesTable() {
 }
 
 function buildCustomPowerCandidateFromInput(changedInput, currentAnchors) {
-  const rawRanges = readCustomPowerRangesFromInputs();
-
-  const zone = changedInput.dataset.zone;
-  const side = changedInput.dataset.side;
-  const value = wholeNumber(clampNonNegative(changedInput.value));
-
-  if (rawRanges[zone] && side in rawRanges[zone]) {
-    rawRanges[zone][side] = value;
-  }
-
-  return buildCustomPowerCandidateFromRanges(rawRanges, currentAnchors);
+  const nextRanges = buildDeterministicPowerRangesFromInputs(changedInput, currentAnchors);
+  return anchorsFromSyncedDisplayRanges(nextRanges, currentAnchors);
 }
 
 function buildCustomPowerCandidateFromAllInputs(currentAnchors) {
   const rawRanges = readCustomPowerRangesFromInputs();
-  return buildCustomPowerCandidateFromRanges(rawRanges, currentAnchors);
+  return anchorsFromSyncedDisplayRanges(syncMainZoneDisplayRanges(rawRanges), currentAnchors);
 }
 
 function commitCustomPowerAnchors(nextAnchors) {
@@ -3155,9 +3153,14 @@ function commitCustomPowerAnchors(nextAnchors) {
 }
 
 function validateAndApplyCustomZones(changedInput = null) {
-  const candidateAnchors = changedInput
-    ? buildCustomPowerCandidateFromInput(changedInput, customPowerAnchors)
-    : buildCustomPowerCandidateFromAllInputs(customPowerAnchors);
+  const effectiveInput = changedInput || lastChangedCustomPowerInput;
+
+  const candidateAnchors = effectiveInput
+    ? buildCustomPowerCandidateFromInput(effectiveInput, customPowerAnchors)
+    : anchorsFromSyncedDisplayRanges(
+        displayRangesFromAnchors(customPowerAnchors),
+        customPowerAnchors
+      );
 
   const error = validatePowerAnchors(candidateAnchors);
   els.customZoneError.textContent = error;
@@ -4348,8 +4351,15 @@ function bindCustomZoneInputs() {
     const el = e.target.closest('.custom-zone-range-input');
     if (!el) return;
 
+    lastChangedCustomPowerInput = el;
     sanitizeInput(el, 0);
     validateAndApplyCustomZones(el);
+  });
+
+  els.customZonesTable.addEventListener('input', (e) => {
+    const el = e.target.closest('.custom-zone-range-input');
+    if (!el) return;
+    lastChangedCustomPowerInput = el;
   });
 }
 
