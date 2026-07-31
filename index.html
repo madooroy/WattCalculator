@@ -3722,6 +3722,44 @@ function bindSelectOnFocusToInputList(selector, root = document) {
   root.querySelectorAll(selector).forEach(bindSelectOnFocus);
 }
 
+function bindGlobalSelectOnFocus(root = document) {
+  const docEl = root.documentElement || document.documentElement;
+
+  if (docEl.dataset.globalSelectBound === 'true') return;
+  docEl.dataset.globalSelectBound = 'true';
+
+  const selectAll = (input) => {
+    if (!input || input.disabled || input.readOnly) return;
+
+    requestAnimationFrame(() => {
+      try {
+        input.focus({ preventScroll: true });
+      } catch {}
+
+      try {
+        input.select();
+      } catch {}
+
+      try {
+        if (typeof input.setSelectionRange === 'function') {
+          input.setSelectionRange(0, input.value.length);
+        }
+      } catch {}
+    });
+  };
+
+  const handle = (e) => {
+    const input = e.target.closest('input');
+    if (!input) return;
+    selectAll(input);
+  };
+
+  root.addEventListener('focusin', handle);
+  root.addEventListener('click', handle);
+  root.addEventListener('pointerup', handle);
+  root.addEventListener('touchend', handle, { passive: true });
+}
+  
 function enhanceDynamicInputs(root) {
   bindSelectOnFocusToAll(root);
   bindSelectOnFocusToInputList('.custom-hr-max-inline', root);
@@ -4480,7 +4518,7 @@ function enableDirectionalTableScroll(selector = '.power-matrix-scroll') {
 }
 
 function bindEvents() {
-  bindSelectOnFocusToAll();
+  bindGlobalSelectOnFocus(document);
 
   document.querySelectorAll('[data-tab]').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
