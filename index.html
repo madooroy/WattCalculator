@@ -1820,6 +1820,10 @@ body.exporting-image .export-hide {
  </div>
  </div>
 <script>
+// Sweet Spot is an independent reference band.
+// It does not participate in main zone classification
+// and does not override the primary zone result.
+
 const defaultZonesConfig = [
   { id: 'z1', label: 'Zone 1', desc: 'Active Recovery', min: 0.00, max: 0.55, target: 0.45, colorVar: 'z1' },
   { id: 'z2', label: 'Zone 2', desc: 'Endurance', min: 0.55, max: 0.75, target: 0.655, colorVar: 'z2' },
@@ -2191,12 +2195,56 @@ function writeCustomZoneRangeInputs(ranges) {
   document.querySelectorAll('.custom-zone-range-input').forEach(input => {
     const zone = input.dataset.zone;
     const side = input.dataset.side;
-    const next = String(ranges[zone][side]);
+
+    if (!ranges[zone] || !(side in ranges[zone])) return;
+
+    const next = ranges[zone][side] == null ? '' : String(ranges[zone][side]);
 
     if (document.activeElement !== input && input.value !== next) {
       input.value = next;
     }
   });
+}
+
+function readCustomPowerRangesFromInputs() {
+  const current = displayRangesFromAnchors(customPowerAnchors);
+
+  document.querySelectorAll('.custom-zone-range-input').forEach(input => {
+    const zone = input.dataset.zone;
+    const side = input.dataset.side;
+    const value = wholeNumber(clampNonNegative(input.value));
+
+    if (current[zone] && side in current[zone]) {
+      current[zone][side] = value;
+    }
+  });
+
+  return current;
+}
+
+function normalizeMainPowerDisplayRanges(rawRanges) {
+  const out = deepClone(rawRanges);
+  const order = mainZoneOrder();
+
+  for (let i = 0; i < order.length; i++) {
+    const zoneId = order[i];
+
+    if (zoneId === 'z1') {
+      out.z1.min = null;
+      continue;
+    }
+
+    const prev = order[i - 1];
+    out[zoneId].min = out[prev].max + 1;
+  }
+
+  out.z7.max = null;
+  return out;
+}
+
+function buildCustomPowerCandidateFromRanges(rawRanges, fallbackAnchors = customPowerAnchors) {
+  const normalized = normalizeMainPowerDisplayRanges(rawRanges);
+  return anchorsFromSyncedDisplayRanges(normalized, fallbackAnchors);
 }
   
 function zonesFromPowerAnchors(anchors) {
@@ -2217,42 +2265,54 @@ function zonesFromPowerAnchors(anchors) {
 function validatePowerAnchors(anchors) {
   const ranges = displayRangesFromAnchors(anchors);
 
-  function validateRange(range, label) {
-    if (!(range.min > 0 && range.max > 0)) {
-      return `${label}: Lower and upper values must be greater than 0.`;
-    }
-
-    if (!(range.min < range.max)) {
-      return `${label}: The lower value reached or exceeded the upper value. Lower this zone or the previous zone.`;
-    }
-
-    return '';
-  }
-
   if (!(ranges.z1.max > 0)) {
-    return 'Custom Power Zones: Zone 1: The upper value must be greater than 0.';
+    return 'Custom Power Zones: Zone 1 must end at 1% or higher.';
   }
 
-  let error = validateRange(ranges.z2, 'Custom Power Zones: Zone 2');
-  if (error) return error;
+  if (!(ranges.z2.min > 0 && ranges.z2.max > 0)) {
+    return 'Custom Power Zones: Zone 2 must have valid start and end values.';
+  }
+  if (!(ranges.z2.min < ranges.z2.max)) {
+    return 'Custom Power Zones: Zone 2 must end above its start value.';
+  }
 
-  error = validateRange(ranges.z3, 'Custom Power Zones: Zone 3');
-  if (error) return error;
+  if (!(ranges.z3.min > 0 && ranges.z3.max > 0)) {
+    return 'Custom Power Zones: Zone 3 must have valid start and end values.';
+  }
+  if (!(ranges.z3.min < ranges.z3.max)) {
+    return 'Custom Power Zones: Zone 3 must end above its start value.';
+  }
 
-  error = validateRange(ranges.ss, 'Custom Power Zones: Sweet Spot');
-  if (error) return error;
+  if (!(ranges.ss.min > 0 && ranges.ss.max > 0)) {
+    return 'Custom Power Zones: Sweet Spot must have valid lower and upper values.';
+  }
+  if (!(ranges.ss.min < ranges.ss.max)) {
+    return 'Custom Power Zones: Sweet Spot upper value must be greater than its lower value.';
+  }
 
-  error = validateRange(ranges.z4, 'Custom Power Zones: Zone 4');
-  if (error) return error;
+  if (!(ranges.z4.min > 0 && ranges.z4.max > 0)) {
+    return 'Custom Power Zones: Zone 4 must have valid start and end values.';
+  }
+  if (!(ranges.z4.min < ranges.z4.max)) {
+    return 'Custom Power Zones: Zone 4 must end above its start value.';
+  }
 
-  error = validateRange(ranges.z5, 'Custom Power Zones: Zone 5');
-  if (error) return error;
+  if (!(ranges.z5.min > 0 && ranges.z5.max > 0)) {
+    return 'Custom Power Zones: Zone 5 must have valid start and end values.';
+  }
+  if (!(ranges.z5.min < ranges.z5.max)) {
+    return 'Custom Power Zones: Zone 5 must end above its start value.';
+  }
 
-  error = validateRange(ranges.z6, 'Custom Power Zones: Zone 6');
-  if (error) return error;
+  if (!(ranges.z6.min > 0 && ranges.z6.max > 0)) {
+    return 'Custom Power Zones: Zone 6 must have valid start and end values.';
+  }
+  if (!(ranges.z6.min < ranges.z6.max)) {
+    return 'Custom Power Zones: Zone 6 must end above its start value.';
+  }
 
   if (!(ranges.z7.min > 0)) {
-    return 'Custom Power Zones: Zone 7: The lower value must be greater than 0.';
+    return 'Custom Power Zones: Zone 7 must start at 1% or higher.';
   }
 
   return '';
@@ -2314,51 +2374,48 @@ function validateHrAnchorSet(values, maxHr, lthr) {
     const z5 = metric.z5;
 
     if (!(z1.max > 0 && z1.max <= cap)) {
-      return `${label}: Zone 1: The upper value must be between 1 and ${cap}.`;
+      return `${label}: Zone 1 must end between 1% and ${cap}%.`;
     }
 
     if (!(z2.min > 0 && z2.max > 0 && z2.min <= cap && z2.max <= cap)) {
-      return `${label}: Zone 2: Lower and upper values must be between 1 and ${cap}.`;
+      return `${label}: Zone 2 must have start and end values between 1% and ${cap}%.`;
     }
-
     if (!(z2.min < z2.max)) {
-      return `${label}: Zone 2: The lower value reached or exceeded the upper value. Lower this zone or the previous zone.`;
+      return `${label}: Zone 2 must end above its start value.`;
     }
 
     if (!(z3.min > 0 && z3.max > 0 && z3.min <= cap && z3.max <= cap)) {
-      return `${label}: Zone 3: Lower and upper values must be between 1 and ${cap}.`;
+      return `${label}: Zone 3 must have start and end values between 1% and ${cap}%.`;
     }
-
     if (!(z3.min < z3.max)) {
-      return `${label}: Zone 3: The lower value reached or exceeded the upper value. Lower this zone or the previous zone.`;
+      return `${label}: Zone 3 must end above its start value.`;
     }
 
     if (!(z4.min > 0 && z4.max > 0 && z4.min <= cap && z4.max <= cap)) {
-      return `${label}: Zone 4: Lower and upper values must be between 1 and ${cap}.`;
+      return `${label}: Zone 4 must have start and end values between 1% and ${cap}%.`;
     }
-
     if (!(z4.min < z4.max)) {
-      return `${label}: Zone 4: The lower value reached or exceeded the upper value. Lower this zone or the previous zone.`;
+      return `${label}: Zone 4 must end above its start value.`;
     }
 
     if (!(z5.min > 0 && z5.min <= cap)) {
-      return `${label}: Zone 5: The lower value must be between 1 and ${cap}.`;
+      return `${label}: Zone 5 must start between 1% and ${cap}%.`;
     }
 
     if (z2.min !== z1.max + 1) {
-      return `${label}: Zone 2: The lower value must be exactly 1 point above Zone 1.`;
+      return `${label}: Zone 2 must start exactly 1 point above Zone 1.`;
     }
 
     if (z3.min !== z2.max + 1) {
-      return `${label}: Zone 3: The lower value must be exactly 1 point above Zone 2.`;
+      return `${label}: Zone 3 must start exactly 1 point above Zone 2.`;
     }
 
     if (z4.min !== z3.max + 1) {
-      return `${label}: Zone 4: The lower value must be exactly 1 point above Zone 3.`;
+      return `${label}: Zone 4 must start exactly 1 point above Zone 3.`;
     }
 
     if (z5.min !== z4.max + 1) {
-      return `${label}: Zone 5: The lower value must be exactly 1 point above Zone 4.`;
+      return `${label}: Zone 5 must start exactly 1 point above Zone 4.`;
     }
 
     return '';
@@ -2383,7 +2440,7 @@ function validateHrAnchorSet(values, maxHr, lthr) {
       values.lthr.z4.max > maxAllowedPct ||
       values.lthr.z5.min > maxAllowedPct
     ) {
-      return 'Custom LTHR: One or more values are too high for the Max HR you entered. Increase Max HR or lower the LTHR values.';
+      return 'Custom LTHR: One or more zone values would calculate above your Max HR. Increase Max HR or lower the LTHR percentages.';
     }
   }
 
@@ -2516,6 +2573,41 @@ function getMainZonePctDisplayRanges(system = activeZoneSystem) {
 
   return out;
 }
+
+function getZoneTargetPercent(zone, system = activeZoneSystem) {
+  if (zone.id === 'ss') {
+    const ranges = system === 'custom'
+      ? displayRangesFromAnchors(customPowerAnchors)
+      : {
+          ss: {
+            min: Math.round(zone.min * 100),
+            max: Math.round(zone.max * 100)
+          }
+        };
+
+    const ssRange = ranges.ss;
+    return Math.round((ssRange.min + ssRange.max) / 2);
+  }
+
+  if (system === 'custom') {
+    const ranges = displayRangesFromAnchors(customPowerAnchors);
+    const r = ranges[zone.id];
+
+    if (zone.id === 'z1') return Math.max(1, Math.round(r.max / 2));
+    if (zone.id === 'z7') return r.min + 10;
+    return Math.round((r.min + r.max) / 2);
+  }
+
+  const pctRanges = getMainZonePctDisplayRanges(system);
+  const pctRange = pctRanges.find(z => z.id === zone.id);
+
+  if (!pctRange) return Math.round(zone.target * 100);
+
+  if (pctRange.minPctDisplay === null) return Math.max(1, Math.round(pctRange.maxPctDisplay / 2));
+  if (pctRange.maxPctDisplay === null) return pctRange.minPctDisplay + 10;
+
+  return Math.round((pctRange.minPctDisplay + pctRange.maxPctDisplay) / 2);
+}
   
 function getZoneForWatts(watts, ftp, system = activeZoneSystem) {
   if (!(watts > 0) || !(ftp > 0)) return null;
@@ -2599,6 +2691,7 @@ function getZoneRangeInfo(zone, ftp, system = activeZoneSystem) {
       return {
         pctText: '—',
         wattsText: '—',
+        targetPctText: '—',
         targetText: '—'
       };
     }
@@ -2615,35 +2708,14 @@ function getZoneRangeInfo(zone, ftp, system = activeZoneSystem) {
     }
   }
 
+  const targetPctValue = getZoneTargetPercent(zone, system);
+  const targetWatts = ftp > 0 ? wholeNumber(ftp * (targetPctValue / 100)) : 0;
+
   return {
     pctText,
     wattsText,
-    targetText: `${wholeNumber(ftp * zone.target)}`
-  };
-}
-
-function getCustomZoneTargetInfo(zone, ftp) {
-  const displayRanges = displayRangesFromAnchors(customPowerAnchors);
-  const range = displayRanges[zone.id];
-
-  let targetPctValue;
-
-  if (zone.id === 'z1') {
-    targetPctValue = Math.max(1, Math.max(1, range.max - 10));
-    targetPctValue = Math.min(targetPctValue, range.max);
-  } else if (zone.id === 'z7') {
-    targetPctValue = range.min + 10;
-    targetPctValue = Math.max(targetPctValue, range.min);
-  } else {
-    targetPctValue = Math.round((range.min + range.max) / 2);
-    targetPctValue = Math.max(range.min, Math.min(targetPctValue, range.max));
-  }
-
-  const targetWatts = wholeNumber(ftp * (targetPctValue / 100));
-
-  return {
     targetPctText: `${targetPctValue}%`,
-    targetText: `${targetWatts}`
+    targetText: ftp > 0 ? `${targetWatts}` : '—'
   };
 }
 
@@ -3058,37 +3130,22 @@ function generateCustomZonesTable() {
 }
 
 function buildCustomPowerCandidateFromInput(changedInput, currentAnchors) {
-  let nextRanges = displayRangesFromAnchors(currentAnchors);
+  const rawRanges = readCustomPowerRangesFromInputs();
 
   const zone = changedInput.dataset.zone;
   const side = changedInput.dataset.side;
   const value = wholeNumber(clampNonNegative(changedInput.value));
 
-  if (zone === 'ss') {
-    nextRanges.ss[side] = value;
-  } else {
-    nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
+  if (rawRanges[zone] && side in rawRanges[zone]) {
+    rawRanges[zone][side] = value;
   }
 
-  return anchorsFromSyncedDisplayRanges(nextRanges, currentAnchors);
+  return buildCustomPowerCandidateFromRanges(rawRanges, currentAnchors);
 }
 
 function buildCustomPowerCandidateFromAllInputs(currentAnchors) {
-  let nextRanges = displayRangesFromAnchors(currentAnchors);
-
-  document.querySelectorAll('.custom-zone-range-input').forEach(input => {
-    const zone = input.dataset.zone;
-    const side = input.dataset.side;
-    const value = wholeNumber(clampNonNegative(input.value));
-
-    if (zone === 'ss') {
-      nextRanges.ss[side] = value;
-    } else {
-      nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
-    }
-  });
-
-  return anchorsFromSyncedDisplayRanges(nextRanges, currentAnchors);
+  const rawRanges = readCustomPowerRangesFromInputs();
+  return buildCustomPowerCandidateFromRanges(rawRanges, currentAnchors);
 }
 
 function commitCustomPowerAnchors(nextAnchors) {
@@ -3106,17 +3163,12 @@ function validateAndApplyCustomZones(changedInput = null) {
   els.customZoneError.textContent = error;
 
   if (error) {
-    if (changedInput) {
-      writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
-    }
+    writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
     return;
   }
 
   commitCustomPowerAnchors(candidateAnchors);
-
-  if (changedInput) {
-    writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
-  }
+  writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
 }
 
 function updateFtpDisplays(ftp) {
@@ -3138,21 +3190,20 @@ function updateDefaultPowerZoneTable(ftp) {
     if (!cellSet) return;
     if (cellSet.pct) cellSet.pct.textContent = info.pctText;
     if (cellSet.range) cellSet.range.textContent = info.wattsText;
-    if (cellSet.targetPct) cellSet.targetPct.textContent = `${Math.round(z.target * 100)}%`;
+    if (cellSet.targetPct) cellSet.targetPct.textContent = info.targetPctText;
     if (cellSet.target) cellSet.target.textContent = info.targetText;
   });
 }
 
 function updateCustomPowerZoneTable(ftp) {
-   getCustomZonesConfig().forEach(z => {
+  getCustomZonesConfig().forEach(z => {
     const info = getZoneRangeInfo(z, ftp, 'custom');
-    const targetInfo = getCustomZoneTargetInfo(z, ftp);
     const cellSet = powerCellCache.custom[z.id];
 
     if (!cellSet) return;
     if (cellSet.range) cellSet.range.textContent = info.wattsText;
-    if (cellSet.targetPct) cellSet.targetPct.textContent = targetInfo.targetPctText;
-    if (cellSet.target) cellSet.target.textContent = targetInfo.targetText;
+    if (cellSet.targetPct) cellSet.targetPct.textContent = info.targetPctText;
+    if (cellSet.target) cellSet.target.textContent = info.targetText;
   });
 }
 
@@ -3355,11 +3406,10 @@ function renderHrTables() {
   if (customMaxBody) customMaxBody.innerHTML = buildHrEditableMatrix('max', 'c-', customHrAnchors);
   if (customLthrBody) customLthrBody.innerHTML = buildHrEditableMatrix('lthr', 'c-', customHrAnchors);
 
-  bindSelectOnFocusToAll(els.hrDefaultPanel || document);
-  bindSelectOnFocusToAll(els.hrCustomPanel || document);
-  bindSelectOnFocusToInputList('.custom-hr-max-inline', els.hrCustomPanel || document);
-  bindSelectOnFocusToInputList('.custom-hr-lthr-inline', els.hrCustomPanel || document);
+  enhanceDynamicInputs(els.hrDefaultPanel || document);
+  enhanceDynamicInputs(els.hrCustomPanel || document);
 }
+
 function hrZoneOrder() {
   return ['z1', 'z2', 'z3', 'z4', 'z5'];
 }
@@ -3457,11 +3507,11 @@ function bindCustomHrInlineInputs() {
   els.hrCustomPanel.dataset.bound = 'true';
 
   els.hrCustomPanel.addEventListener('change', (e) => {
-    const el = e.target.closest('.custom-hr-max-inline, .custom-hr-lthr-inline');
-    if (!el) return;
+    const input = e.target.closest('.custom-hr-max-inline, .custom-hr-lthr-inline');
+    if (!input) return;
 
-    sanitizeInput(el, 0);
-    validateAndApplyCustomHR(el);
+    sanitizeInput(input, 0);
+    validateAndApplyCustomHR(input);
   });
 }
 
@@ -3592,13 +3642,13 @@ function updateCustomHRZones() {
 
 function renderCustomPowerZonesUI() {
   generateCustomZonesTable();
-  bindSelectOnFocusToAll(els.customZonesTable);
+  enhanceDynamicInputs(els.customZonesTable || document);
 }
 
 function renderCustomHrUI() {
   renderHrTables();
+  enhanceDynamicInputs(els.hrCustomPanel || document);
   resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
-  bindSelectOnFocusToAll(els.hrCustomPanel);
 }
 
 function resetCustomZones() {
@@ -3667,6 +3717,13 @@ function bindSelectOnFocusToAll(root = document) {
 
 function bindSelectOnFocusToInputList(selector, root = document) {
   root.querySelectorAll(selector).forEach(bindSelectOnFocus);
+}
+
+function enhanceDynamicInputs(root) {
+  bindSelectOnFocusToAll(root);
+  bindSelectOnFocusToInputList('.custom-hr-max-inline', root);
+  bindSelectOnFocusToInputList('.custom-hr-lthr-inline', root);
+  bindSelectOnFocusToInputList('.custom-zone-range-input', root);
 }
 
 function persistOnCommit(el, key, decimals = 0, afterSave) {
