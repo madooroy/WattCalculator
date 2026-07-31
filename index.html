@@ -1881,6 +1881,35 @@ const STORAGE_KEYS = {
   HR_LTHR: 'cycling_hr_lthr_val',
   ACTIVE_SYSTEM: 'cycling_active_system'
 };
+
+const TIMING = {
+  EDIT_COMMIT_DELAY_MS: 30,
+  EXPORT_RENDER_DELAY_MS: 50,
+  HTML2CANVAS_PRELOAD_DELAY_MS: 1200,
+  SCROLL_SYNC_IDLE_MS: 120,
+  BLOB_REVOKE_DELAY_MS: 1000,
+  PRINT_FALLBACK_TIMEOUT_MS: 60000
+};
+
+const LIMITS = {
+  HR_INPUT_MIN: 60,
+  TIME_PART_MAX: 59,
+  POWER_ZONE_PERCENT_MAX: 300,
+  HR_MAX_PERCENT_CAP: 100,
+  HR_LTHR_PERCENT_CAP: 150
+};
+
+const CONVERSION = {
+  LB_PER_KG: 2.20462
+};
+
+const POWER_TARGETS = {
+  OPEN_ENDED_ZONE_OFFSET_PERCENT: 10
+};
+
+const EXPORT_SETTINGS = {
+  IMAGE_SCALE: 2
+};
   
 const els = {};
 const powerCellCache = {
@@ -1914,7 +1943,7 @@ async function commitVisibleCustomEdits() {
   blurActiveInput();
 
   await new Promise(resolve => requestAnimationFrame(resolve));
-  await new Promise(resolve => setTimeout(resolve, 30));
+  await new Promise(resolve => setTimeout(resolve, TIMING.EDIT_COMMIT_DELAY_MS));
 
   if (!els.customZonesTable.hidden) {
     validateAndApplyCustomZones();
@@ -2363,8 +2392,8 @@ function normalizeHrAnchors(value) {
   }
 
   return {
-    max: normalizeMetric('max', 100),
-    lthr: normalizeMetric('lthr', 150)
+    max: normalizeMetric('max', LIMITS.HR_MAX_PERCENT_CAP),
+    lthr: normalizeMetric('lthr', LIMITS.HR_LTHR_PERCENT_CAP)
   };
 }
 
@@ -2428,10 +2457,10 @@ function validateHrAnchorSet(values, maxHr, lthr) {
     return '';
   }
 
-  const maxError = validateMetric(values.max, 'Custom Max HR', 100);
+  const maxError = validateMetric(values.max, 'Custom Max HR', LIMITS.HR_MAX_PERCENT_CAP);
   if (maxError) return maxError;
 
-  const lthrError = validateMetric(values.lthr, 'Custom LTHR', 150);
+  const lthrError = validateMetric(values.lthr, 'Custom LTHR', LIMITS.HR_LTHR_PERCENT_CAP);
   if (lthrError) return lthrError;
 
   if (maxHr > 0 && lthr > 0) {
@@ -3066,7 +3095,7 @@ function generateCustomZonesTable() {
       inputHtml = `
         <div class="matrix-input-wrap">
           <span>≤</span>
-          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="max" type="number" inputmode="numeric" enterkeyhint="done" min="1" max="300" step="1" value="${r.max}" aria-label="${z.label} maximum percentage">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="max" type="number" inputmode="numeric" enterkeyhint="done" min="1" max="${LIMITS.POWER_ZONE_PERCENT_MAX}" step="1" value="${r.max}" aria-label="${z.label} maximum percentage">
           <span>%</span>
         </div>
       `;
@@ -3074,16 +3103,16 @@ function generateCustomZonesTable() {
       inputHtml = `
         <div class="matrix-input-wrap">
           <span>≥</span>
-          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="min" type="number" inputmode="numeric" enterkeyhint="done" min="1" max="300" step="1" value="${r.min}" aria-label="${z.label} minimum percentage">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="min" type="number" inputmode="numeric" enterkeyhint="done" min="1" max="${LIMITS.POWER_ZONE_PERCENT_MAX}" step="1" value="${r.min}" aria-label="${z.label} minimum percentage">
           <span>%</span>
         </div>
       `;
     } else {
       inputHtml = `
         <div class="matrix-input-wrap matrix-input-dual">
-          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="min" type="number" inputmode="numeric" min="1" enterkeyhint="done" max="300" step="1" value="${r.min}" aria-label="${z.label} minimum percentage">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="min" type="number" inputmode="numeric" min="1" enterkeyhint="done" max="${LIMITS.POWER_ZONE_PERCENT_MAX}" step="1" value="${r.min}" aria-label="${z.label} minimum percentage">
           <span>to</span>
-          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="max" type="number" inputmode="numeric" min="1" enterkeyhint="done" max="300" step="1" value="${r.max}" aria-label="${z.label} maximum percentage">
+          <input class="input-small numeric-input custom-zone-range-input" data-zone="${z.id}" data-side="max" type="number" inputmode="numeric" min="1" enterkeyhint="done" max="${LIMITS.POWER_ZONE_PERCENT_MAX}" step="1" value="${r.max}" aria-label="${z.label} maximum percentage">
           <span>%</span>
         </div>
       `;
@@ -3134,6 +3163,7 @@ function generateCustomZonesTable() {
   `;
 
   cacheCustomPowerCells();
+  applyInputLimits();
 }
 
 function buildCustomPowerCandidateFromInput(changedInput, currentAnchors) {
@@ -3181,7 +3211,7 @@ function updateFtpDisplays(ftp) {
 }
 
 function updateWkg(ftp, weight, unit) {
-  const weightKg = unit === 'lbs' ? weight / 2.20462 : weight;
+  const weightKg = unit === 'lbs' ? weight / CONVERSION.LB_PER_KG : weight;
   els.wkgOut.textContent = (weightKg > 0 && ftp > 0) ? (ftp / weightKg).toFixed(2) : '—';
 }
 
@@ -3274,7 +3304,9 @@ function buildHrEditableMatrix(metric, prefix = '', cfg = customHrAnchors) {
   const metricCfg = cfg[metric];
   const anchorLabel = metric === 'max' ? 'Max HR' : 'LTHR';
   const inputClass = metric === 'max' ? 'custom-hr-max-inline' : 'custom-hr-lthr-inline';
-  const maxAttr = metric === 'max' ? '100' : '150';
+  const maxAttr = metric === 'max'   
+    ? String(LIMITS.HR_MAX_PERCENT_CAP)   
+    : String(LIMITS.HR_LTHR_PERCENT_CAP);
 
   const rows = [
     { zone: 1, key: 'z1' },
@@ -3407,6 +3439,7 @@ function renderHrTables() {
   if (customMaxBody) customMaxBody.innerHTML = buildHrEditableMatrix('max', 'c-', customHrAnchors);
   if (customLthrBody) customLthrBody.innerHTML = buildHrEditableMatrix('lthr', 'c-', customHrAnchors);
 
+  applyInputLimits();
 }
 
 function hrZoneOrder() {
@@ -3496,8 +3529,8 @@ function readCustomHrAnchorsInline() {
   }
 
   return {
-    max: readMetric('.custom-hr-max-inline', 100),
-    lthr: readMetric('.custom-hr-lthr-inline', 150)
+    max: readMetric('.custom-hr-max-inline', LIMITS.HR_MAX_PERCENT_CAP),
+    lthr: readMetric('.custom-hr-lthr-inline', LIMITS.HR_LTHR_PERCENT_CAP)
   };
 }
 
@@ -3529,7 +3562,9 @@ function validateAndApplyCustomHR(changedInput = null) {
 
   if (changedInput) {
     const metric = changedInput.classList.contains('custom-hr-max-inline') ? 'max' : 'lthr';
-    const cap = metric === 'max' ? 100 : 150;
+    const cap = metric === 'max'
+      ? LIMITS.HR_MAX_PERCENT_CAP
+      : LIMITS.HR_LTHR_PERCENT_CAP;
     const zone = changedInput.dataset.zone;
     const side = changedInput.dataset.side;
     const value = changedInput.value;
@@ -3823,7 +3858,7 @@ function getAppState() {
     : 0;
 
   const weightKg = weight > 0
-    ? (weightUnit === 'lbs' ? weight / 2.20462 : weight)
+    ? (weightUnit === 'lbs' ? weight / CONVERSION.LB_PER_KG : weight)
     : 0;
 
   const wkg = (ftp > 0 && weightKg > 0)
@@ -4020,7 +4055,7 @@ function downloadBlob(blob, filename) {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setTimeout(() => URL.revokeObjectURL(url), TIMING.BLOB_REVOKE_DELAY_MS);
 }
 
 function getExportCard(type, system) {
@@ -4117,7 +4152,7 @@ function loadHtml2Canvas() {
 function preloadHtml2Canvas() {
   setTimeout(() => {
     loadHtml2Canvas().catch(() => {});
-  }, 1200);
+  }, TIMING.HTML2CANVAS_PRELOAD_DELAY_MS);
 }
 
 async function saveZonesImage(type, system) {
@@ -4160,7 +4195,7 @@ async function saveZonesImage(type, system) {
     if (triggerBtn) triggerBtn.textContent = 'Saving...';
 
     await new Promise(resolve => requestAnimationFrame(resolve));
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise(resolve => setTimeout(resolve, TIMING.EXPORT_RENDER_DELAY_MS));
 
     const canvas = await html2canvasFn(target, {
       backgroundColor: '#ffffff',
@@ -4284,7 +4319,7 @@ function runScopedPrint(mode) {
 
   fallbackTimer = setTimeout(() => {
     cleanup();
-  }, 60000);
+  }, TIMING.PRINT_FALLBACK_TIMEOUT_MS);
 
   if (mode === 'power-default') document.title = buildExportFilename('power', 'default');
   else if (mode === 'power-custom') document.title = buildExportFilename('power', 'custom');
@@ -4306,7 +4341,7 @@ async function printPowerZones(system) {
   const { ftp, weight, unit } = getCurrentHeaderSnapshot();
 
   const wkg = (ftp > 0 && weight > 0)
-    ? (ftp / (unit === 'lbs' ? weight / 2.20462 : weight)).toFixed(2)
+    ? (ftp / (unit === 'lbs' ? weight / CONVERSION.LB_PER_KG : weight)).toFixed(2)
     : '—';
 
   const title = system === 'custom' ? 'Custom Power Zones' : 'Default Power Zones';
@@ -4432,6 +4467,39 @@ function initCache() {
   });
 }
 
+function applyInputLimits() {
+  [els.hrMaxIn, els.hrLthrIn].forEach(el => {
+    if (el) el.min = String(LIMITS.HR_INPUT_MIN);
+  });
+
+  [
+    els.kjMinutesPartIn,
+    els.kjSecondsIn,
+    els.wattsMinutesPartIn,
+    els.wattsSecondsIn
+  ].forEach(el => {
+    if (el) el.max = String(LIMITS.TIME_PART_MAX);
+  });
+
+  document.querySelectorAll('.custom-zone-range-input').forEach(el => {
+    el.min = '1';
+    el.max = String(LIMITS.POWER_ZONE_PERCENT_MAX);
+    el.step = '1';
+  });
+
+  document.querySelectorAll('.custom-hr-max-inline').forEach(el => {
+    el.min = '1';
+    el.max = String(LIMITS.HR_MAX_PERCENT_CAP);
+    el.step = '1';
+  });
+
+  document.querySelectorAll('.custom-hr-lthr-inline').forEach(el => {
+    el.min = '1';
+    el.max = String(LIMITS.HR_LTHR_PERCENT_CAP);
+    el.step = '1';
+  });
+}
+
 function bindCustomZoneInputs() {
   if (!els.customZonesTable || els.customZonesTable.dataset.bound === 'true') return;
   els.customZonesTable.dataset.bound = 'true';
@@ -4486,7 +4554,7 @@ function syncHorizontalScroll(elA, elB) {
     if (interactionTimer) clearTimeout(interactionTimer);
     interactionTimer = setTimeout(() => {
       activeSource = null;
-    }, 120);
+    }, TIMING.SCROLL_SYNC_IDLE_MS);
   };
 
   const applySync = () => {
@@ -4725,6 +4793,7 @@ function loadSavedValues() {
 
 window.addEventListener('DOMContentLoaded', () => {
   initCache();
+  applyInputLimits();
   generateDefaultTables();
 
   bindEvents();
