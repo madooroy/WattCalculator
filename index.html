@@ -930,27 +930,6 @@ tr:last-child td { border-bottom: none; }
   padding: 8px;
 }
 
-#hr-default-panel .controls-row,
-#hr-custom-panel .controls-row,
-#hr-default-panel .export-actions,
-#hr-custom-panel .export-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin: 0 0 10px 0;
-  flex-wrap: wrap;
-}
-
-#hr-default-panel .help-text.export-hide,
-#hr-custom-panel .help-text.export-hide,
-#hr-default-panel .custom-swipe-note.help-text,
-#hr-custom-panel .custom-swipe-note.help-text {
-  font-size: 12px;
-  line-height: 1.4;
-  margin: 0 0 12px 0;
-  text-align: left;
-}
-
 #hr-default-panel .table-scroll-wrapper,
 #hr-custom-panel .table-scroll-wrapper {
   margin: 0;
@@ -972,10 +951,6 @@ tr:last-child td { border-bottom: none; }
 #hr-custom-panel > .help-text:first-of-type {
   margin-top: 0;
   margin-bottom: 12px;
-}
-
-#hr-custom-panel .export-actions {
-  margin-bottom: 10px;
 }
 
 #hr-custom-panel .hr-group-title:first-of-type {
@@ -1927,10 +1902,8 @@ function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 function clampNonNegative(value) { const n = parseFloat(value); return Number.isFinite(n) && n >= 0 ? n : 0; }
+
 function wholeNumber(value) { return Math.round(value); }
-function hasInputValue(el) {
-  return String(el?.value ?? '').trim() !== '';
-}
 
 function blurActiveInput() {
   const active = document.activeElement;
@@ -2630,7 +2603,7 @@ function getZoneTargetPercent(zone, system = activeZoneSystem) {
     const r = ranges[zone.id];
 
     if (zone.id === 'z1') return Math.max(1, Math.round(r.max / 2));
-    if (zone.id === 'z7') return r.min + 10;
+    if (zone.id === 'z7') return r.min + POWER_TARGETS.OPEN_ENDED_ZONE_OFFSET_PERCENT;
     return Math.round((r.min + r.max) / 2);
   }
 
@@ -2640,7 +2613,7 @@ function getZoneTargetPercent(zone, system = activeZoneSystem) {
   if (!pctRange) return Math.round(zone.target * 100);
 
   if (pctRange.minPctDisplay === null) return Math.max(1, Math.round(pctRange.maxPctDisplay / 2));
-  if (pctRange.maxPctDisplay === null) return pctRange.minPctDisplay + 10;
+  if (pctRange.maxPctDisplay === null) return pctRange.minPctDisplay + POWER_TARGETS.OPEN_ENDED_ZONE_OFFSET_PERCENT;
 
   return Math.round((pctRange.minPctDisplay + pctRange.maxPctDisplay) / 2);
 }
@@ -2808,8 +2781,6 @@ function applyHrViewState() {
   renderHrTables();
   bindCustomHrInlineInputs();
   setHrSubtab(activeHrSubtab || 'default');
-  updateHRZones();
-  updateCustomHRZones();
   resetPairedHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
   resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
 }
@@ -2847,13 +2818,7 @@ function switchTab(type) {
   }
 
   if (type === 'hr') {
-    renderHrTables();
-    bindCustomHrInlineInputs();
-    setHrSubtab(activeHrSubtab || 'default');
-    updateHRZones();
-    updateCustomHRZones();
-    resetPairedHorizontalScroll(els.hrDefaultMaxScroll, els.hrDefaultLthrScroll);
-    resetPairedHorizontalScroll(els.hrCustomMaxScroll, els.hrCustomLthrScroll);
+    applyHrViewState();
     return;
   }
 }
@@ -2913,6 +2878,10 @@ function setHrSubtab(val) {
   els.hrDefaultPanel.hidden = !isDefault;
   els.hrCustomPanel.hidden = !isCustom;
 
+  refreshAllHrZoneViews();
+}
+
+function refreshAllHrZoneViews() {
   updateHRZones();
   updateCustomHRZones();
 }
@@ -3187,10 +3156,7 @@ function validateAndApplyCustomZones(changedInput = null) {
 
   const candidateAnchors = effectiveInput
     ? buildCustomPowerCandidateFromInput(effectiveInput, customPowerAnchors)
-    : anchorsFromSyncedDisplayRanges(
-        displayRangesFromAnchors(customPowerAnchors),
-        customPowerAnchors
-      );
+    : buildCustomPowerCandidateFromAllInputs(customPowerAnchors);
 
   const error = validatePowerAnchors(candidateAnchors);
   els.customZoneError.textContent = error;
@@ -3676,6 +3642,11 @@ function updateCustomHRZones() {
   applyHrRanges('c-', maxHr, lthr, customHrAnchors);
 }
 
+function refreshAllHrZoneViews() {
+  updateHRZones();
+  updateCustomHRZones();
+}
+  
 function renderCustomPowerZonesUI() {
   generateCustomZonesTable();
   enhanceDynamicInputs(els.customZonesTable || document);
@@ -3707,16 +3678,14 @@ function resetCustomHR() {
 
   if (els.hrInputError.textContent) {
     els.customHrError.textContent = '';
-    updateHRZones();
-    updateCustomHRZones();
+    refreshAllHrZoneViews();
     return;
   }
 
   const error = validateHrAnchorSet(customHrAnchors, maxHr, lthr);
   els.customHrError.textContent = error;
 
-  updateHRZones();
-  updateCustomHRZones();
+  refreshAllHrZoneViews();
 }
 
 function bindGlobalSelectOnFocus(root = document) {
@@ -4184,8 +4153,7 @@ async function saveZonesImage(type, system) {
     if (type === 'power') {
       updateZones();
     } else {
-      updateHRZones();
-      updateCustomHRZones();
+       refreshAllHrZoneViews();
     }
 
     exportClone = buildExportClone(type, system);
@@ -4199,7 +4167,7 @@ async function saveZonesImage(type, system) {
 
     const canvas = await html2canvasFn(target, {
       backgroundColor: '#ffffff',
-      scale: 2,
+      scale: EXPORT_SETTINGS.IMAGE_SCALE,
       useCORS: true,
       logging: false
     });
@@ -4218,10 +4186,14 @@ async function saveZonesImage(type, system) {
     clearPrintHeaders();
     setPrintButtonsDisabled(false);
 
-    if (els.saveDefaultPowerImage) els.saveDefaultPowerImage.textContent = 'Save Image';
-    if (els.saveCustomPowerImage) els.saveCustomPowerImage.textContent = 'Save Image';
-    if (els.saveDefaultHrImage) els.saveDefaultHrImage.textContent = 'Save Image';
-    if (els.saveCustomHrImage) els.saveCustomHrImage.textContent = 'Save Image';
+    [
+      els.saveDefaultPowerImage,
+      els.saveCustomPowerImage,
+      els.saveDefaultHrImage,
+      els.saveCustomHrImage
+    ].forEach(btn => {
+      if (btn) btn.textContent = 'Save Image';
+    });
   }
 }
 
@@ -4298,8 +4270,7 @@ function runScopedPrint(mode) {
     if (!els.hrView.hidden) {
       els.hrDefaultPanel.hidden = activeHrSubtab !== 'default';
       els.hrCustomPanel.hidden = activeHrSubtab !== 'custom';
-      updateHRZones();
-      updateCustomHRZones();
+      refreshAllHrZoneViews();
     }
 
     forcePrintLayoutFlush();
@@ -4699,8 +4670,7 @@ function bindEvents() {
   els.newFtpTime.addEventListener('input', syncProposed);
 
   const refreshHrViews = () => {
-    updateHRZones();
-    updateCustomHRZones();
+    refreshAllHrZoneViews();
   };
 
   els.hrMaxIn.addEventListener('input', refreshHrViews);
@@ -4818,8 +4788,6 @@ window.addEventListener('DOMContentLoaded', () => {
     enableDirectionalTableScroll();
 
     setHrSubtab('default');
-    updateHRZones();
-    updateCustomHRZones(); 
   });
 
   preloadHtml2Canvas();
