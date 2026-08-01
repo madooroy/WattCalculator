@@ -1897,6 +1897,28 @@ let activePrintSession = null;
 let isPrintLaunching = false;
 let lastChangedCustomPowerInput = null;
 
+function getAllExportButtons() {
+  return [
+    els.printDefaultPowerZones,
+    els.printCustomPowerZones,
+    els.printDefaultHrZones,
+    els.printCustomHrZones,
+    els.saveDefaultPowerImage,
+    els.saveCustomPowerImage,
+    els.saveDefaultHrImage,
+    els.saveCustomHrImage
+  ].filter(Boolean);
+}
+
+function getAllImageExportButtons() {
+  return [
+    els.saveDefaultPowerImage,
+    els.saveCustomPowerImage,
+    els.saveDefaultHrImage,
+    els.saveCustomHrImage
+  ].filter(Boolean);
+}
+  
 function deepClone(obj) {
   if (typeof structuredClone === 'function') return structuredClone(obj);
   return JSON.parse(JSON.stringify(obj));
@@ -2237,22 +2259,6 @@ function buildDeterministicPowerRangesFromInputs(changedInput, currentAnchors) {
   }
 
   nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
-
-  document.querySelectorAll('.custom-zone-range-input').forEach(input => {
-    const inputZone = input.dataset.zone;
-    const inputSide = input.dataset.side;
-
-    if (inputZone === zone && inputSide === side) return;
-    if (inputZone === 'ss') return;
-
-    if (
-      (side === 'min' && inputZone === mainZoneOrder()[mainZoneOrder().indexOf(zone) - 1] && inputSide === 'max') ||
-      (side === 'max' && inputZone === mainZoneOrder()[mainZoneOrder().indexOf(zone) + 1] && inputSide === 'min')
-    ) {
-      return;
-    }
-  });
-
   return nextRanges;
 }
   
@@ -2322,6 +2328,25 @@ function validatePowerAnchors(anchors) {
 
   if (!(ranges.z7.min > 0)) {
     return 'Custom Power Zones: Zone 7 must start at 1% or higher.';
+  }
+
+  if (ranges.z2.min !== ranges.z1.max + 1) {
+    return 'Custom Power Zones: Zone 2 must start exactly 1 point above Zone 1.';
+  }
+  if (ranges.z3.min !== ranges.z2.max + 1) {
+    return 'Custom Power Zones: Zone 3 must start exactly 1 point above Zone 2.';
+  }
+  if (ranges.z4.min !== ranges.z3.max + 1) {
+    return 'Custom Power Zones: Zone 4 must start exactly 1 point above Zone 3.';
+  }
+  if (ranges.z5.min !== ranges.z4.max + 1) {
+    return 'Custom Power Zones: Zone 5 must start exactly 1 point above Zone 4.';
+  }
+  if (ranges.z6.min !== ranges.z5.max + 1) {
+    return 'Custom Power Zones: Zone 6 must start exactly 1 point above Zone 5.';
+  }
+  if (ranges.z7.min !== ranges.z6.max + 1) {
+    return 'Custom Power Zones: Zone 7 must start exactly 1 point above Zone 6.';
   }
 
   return '';
@@ -2858,10 +2883,6 @@ function setActiveZoneSystem(val, persist = true) {
   els.customZonesTable.hidden = !isCustom;
 
   updateZones();
-}
-
-function setZoneSubtab(val, persist = true) {
-  setActiveZoneSystem(val, persist);
 }
 
 function setHrSubtab(val) {
@@ -3511,6 +3532,11 @@ function bindCustomHrInlineInputs() {
     sanitizeInput(input, 0);
     validateAndApplyCustomHR(input);
   });
+
+  els.hrCustomPanel.addEventListener('input', (e) => {
+    const input = e.target.closest('.custom-hr-max-inline, .custom-hr-lthr-inline');
+    if (!input) return;
+  });
 }
 
 function validateAndApplyCustomHR(changedInput = null) {
@@ -3641,11 +3667,6 @@ function updateCustomHRZones() {
 
   applyHrRanges('c-', maxHr, lthr, customHrAnchors);
 }
-
-function refreshAllHrZoneViews() {
-  updateHRZones();
-  updateCustomHRZones();
-}
   
 function renderCustomPowerZonesUI() {
   generateCustomZonesTable();
@@ -3662,7 +3683,20 @@ function resetCustomZones() {
   customPowerAnchors = defaultPowerAnchors();
   saveCustomPowerAnchors();
   renderCustomPowerZonesUI();
-  updateZones();
+  bindCustomZoneInputs();
+
+  const ftp = readNonNegativeOrNull(els.ftpIn) ?? 0;
+
+  updateFtpDisplays(ftp);
+  updateWkg(
+    ftp,
+    readNonNegativeOrNull(els.weightIn) ?? 0,
+    els.weightUnit?.value || 'lbs'
+  );
+  updateDefaultPowerZoneTable(ftp);
+  updateCustomPowerZoneTable(ftp);
+  recalculateAllBadges();
+
   els.customZoneError.textContent = '';
 }
 
@@ -3670,6 +3704,7 @@ function resetCustomHR() {
   customHrAnchors = deepClone(defaultHrPercentConfig);
   saveCustomHrAnchors();
   renderCustomHrUI();
+  bindCustomHrInlineInputs();
 
   const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
   const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
@@ -3678,14 +3713,12 @@ function resetCustomHR() {
 
   if (els.hrInputError.textContent) {
     els.customHrError.textContent = '';
-    refreshAllHrZoneViews();
+    applyHrRanges('c-', 0, 0, customHrAnchors);
     return;
   }
 
-  const error = validateHrAnchorSet(customHrAnchors, maxHr, lthr);
-  els.customHrError.textContent = error;
-
-  refreshAllHrZoneViews();
+  els.customHrError.textContent = validateHrAnchorSet(customHrAnchors, maxHr, lthr);
+  applyHrRanges('c-', maxHr, lthr, customHrAnchors);
 }
 
 function bindGlobalSelectOnFocus(root = document) {
@@ -3764,6 +3797,26 @@ function persistOnInput(el, key, decimals = 0) {
   });
 }
 
+function addInputListeners(elements, handler) {
+  elements.filter(Boolean).forEach(el => {
+    el.addEventListener('input', handler);
+  });
+}
+
+function bindPersistOnCommit(elements, keyMap, decimals = 0, afterSave) {
+  elements.filter(Boolean).forEach(el => {
+    const key = keyMap.get(el);
+    if (key) persistOnCommit(el, key, decimals, afterSave);
+  });
+}
+
+function bindPersistOnInput(elements, keyMap, decimals = 0) {
+  elements.filter(Boolean).forEach(el => {
+    const key = keyMap.get(el);
+    if (key) persistOnInput(el, key, decimals);
+  });
+}
+  
 function getCurrentHeaderSnapshot() {
   return getAppState().headers;
 }
@@ -3944,17 +3997,7 @@ function clearPrintHeaders() {
 }
 
 function setPrintButtonsDisabled(disabled) {
-  [
-    els.printDefaultPowerZones,
-    els.printCustomPowerZones,
-    els.printDefaultHrZones,
-    els.printCustomHrZones,
-    els.saveDefaultPowerImage,
-    els.saveCustomPowerImage,
-    els.saveDefaultHrImage,
-    els.saveCustomHrImage
-  ].forEach(btn => {
-    if (!btn) return;
+  getAllExportButtons().forEach(btn => {
     btn.disabled = disabled;
     btn.setAttribute('aria-disabled', String(disabled));
   });
@@ -4186,13 +4229,8 @@ async function saveZonesImage(type, system) {
     clearPrintHeaders();
     setPrintButtonsDisabled(false);
 
-    [
-      els.saveDefaultPowerImage,
-      els.saveCustomPowerImage,
-      els.saveDefaultHrImage,
-      els.saveCustomHrImage
-    ].forEach(btn => {
-      if (btn) btn.textContent = 'Save Image';
+    getAllImageExportButtons().forEach(btn => {
+      btn.textContent = 'Save Image';
     });
   }
 }
@@ -4615,7 +4653,7 @@ function bindEvents() {
   });
 
   document.querySelectorAll('[data-zone-subtab]').forEach(btn => {
-    btn.addEventListener('click', () => setZoneSubtab(btn.dataset.zoneSubtab));
+    btn.addEventListener('click', () => setActiveZoneSystem(btn.dataset.zoneSubtab));
   });
 
   document.querySelectorAll('[data-hr-subtab]').forEach(btn => {
@@ -4623,7 +4661,7 @@ function bindEvents() {
   });
 
   bindTablistKeyboard('[data-tab]', tab => switchTab(tab.dataset.tab));
-  bindTablistKeyboard('[data-zone-subtab]', tab => setZoneSubtab(tab.dataset.zoneSubtab));
+  bindTablistKeyboard('[data-zone-subtab]', tab => setActiveZoneSystem(tab.dataset.zoneSubtab));
   bindTablistKeyboard('[data-hr-subtab]', tab => setHrSubtab(tab.dataset.hrSubtab));
 
   els.toggleSystemKj.addEventListener('click', toggleActiveSystem);
@@ -4643,17 +4681,9 @@ function bindEvents() {
   els.saveDefaultHrImage.addEventListener('click', () => saveZonesImage('hr', 'default'));
   els.saveCustomHrImage.addEventListener('click', () => saveZonesImage('hr', 'custom'));
 
-  els.wattsIn.addEventListener('input', calcKJ);
-  els.kjIn.addEventListener('input', calcWatts);
-  els.timeKjIn.addEventListener('input', calcTime);
-  els.timeWattsIn.addEventListener('input', calcTime);
-
-  els.kjHoursIn.addEventListener('input', calcKJ);
-  els.kjMinutesPartIn.addEventListener('input', calcKJ);
-  els.kjSecondsIn.addEventListener('input', calcKJ);
-  els.wattsHoursIn.addEventListener('input', calcWatts);
-  els.wattsMinutesPartIn.addEventListener('input', calcWatts);
-  els.wattsSecondsIn.addEventListener('input', calcWatts);
+  addInputListeners([els.wattsIn, els.kjHoursIn, els.kjMinutesPartIn, els.kjSecondsIn], calcKJ);
+  addInputListeners([els.kjIn, els.wattsHoursIn, els.wattsMinutesPartIn, els.wattsSecondsIn], calcWatts);
+  addInputListeners([els.timeKjIn, els.timeWattsIn], calcTime);
 
   els.ftpIn.addEventListener('input', updateZones);
   els.weightIn.addEventListener('input', updateZones);
@@ -4665,19 +4695,15 @@ function bindEvents() {
   });
 
   const syncProposed = (e) => setNewFTP(e.target.value, false);
-  els.newFtpKj.addEventListener('input', syncProposed);
-  els.newFtpWatts.addEventListener('input', syncProposed);
-  els.newFtpTime.addEventListener('input', syncProposed);
+  [els.newFtpKj, els.newFtpWatts, els.newFtpTime].filter(Boolean).forEach(el => {
+    el.addEventListener('input', syncProposed);
+  });
 
   const refreshHrViews = () => {
     refreshAllHrZoneViews();
   };
 
-  els.hrMaxIn.addEventListener('input', refreshHrViews);
-  els.hrLthrIn.addEventListener('input', refreshHrViews);
-
-  els.hrMaxIn.addEventListener('change', validateAndApplyCustomHR);
-  els.hrLthrIn.addEventListener('change', validateAndApplyCustomHR);
+  addInputListeners([els.hrMaxIn, els.hrLthrIn], refreshHrViews);
 
   persistOnCommit(els.ftpIn, STORAGE_KEYS.FTP, 0, updateZones);
   persistOnCommit(els.weightIn, STORAGE_KEYS.WEIGHT, 1, updateZones);
@@ -4693,34 +4719,74 @@ function bindEvents() {
   persistOnCommit(els.newFtpWatts, STORAGE_KEYS.NEW_FTP, 0, clean => setNewFTP(clean, false));
   persistOnCommit(els.newFtpTime, STORAGE_KEYS.NEW_FTP, 0, clean => setNewFTP(clean, false));
 
-  persistOnCommit(els.kjHoursIn, STORAGE_KEYS.FIND_KJ_HOURS, 0, calcKJ);
-  persistOnCommit(els.kjMinutesPartIn, STORAGE_KEYS.FIND_KJ_MINUTES_PART, 0, calcKJ);
-  persistOnCommit(els.kjSecondsIn, STORAGE_KEYS.FIND_KJ_SECONDS, 0, calcKJ);
+  bindPersistOnCommit(
+    [els.kjHoursIn, els.kjMinutesPartIn, els.kjSecondsIn],
+    new Map([
+      [els.kjHoursIn, STORAGE_KEYS.FIND_KJ_HOURS],
+      [els.kjMinutesPartIn, STORAGE_KEYS.FIND_KJ_MINUTES_PART],
+      [els.kjSecondsIn, STORAGE_KEYS.FIND_KJ_SECONDS]
+    ]),
+    0,
+    calcKJ
+  );
 
-  persistOnCommit(els.wattsHoursIn, STORAGE_KEYS.FIND_WATTS_HOURS, 0, calcWatts);
-  persistOnCommit(els.wattsMinutesPartIn, STORAGE_KEYS.FIND_WATTS_MINUTES_PART, 0, calcWatts);
-  persistOnCommit(els.wattsSecondsIn, STORAGE_KEYS.FIND_WATTS_SECONDS, 0, calcWatts);
+  bindPersistOnCommit(
+    [els.wattsHoursIn, els.wattsMinutesPartIn, els.wattsSecondsIn],
+    new Map([
+      [els.wattsHoursIn, STORAGE_KEYS.FIND_WATTS_HOURS],
+      [els.wattsMinutesPartIn, STORAGE_KEYS.FIND_WATTS_MINUTES_PART],
+      [els.wattsSecondsIn, STORAGE_KEYS.FIND_WATTS_SECONDS]
+    ]),
+    0,
+    calcWatts
+  );
 
-  persistOnInput(els.ftpIn, STORAGE_KEYS.FTP);
-  persistOnInput(els.weightIn, STORAGE_KEYS.WEIGHT, 1);
-  persistOnInput(els.hrMaxIn, STORAGE_KEYS.HR_MAX);
-  persistOnInput(els.hrLthrIn, STORAGE_KEYS.HR_LTHR);
-  persistOnInput(els.newFtpKj, STORAGE_KEYS.NEW_FTP);
-  persistOnInput(els.newFtpWatts, STORAGE_KEYS.NEW_FTP);
-  persistOnInput(els.newFtpTime, STORAGE_KEYS.NEW_FTP);
+  bindPersistOnInput(
+    [
+      els.ftpIn,
+      els.hrMaxIn,
+      els.hrLthrIn,
+      els.newFtpKj,
+      els.newFtpWatts,
+      els.newFtpTime,
+      els.wattsIn,
+      els.kjIn,
+      els.timeKjIn,
+      els.timeWattsIn,
+      els.kjHoursIn,
+      els.kjMinutesPartIn,
+      els.kjSecondsIn,
+      els.wattsHoursIn,
+      els.wattsMinutesPartIn,
+      els.wattsSecondsIn
+    ],
+    new Map([
+      [els.ftpIn, STORAGE_KEYS.FTP],
+      [els.hrMaxIn, STORAGE_KEYS.HR_MAX],
+      [els.hrLthrIn, STORAGE_KEYS.HR_LTHR],
+      [els.newFtpKj, STORAGE_KEYS.NEW_FTP],
+      [els.newFtpWatts, STORAGE_KEYS.NEW_FTP],
+      [els.newFtpTime, STORAGE_KEYS.NEW_FTP],
+      [els.wattsIn, STORAGE_KEYS.FIND_KJ_AVG_WATTS],
+      [els.kjIn, STORAGE_KEYS.FIND_WATTS_TOTAL_KJ],
+      [els.timeKjIn, STORAGE_KEYS.FIND_TIME_TOTAL_KJ],
+      [els.timeWattsIn, STORAGE_KEYS.FIND_TIME_AVG_WATTS],
+      [els.kjHoursIn, STORAGE_KEYS.FIND_KJ_HOURS],
+      [els.kjMinutesPartIn, STORAGE_KEYS.FIND_KJ_MINUTES_PART],
+      [els.kjSecondsIn, STORAGE_KEYS.FIND_KJ_SECONDS],
+      [els.wattsHoursIn, STORAGE_KEYS.FIND_WATTS_HOURS],
+      [els.wattsMinutesPartIn, STORAGE_KEYS.FIND_WATTS_MINUTES_PART],
+      [els.wattsSecondsIn, STORAGE_KEYS.FIND_WATTS_SECONDS]
+    ])
+  );
 
-  persistOnInput(els.wattsIn, STORAGE_KEYS.FIND_KJ_AVG_WATTS);
-  persistOnInput(els.kjIn, STORAGE_KEYS.FIND_WATTS_TOTAL_KJ);
-  persistOnInput(els.timeKjIn, STORAGE_KEYS.FIND_TIME_TOTAL_KJ);
-  persistOnInput(els.timeWattsIn, STORAGE_KEYS.FIND_TIME_AVG_WATTS);
-
-  persistOnInput(els.kjHoursIn, STORAGE_KEYS.FIND_KJ_HOURS);
-  persistOnInput(els.kjMinutesPartIn, STORAGE_KEYS.FIND_KJ_MINUTES_PART);
-  persistOnInput(els.kjSecondsIn, STORAGE_KEYS.FIND_KJ_SECONDS);
-
-  persistOnInput(els.wattsHoursIn, STORAGE_KEYS.FIND_WATTS_HOURS);
-  persistOnInput(els.wattsMinutesPartIn, STORAGE_KEYS.FIND_WATTS_MINUTES_PART);
-  persistOnInput(els.wattsSecondsIn, STORAGE_KEYS.FIND_WATTS_SECONDS);
+  bindPersistOnInput(
+    [els.weightIn],
+    new Map([
+      [els.weightIn, STORAGE_KEYS.WEIGHT]
+    ]),
+    1
+  );
 }
 
 function loadSavedValues() {
