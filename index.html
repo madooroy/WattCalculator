@@ -1935,13 +1935,10 @@ function blurActiveInput() {
 }
 
 async function commitVisibleCustomEdits() {
-  blurActiveInput();
-
   await new Promise(resolve => requestAnimationFrame(resolve));
-  await new Promise(resolve => setTimeout(resolve, TIMING.EDIT_COMMIT_DELAY_MS));
 
   if (!els.customZonesTable.hidden) {
-    validateAndApplyCustomZones();
+    validateAndApplyCustomZones(lastChangedCustomPowerInput);
   }
 
   if (!els.hrCustomPanel.hidden) {
@@ -4119,6 +4116,7 @@ function buildExportClone(type, system) {
   host.className = 'export-clone-host';
 
   const clone = source.cloneNode(true);
+  clone.classList.add('export-capture');
 
   clone.querySelectorAll('.controls-row, .export-actions, .export-help-text, .no-export').forEach(el => {
     el.remove();
@@ -4197,10 +4195,13 @@ async function saveZonesImage(type, system) {
 
     setImageExportHeader(type, system);
 
-    if (type === 'power') {
-      updateZones();
-    } else {
-       refreshAllHrZoneViews();
+    if (type === 'power' && system === 'custom') {
+      writeCustomZoneRangeInputs(displayRangesFromAnchors(customPowerAnchors));
+    }
+
+    if (type === 'hr' && system === 'custom') {
+      writeCustomHrInputs('max', customHrAnchors.max);
+      writeCustomHrInputs('lthr', customHrAnchors.lthr);
     }
 
     exportClone = buildExportClone(type, system);
@@ -4228,6 +4229,7 @@ async function saveZonesImage(type, system) {
     downloadBlob(blob, filename);
   } catch (error) {
     console.error('Save image failed:', error);
+    alert('Save Image failed. Check the browser console for details.');
   } finally {
     destroyExportClone(exportClone);
     clearPrintHeaders();
