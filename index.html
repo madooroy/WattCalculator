@@ -3684,20 +3684,21 @@ function resetCustomZones() {
   saveCustomPowerAnchors();
   els.customZoneError.textContent = '';
 
-  renderCustomPowerZonesUI();
+  generateCustomZonesTable();
+  bindCustomZoneInputs();
 
-  requestAnimationFrame(() => {
-    const ftp = readNonNegativeOrNull(els.ftpIn) ?? 0;
-    updateCustomPowerZoneTable(ftp);
-    updateDefaultPowerZoneTable(ftp);
-    updateFtpDisplays(ftp);
-    updateWkg(
-      ftp,
-      readNonNegativeOrNull(els.weightIn) ?? 0,
-      els.weightUnit?.value || 'lbs'
-    );
-    recalculateAllBadges();
-  });
+  const ftp = readNonNegativeOrNull(els.ftpIn) ?? 0;
+  updateFtpDisplays(ftp);
+  updateWkg(
+    ftp,
+    readNonNegativeOrNull(els.weightIn) ?? 0,
+    els.weightUnit?.value || 'lbs'
+  );
+  updateDefaultPowerZoneTable(ftp);
+  updateCustomPowerZoneTable(ftp);
+  recalculateAllBadges();
+
+  setActiveZoneSystem('custom', false);
 }
 
 function resetCustomHR() {
@@ -3705,22 +3706,23 @@ function resetCustomHR() {
   saveCustomHrAnchors();
   els.customHrError.textContent = '';
 
-  renderCustomHrUI();
+  renderHrTables();
+  bindCustomHrInlineInputs();
 
-  requestAnimationFrame(() => {
-    const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
-    const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
+  const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
+  const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 
-    els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
+  els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
 
-    if (els.hrInputError.textContent) {
-      applyHrRanges('c-', 0, 0, customHrAnchors);
-      return;
-    }
-
-    applyHrRanges('c-', maxHr, lthr, customHrAnchors);
+  if (els.hrInputError.textContent) {
+    applyHrRanges('', 0, 0, defaultHrPercentConfig);
+    applyHrRanges('c-', 0, 0, customHrAnchors);
+  } else {
     applyHrRanges('', maxHr, lthr, defaultHrPercentConfig);
-  });
+    applyHrRanges('c-', maxHr, lthr, customHrAnchors);
+  }
+
+  setHrSubtab('custom');
 }
 
 function bindGlobalSelectOnFocus(root = document) {
