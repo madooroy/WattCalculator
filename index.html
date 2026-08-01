@@ -3682,43 +3682,45 @@ function renderCustomHrUI() {
 function resetCustomZones() {
   customPowerAnchors = defaultPowerAnchors();
   saveCustomPowerAnchors();
-  renderCustomPowerZonesUI();
-  bindCustomZoneInputs();
-
-  const ftp = readNonNegativeOrNull(els.ftpIn) ?? 0;
-
-  updateFtpDisplays(ftp);
-  updateWkg(
-    ftp,
-    readNonNegativeOrNull(els.weightIn) ?? 0,
-    els.weightUnit?.value || 'lbs'
-  );
-  updateDefaultPowerZoneTable(ftp);
-  updateCustomPowerZoneTable(ftp);
-  recalculateAllBadges();
-
   els.customZoneError.textContent = '';
+
+  renderCustomPowerZonesUI();
+
+  requestAnimationFrame(() => {
+    const ftp = readNonNegativeOrNull(els.ftpIn) ?? 0;
+    updateCustomPowerZoneTable(ftp);
+    updateDefaultPowerZoneTable(ftp);
+    updateFtpDisplays(ftp);
+    updateWkg(
+      ftp,
+      readNonNegativeOrNull(els.weightIn) ?? 0,
+      els.weightUnit?.value || 'lbs'
+    );
+    recalculateAllBadges();
+  });
 }
 
 function resetCustomHR() {
   customHrAnchors = deepClone(defaultHrPercentConfig);
   saveCustomHrAnchors();
+  els.customHrError.textContent = '';
+
   renderCustomHrUI();
-  bindCustomHrInlineInputs();
 
-  const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
-  const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
+  requestAnimationFrame(() => {
+    const maxHr = readNonNegativeOrNull(els.hrMaxIn) ?? 0;
+    const lthr = readNonNegativeOrNull(els.hrLthrIn) ?? 0;
 
-  els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
+    els.hrInputError.textContent = validateHrBaseInputs(maxHr, lthr);
 
-  if (els.hrInputError.textContent) {
-    els.customHrError.textContent = '';
-    applyHrRanges('c-', 0, 0, customHrAnchors);
-    return;
-  }
+    if (els.hrInputError.textContent) {
+      applyHrRanges('c-', 0, 0, customHrAnchors);
+      return;
+    }
 
-  els.customHrError.textContent = validateHrAnchorSet(customHrAnchors, maxHr, lthr);
-  applyHrRanges('c-', maxHr, lthr, customHrAnchors);
+    applyHrRanges('c-', maxHr, lthr, customHrAnchors);
+    applyHrRanges('', maxHr, lthr, defaultHrPercentConfig);
+  });
 }
 
 function bindGlobalSelectOnFocus(root = document) {
