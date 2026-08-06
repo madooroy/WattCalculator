@@ -1934,7 +1934,27 @@ function blurActiveInput() {
   }
 }
 
+function commitBaseInputsForExport() {
+  [
+    els.ftpIn,
+    els.weightIn,
+    els.hrMaxIn,
+    els.hrLthrIn,
+    els.newFtpKj,
+    els.newFtpWatts,
+    els.newFtpTime
+  ].filter(Boolean).forEach(el => {
+    const raw = String(el.value ?? '').trim();
+    if (raw === '') return;
+    sanitizeInput(el, el === els.weightIn ? 1 : 0);
+  });
+}
+  
 async function commitVisibleCustomEdits() {
+  blurActiveInput();
+  commitBaseInputsForExport();
+
+  await new Promise(resolve => requestAnimationFrame(resolve));
   await new Promise(resolve => requestAnimationFrame(resolve));
 
   if (!els.customZonesTable.hidden) {
@@ -1944,6 +1964,11 @@ async function commitVisibleCustomEdits() {
   if (!els.hrCustomPanel.hidden) {
     validateAndApplyCustomHR();
   }
+
+  updateZones();
+  refreshAllHrZoneViews();
+
+  await new Promise(resolve => requestAnimationFrame(resolve));
 }
   
 function readNonNegativeOrNull(el) {
@@ -4214,6 +4239,12 @@ async function saveZonesImage(type, system) {
       writeCustomHrInputs('max', customHrAnchors.max);
       writeCustomHrInputs('lthr', customHrAnchors.lthr);
     }
+
+    updateZones();
+    refreshAllHrZoneViews();
+
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise(resolve => setTimeout(resolve, TIMING.EXPORT_RENDER_DELAY_MS));
 
     exportClone = buildExportClone(type, system);
     if (!exportClone) throw new Error('Unable to build export clone.');
