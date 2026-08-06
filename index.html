@@ -1798,7 +1798,7 @@ body.exporting-image .export-hide {
 // Sweet Spot is an independent reference band.
 // It does not participate in main zone classification
 // and does not override the primary zone result.
-  
+
 const defaultZonesConfig = [
   { id: 'z1', label: 'Zone 1', desc: 'Active Recovery', min: 0.00, max: 0.55, target: 0.45, colorVar: 'z1' },
   { id: 'z2', label: 'Zone 2', desc: 'Endurance', min: 0.55, max: 0.75, target: 0.655, colorVar: 'z2' },
@@ -1934,27 +1934,7 @@ function blurActiveInput() {
   }
 }
 
-function commitBaseInputsForExport() {
-  [
-    els.ftpIn,
-    els.weightIn,
-    els.hrMaxIn,
-    els.hrLthrIn,
-    els.newFtpKj,
-    els.newFtpWatts,
-    els.newFtpTime
-  ].filter(Boolean).forEach(el => {
-    const raw = String(el.value ?? '').trim();
-    if (raw === '') return;
-    sanitizeInput(el, el === els.weightIn ? 1 : 0);
-  });
-}
-  
 async function commitVisibleCustomEdits() {
-  blurActiveInput();
-  commitBaseInputsForExport();
-
-  await new Promise(resolve => requestAnimationFrame(resolve));
   await new Promise(resolve => requestAnimationFrame(resolve));
 
   if (!els.customZonesTable.hidden) {
@@ -1964,11 +1944,6 @@ async function commitVisibleCustomEdits() {
   if (!els.hrCustomPanel.hidden) {
     validateAndApplyCustomHR();
   }
-
-  updateZones();
-  refreshAllHrZoneViews();
-
-  await new Promise(resolve => requestAnimationFrame(resolve));
 }
   
 function readNonNegativeOrNull(el) {
@@ -2258,10 +2233,10 @@ function readCustomPowerRangesFromInputs() {
   document.querySelectorAll('.custom-zone-range-input').forEach(input => {
     const zone = input.dataset.zone;
     const side = input.dataset.side;
-    const value = readNonNegativeOrNull(input);
+    const value = wholeNumber(clampNonNegative(input.value));
 
-    if (current[zone] && side in current[zone] && value !== null) {
-      current[zone][side] = wholeNumber(value);
+    if (current[zone] && side in current[zone]) {
+      current[zone][side] = value;
     }
   });
 
@@ -2273,18 +2248,14 @@ function buildDeterministicPowerRangesFromInputs(changedInput, currentAnchors) {
 
   const zone = changedInput.dataset.zone;
   const side = changedInput.dataset.side;
-  const value = readNonNegativeOrNull(changedInput);
-
-  if (value === null) return nextRanges;
-
-  const wholeValue = wholeNumber(value);
+  const value = wholeNumber(clampNonNegative(changedInput.value));
 
   if (zone === 'ss') {
-    nextRanges.ss[side] = wholeValue;
+    nextRanges.ss[side] = value;
     return nextRanges;
   }
 
-  nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, wholeValue);
+  nextRanges = applyMainZoneBoundaryEdit(nextRanges, zone, side, value);
   return nextRanges;
 }
   
@@ -3519,25 +3490,31 @@ function writeCustomHrInputs(metric, ranges) {
 }
 
 function readCustomHrAnchorsInline() {
-  function readMetric(selector, cap, fallbackMetric) {
-    const out = deepClone(fallbackMetric);
+  function readMetric(selector, cap) {
+    const out = {
+      z1: { min: null, max: 0 },
+      z2: { min: 0, max: 0 },
+      z3: { min: 0, max: 0 },
+      z4: { min: 0, max: 0 },
+      z5: { min: 0, max: null }
+    };
 
     document.querySelectorAll(selector).forEach(el => {
       const zone = el.dataset.zone;
       const side = el.dataset.side;
-      const rawValue = readNonNegativeOrNull(el);
+      const value = wholeNumber(Math.min(clampNonNegative(el.value), cap));
 
-      if (!out[zone] || !(side in out[zone]) || rawValue === null) return;
-
-      out[zone][side] = wholeNumber(Math.min(rawValue, cap));
+      if (out[zone] && side in out[zone]) {
+        out[zone][side] = value;
+      }
     });
 
     return out;
   }
 
   return {
-    max: readMetric('.custom-hr-max-inline', LIMITS.HR_MAX_PERCENT_CAP, customHrAnchors.max),
-    lthr: readMetric('.custom-hr-lthr-inline', LIMITS.HR_LTHR_PERCENT_CAP, customHrAnchors.lthr)
+    max: readMetric('.custom-hr-max-inline', LIMITS.HR_MAX_PERCENT_CAP),
+    lthr: readMetric('.custom-hr-lthr-inline', LIMITS.HR_LTHR_PERCENT_CAP)
   };
 }
 
@@ -3579,12 +3556,7 @@ function validateAndApplyCustomHR(changedInput = null) {
       : LIMITS.HR_LTHR_PERCENT_CAP;
     const zone = changedInput.dataset.zone;
     const side = changedInput.dataset.side;
-    const value = readNonNegativeOrNull(changedInput);
-
-    if (value === null) {
-      writeCustomHrInputs(metric, customHrAnchors[metric]);
-      return;
-    }
+    const value = changedInput.value;
 
     nextAnchors[metric] = applyHrBoundaryEdit(nextAnchors[metric], zone, side, value, cap);
 
@@ -3654,14 +3626,6 @@ function applyHrRanges(prefix, maxHr, lthr, cfg) {
 }
 
 function validateHrBaseInputs(maxHr, lthr) {
-  if (maxHr > 0 && maxHr < LIMITS.HR_INPUT_MIN) {
-    return `Max HR must be ${LIMITS.HR_INPUT_MIN} BPM or higher.`;
-  }
-
-  if (lthr > 0 && lthr < LIMITS.HR_INPUT_MIN) {
-    return `Lactate Threshold HR must be ${LIMITS.HR_INPUT_MIN} BPM or higher.`;
-  }
-
   if (maxHr > 0 && lthr > 0 && lthr > maxHr) {
     return 'Lactate Threshold HR cannot be higher than Max HR.';
   }
@@ -4154,7 +4118,7 @@ function buildExportClone(type, system) {
   const clone = source.cloneNode(true);
   clone.classList.add('export-capture');
 
-  clone.querySelectorAll('.controls-row, .export-actions, .export-help-text, .export-hide, .no-export').forEach(el => {
+  clone.querySelectorAll('.controls-row, .export-actions, .export-help-text, .no-export').forEach(el => {
     el.remove();
   });
 
@@ -4239,12 +4203,6 @@ async function saveZonesImage(type, system) {
       writeCustomHrInputs('max', customHrAnchors.max);
       writeCustomHrInputs('lthr', customHrAnchors.lthr);
     }
-
-    updateZones();
-    refreshAllHrZoneViews();
-
-    await new Promise(resolve => requestAnimationFrame(resolve));
-    await new Promise(resolve => setTimeout(resolve, TIMING.EXPORT_RENDER_DELAY_MS));
 
     exportClone = buildExportClone(type, system);
     if (!exportClone) throw new Error('Unable to build export clone.');
