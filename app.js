@@ -214,7 +214,9 @@ function calcKJ() {
     return;
   }
 
-  const kj = Math.round(kjFromWattsMinutes(watts, min));
+  // Rounding rules (intentional): kJ rounds DOWN (work fully completed);
+  // watts and time round UP (the minimum needed to reach the target).
+  const kj = Math.floor(kjFromWattsMinutes(watts, min));
   els.kjOut.textContent = kj.toLocaleString();
   // ~1 kJ of mechanical work ≈ 1 kcal burned (≈20–25% gross efficiency × 4.184 kJ/kcal)
   els.kjKcal.textContent = `≈ ${kj.toLocaleString()} kcal burned`;
@@ -237,7 +239,7 @@ function calcWatts() {
     return;
   }
 
-  els.wattsOut.textContent = String(Math.round(wattsFromKjMinutes(kj, min)));
+  els.wattsOut.textContent = String(Math.ceil(wattsFromKjMinutes(kj, min)));
   recalculateAllBadges();
 }
 
@@ -251,7 +253,7 @@ function calcTime() {
     return;
   }
 
-  const totalSeconds = Math.round((kj * 1000) / watts);
+  const totalSeconds = Math.ceil((kj * 1000) / watts);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
@@ -1165,7 +1167,7 @@ function recalculateAllBadges() {
     wattsMinutes > 0 &&
     wattsKj > 0
   )
-    ? Math.round(wattsFromKjMinutes(wattsKj, wattsMinutes))
+    ? Math.ceil(wattsFromKjMinutes(wattsKj, wattsMinutes))
     : 0;
 
   const timeKj = readNonNegativeOrNull(els.timeKjIn);
