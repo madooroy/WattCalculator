@@ -72,7 +72,8 @@ const TIMING = {
   HTML2CANVAS_PRELOAD_DELAY_MS: 1200,
   SCROLL_SYNC_IDLE_MS: 120,
   BLOB_REVOKE_DELAY_MS: 1000,
-  PRINT_FALLBACK_TIMEOUT_MS: 60000
+  PRINT_FALLBACK_TIMEOUT_MS: 60000,
+  PRINT_RETURN_CLEANUP_MS: 2000
 };
 
 const LIMITS = {
@@ -1980,7 +1981,16 @@ function runScopedPrint(mode) {
     window.print();
   } catch {
     activePrintSession?.cleanup();
+    return;
   }
+
+  // Desktop browsers pause here until the print dialog closes and then send
+  // "afterprint". Some (e.g. iPhone home-screen apps) return at once and never
+  // send it, so make sure the page and buttons never stay locked.
+  const session = activePrintSession;
+  setTimeout(() => {
+    if (session && activePrintSession === session) session.cleanup();
+  }, TIMING.PRINT_RETURN_CLEANUP_MS);
 }
 
 // Printing from the browser's own menu (e.g. Ctrl+P) prints the zone table
