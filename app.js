@@ -140,9 +140,9 @@ function clampNonNegative(value) { const n = parseFloat(value); return Number.is
 
 function wholeNumber(value) { return Math.round(value); }
 
-async function commitVisibleCustomEdits() {
-  await new Promise(resolve => requestAnimationFrame(resolve));
-
+// Apply any custom-zone edit still sitting in an input (typed but not yet
+// committed) so prints and images show what's on screen.
+function applyVisibleCustomEdits() {
   if (!els.customZonesTable.hidden) {
     validateAndApplyCustomZones(lastChangedCustomPowerInput);
   }
@@ -150,6 +150,11 @@ async function commitVisibleCustomEdits() {
   if (!els.hrCustomPanel.hidden) {
     validateAndApplyCustomHR();
   }
+}
+
+async function commitVisibleCustomEdits() {
+  await new Promise(resolve => requestAnimationFrame(resolve));
+  applyVisibleCustomEdits();
 }
 
 function readNonNegativeOrNull(el) {
@@ -1730,72 +1735,138 @@ function preloadHtml2Canvas() {
   }, TIMING.HTML2CANVAS_PRELOAD_DELAY_MS);
 }
 
-async function saveZonesImage(type, system) {
-  if (isPrintLaunching) return;
+// ---------------------------------------------------------------------------
+// Phones: Print and Save Image open the share sheet (Save Image / Print /
+// Messages ...). Home-screen web apps on iPhone can't use the browser's
+// print dialog or file downloads reliably, but the share sheet works.
+// ---------------------------------------------------------------------------
 
-  await commitVisibleCustomEdits();
+const exportButtonLabels = new Map();
+let pendingShare = null; // { button, file } waiting for one more tap
 
-  const triggerBtn = exportButton('save', type, system);
-
-  if (triggerBtn?.disabled) return;
-
-  let html2canvasFn;
-  let exportClone = null;
+function useShareSheet() {
+  if (!navigator.share || !navigator.canShare) return false;
+  if (!window.matchMedia('(pointer: coarse)').matches) return false;
 
   try {
-    setPrintButtonsDisabled(true);
-    if (triggerBtn) triggerBtn.textContent = 'Preparing...';
+    return navigator.canShare({ files: [new File([''], 'zones.png', { type: 'image/png' })] });
+  } catch {
+    return false;
+  }
+}
 
-    html2canvasFn = await loadHtml2Canvas();
-    if (!html2canvasFn) throw new Error('html2canvas unavailable');
+function restoreExportButtonLabels() {
+  getAllExportButtons().forEach(btn => {
+    if (!exportButtonLabels.has(btn)) exportButtonLabels.set(btn, btn.textContent);
+    if (pendingShare?.button !== btn) btn.textContent = exportButtonLabels.get(btn);
+  });
+}
 
-    const filename = `${buildExportFilename(type, system)}.png`;
+async function shareImageFile(file, button) {
+  try {
+    await navigator.share({ files: [file], title: file.name.replace(/\.png$/, '') });
+  } catch (error) {
+    if (error.name === 'AbortError') return; // share sheet closed without choosing
 
-    setZonesHeader(type, system);
-
-    if (type === 'power' && system === 'custom') {
-      writeRangeInputs(`.${POWER_INPUT_CLASS}`, displayRangesFromAnchors(customPowerAnchors));
+    // iPhone only opens the share sheet straight after a tap. If preparing the
+    // image took too long, keep it ready and ask for one more tap.
+    if (error.name === 'NotAllowedError' && !pendingShare) {
+      pendingShare = { button, file };
+      button.textContent = 'Tap to Share';
+      return;
     }
 
-    if (type === 'hr' && system === 'custom') {
-      writeCustomHrInputs('max');
-      writeCustomHrInputs('lthr');
-    }
+    throw error;
+  }
+}
 
-    exportClone = buildExportClone(type, system);
-    if (!exportClone) throw new Error('Unable to build export clone.');
+function onExportClick(action, type, system) {
+  const button = exportButton(action, type, system);
 
-    const target = exportClone.clone;
-    if (triggerBtn) triggerBtn.textContent = 'Saving...';
+  if (pendingShare?.button === button) {
+    const { file } = pendingShare;
+    pendingShare = null;
+    restoreExportButtonLabels();
+    shareImageFile(file, button).catch(error => {
+      console.error('Share failed:', error);
+      alert('Sharing the image failed. Please try again.');
+    });
+    return;
+  }
 
+  pendingShare = null;
+  restoreExportButtonLabels();
+
+  if (action === 'save' || useShareSheet()) {
+    saveZonesImage(type, system, button);
+  } else {
+    printZones(type, system);
+  }
+}
+
+async function renderZonesImage(type, system) {
+  const html2canvasFn = await loadHtml2Canvas();
+  if (!html2canvasFn) throw new Error('html2canvas unavailable');
+
+  setZonesHeader(type, system);
+
+  if (type === 'power' && system === 'custom') {
+    writeRangeInputs(`.${POWER_INPUT_CLASS}`, displayRangesFromAnchors(customPowerAnchors));
+  }
+
+  if (type === 'hr' && system === 'custom') {
+    writeCustomHrInputs('max');
+    writeCustomHrInputs('lthr');
+  }
+
+  const exportClone = buildExportClone(type, system);
+  if (!exportClone) throw new Error('Unable to build export clone.');
+
+  try {
     await new Promise(resolve => requestAnimationFrame(resolve));
     await new Promise(resolve => setTimeout(resolve, TIMING.EXPORT_RENDER_DELAY_MS));
 
-    const canvas = await html2canvasFn(target, {
+    const canvas = await html2canvasFn(exportClone.clone, {
       backgroundColor: '#ffffff',
       scale: EXPORT_SETTINGS.IMAGE_SCALE,
       useCORS: true,
       logging: false
     });
 
-    const blob = await new Promise(resolve => {
-      canvas.toBlob(resolve, 'image/png');
-    });
-
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     if (!blob) throw new Error('Image export failed.');
+    return blob;
+  } finally {
+    destroyExportClone(exportClone);
+  }
+}
 
-    downloadBlob(blob, filename);
+async function saveZonesImage(type, system, triggerBtn = exportButton('save', type, system)) {
+  if (isPrintLaunching) return;
+
+  await commitVisibleCustomEdits();
+
+  if (triggerBtn?.disabled) return;
+
+  try {
+    setPrintButtonsDisabled(true);
+    if (triggerBtn) triggerBtn.textContent = 'Preparing...';
+
+    const filename = `${buildExportFilename(type, system)}.png`;
+    const blob = await renderZonesImage(type, system);
+
+    if (useShareSheet()) {
+      await shareImageFile(new File([blob], filename, { type: 'image/png' }), triggerBtn);
+    } else {
+      downloadBlob(blob, filename);
+    }
   } catch (error) {
     console.error('Save image failed:', error);
     alert('Save Image failed. Check the browser console for details.');
   } finally {
-    destroyExportClone(exportClone);
     clearPrintHeaders();
     setPrintButtonsDisabled(false);
-
-    getAllImageExportButtons().forEach(btn => {
-      btn.textContent = 'Save Image';
-    });
+    restoreExportButtonLabels();
   }
 }
 
@@ -1820,9 +1891,9 @@ function preparePrintDom(mode) {
   forcePrintLayoutFlush();
 }
 
-function runScopedPrint(mode) {
-  if (isPrintLaunching) return;
-
+// Show only the chosen zone table, ready for printing. Everything is put back
+// when printing finishes (afterprint), or after a timeout as a fallback.
+function enterPrintMode(mode) {
   if (activePrintSession?.cleanup) {
     activePrintSession.cleanup();
   }
@@ -1898,12 +1969,32 @@ function runScopedPrint(mode) {
   document.title = buildExportFilename(type, system);
 
   forcePrintLayoutFlush();
+}
+
+function runScopedPrint(mode) {
+  if (isPrintLaunching) return;
+
+  enterPrintMode(mode);
 
   try {
     window.print();
   } catch {
-    cleanup();
+    activePrintSession?.cleanup();
   }
+}
+
+// Printing from the browser's own menu (e.g. Ctrl+P) prints the zone table
+// currently shown: heart rate on the HR tab, otherwise the selected power table.
+function handleMenuPrint() {
+  if (activePrintSession) return; // already started by a Print button
+
+  applyVisibleCustomEdits();
+
+  const type = els.hrView.hidden ? 'power' : 'hr';
+  const system = type === 'hr' ? activeHrSubtab : activeZoneSystem;
+
+  setZonesHeader(type, system);
+  enterPrintMode(`${type}-${system}`);
 }
 
 async function printZones(type, system) {
@@ -2207,9 +2298,10 @@ function bindEvents() {
   els.resetCustomHr.addEventListener('click', resetCustomHR);
 
   ZONE_EXPORTS.forEach(([type, system]) => {
-    exportButton('print', type, system).addEventListener('click', () => printZones(type, system));
-    exportButton('save', type, system).addEventListener('click', () => saveZonesImage(type, system));
+    exportButton('print', type, system).addEventListener('click', () => onExportClick('print', type, system));
+    exportButton('save', type, system).addEventListener('click', () => onExportClick('save', type, system));
   });
+  window.addEventListener('beforeprint', handleMenuPrint);
 
   addInputListeners([els.wattsIn, els.kjHoursIn, els.kjMinutesPartIn, els.kjSecondsIn], calcKJ);
   addInputListeners([els.kjIn, els.wattsHoursIn, els.wattsMinutesPartIn, els.wattsSecondsIn], calcWatts);

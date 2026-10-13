@@ -991,6 +991,87 @@ tr:last-child td { border-bottom: none; }
   background: #fff;
 }
 
+/* ---------------------------------------------------------------------------
+   Saved images: always the light, print-style look, whatever the phone's
+   theme. These apply to the off-screen copy of the table that gets captured.
+   --------------------------------------------------------------------------- */
+.export-clone-host {
+  --bg: #ffffff;
+  --card: #ffffff;
+  --text: #000000;
+  --muted: #444444;
+  --border: #cfcfcf;
+  --table-border: #d9d9d9;
+  color: #000;
+}
+
+.export-clone-host .export-capture {
+  padding: 20px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.export-clone-host .export-hide,
+.export-clone-host .help-text,
+.export-clone-host .error-text {
+  display: none !important;
+}
+
+.export-clone-host .row-label {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+.export-clone-host .power-matrix .zone-sub,
+.export-clone-host .hr-matrix .zone-sub {
+  color: rgba(0, 0, 0, 0.78) !important;
+}
+
+.export-clone-host .hr-group-title {
+  color: #444 !important;
+}
+
+/* Show custom values as plain numbers, as on the printed page. */
+.export-clone-host .power-matrix input.input-small,
+.export-clone-host .power-matrix .matrix-input-wrap .input-small,
+.export-clone-host .power-matrix.hr-matrix .matrix-input-dual .input-small {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  width: 36px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  text-align: center;
+}
+
+.export-clone-host .print-header {
+  display: block !important;
+  margin: 0 0 14px 0;
+  padding: 0 0 10px 0;
+  border-bottom: 2px solid #000;
+  color: #000;
+}
+
+.export-clone-host .print-header-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.export-clone-host .print-header-meta {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.export-clone-host .print-header-meta span {
+  display: inline-block;
+  margin-right: 18px;
+}
+
 .export-clone-host {
   position: fixed;
   left: -100000px;
@@ -1088,6 +1169,7 @@ tr:last-child td { border-bottom: none; }
   }
 
   h1,
+  .tss-note,
   .tabs,
   .sub-tabs,
   .row,
@@ -1237,11 +1319,12 @@ tr:last-child td { border-bottom: none; }
   .hr-matrix .zone-sub {
     display: block !important;
     max-width: 100% !important;
-    font-size: 7pt !important;
+    font-size: 6.5pt !important;
     line-height: 1.1 !important;
     white-space: normal !important;
-    word-break: break-word !important;
-    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: manual !important;
   }
 
   .power-matrix .zone-value {
