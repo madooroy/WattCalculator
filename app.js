@@ -1721,7 +1721,7 @@ function loadHtml2Canvas() {
 
   html2canvasLoader = new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    script.src = 'vendor/html2canvas.min.js'; // bundled so Save Image works offline
     script.onload = () => resolve(window.html2canvas);
     script.onerror = reject;
     document.head.appendChild(script);
@@ -2409,6 +2409,59 @@ function loadSavedValues() {
   setHrSubtab('default');
 }
 
+// ---------------------------------------------------------------------------
+// Offline support and updates (see sw.js). When a new version has been
+// downloaded in the background, show a small note offering to switch to it;
+// otherwise it takes effect the next time the app is opened.
+// ---------------------------------------------------------------------------
+
+function showUpdateNotice(registration) {
+  if (document.getElementById('update-notice')) return;
+
+  const notice = document.createElement('div');
+  notice.id = 'update-notice';
+  notice.className = 'update-notice no-export';
+  notice.setAttribute('role', 'status');
+  notice.innerHTML = '<span>Update available</span><button type="button">Refresh</button>';
+
+  notice.querySelector('button').addEventListener('click', () => {
+    notice.querySelector('button').disabled = true;
+    registration.waiting?.postMessage('skipWaiting');
+  });
+
+  document.body.appendChild(notice);
+}
+
+function registerOfflineSupport() {
+  if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
+
+  // Reload once when the new version takes over after "Refresh" is tapped.
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading) return;
+    reloading = true;
+    window.location.reload();
+  });
+
+  navigator.serviceWorker.register('sw.js').then(registration => {
+    const hasPreviousVersion = () => Boolean(navigator.serviceWorker.controller);
+
+    if (registration.waiting && hasPreviousVersion()) showUpdateNotice(registration);
+
+    registration.addEventListener('updatefound', () => {
+      const incoming = registration.installing;
+      incoming?.addEventListener('statechange', () => {
+        if (incoming.state === 'installed' && hasPreviousVersion()) showUpdateNotice(registration);
+      });
+    });
+
+    // Home-screen apps can stay open for days, so check again on return.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') registration.update().catch(() => {});
+    });
+  }).catch(error => console.warn('Offline support unavailable:', error));
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   initCache();
   applyInputLimits();
@@ -2439,4 +2492,5 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   preloadHtml2Canvas();
+  registerOfflineSupport();
 });

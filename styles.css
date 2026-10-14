@@ -1122,6 +1122,39 @@ tr:last-child td { border-bottom: none; }
   cursor: default;
 }
 
+.update-notice {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 16px;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.update-notice button {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.update-notice button:disabled {
+  opacity: 0.6;
+}
+
 @media print {
   :root {
     --bg: #ffffff;
