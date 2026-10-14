@@ -2443,7 +2443,7 @@ function registerOfflineSupport() {
     window.location.reload();
   });
 
-  navigator.serviceWorker.register('sw.js').then(registration => {
+  const watchForUpdates = registration => {
     const hasPreviousVersion = () => Boolean(navigator.serviceWorker.controller);
 
     if (registration.waiting && hasPreviousVersion()) showUpdateNotice(registration);
@@ -2455,11 +2455,38 @@ function registerOfflineSupport() {
       });
     });
 
-    // Home-screen apps can stay open for days, so check again on return.
+    // Only look for updates when the phone is online: trying while offline
+    // makes iPhone show its "Airplane Mode is on" warning.
+    const checkForUpdate = () => {
+      if (navigator.onLine) registration.update().catch(() => {});
+    };
+
+    // Home-screen apps can stay open for days, so check again on return
+    // and as soon as a connection comes back.
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') registration.update().catch(() => {});
+      if (document.visibilityState === 'visible') checkForUpdate();
     });
+    window.addEventListener('online', checkForUpdate);
+  };
+
+  // Registering also checks the network for a newer version, so when offline
+  // just use the copy already saved on the phone.
+  const ready = navigator.onLine
+    ? navigator.serviceWorker.register('sw.js')
+    : navigator.serviceWorker.getRegistration();
+
+  ready.then(registration => {
+    if (registration) watchForUpdates(registration);
   }).catch(error => console.warn('Offline support unavailable:', error));
+
+  // Opened offline for the very first time: set up as soon as we're online.
+  if (!navigator.onLine) {
+    window.addEventListener('online', () => {
+      navigator.serviceWorker.getRegistration().then(existing => {
+        if (!existing) navigator.serviceWorker.register('sw.js').then(watchForUpdates).catch(() => {});
+      });
+    }, { once: true });
+  }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
