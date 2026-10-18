@@ -620,24 +620,12 @@ th {
   color: rgba(0,0,0,0.78);
 }
 
-@media (prefers-color-scheme: dark) {
-  .power-matrix .zone-sub {
-    color: rgba(255,255,255,0.8);
-  }
-}
-
 .hr-matrix .zone-cell-matrix {
   color: #111;
 }
 
 .hr-matrix .zone-sub {
   color: rgba(0,0,0,0.78);
-}
-
-@media (prefers-color-scheme: dark) {
-  .hr-matrix .zone-sub {
-    color: rgba(255,255,255,0.8);
-  }
 }
 
 .power-matrix .zone-value {
