@@ -80,6 +80,26 @@ h1 {
   border-radius: 6px;
 }
 
+/* Main tab bar stays at the top while the page scrolls. It sits just below
+   the iPhone status bar / notch, and a strip of page colour covers the gap
+   above it so content doesn't show through. */
+.tabs {
+  position: sticky;
+  top: env(safe-area-inset-top);
+  z-index: 50;
+  box-shadow: 0 0 0 6px var(--bg), 0 6px 10px -6px rgba(0, 0, 0, 0.25);
+}
+
+.tabs::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  right: -16px;
+  bottom: 100%;
+  height: calc(env(safe-area-inset-top) + 8px);
+  background: var(--bg);
+}
+
 .tab, .sub-tab {
   flex: 1;
   text-align: center;
